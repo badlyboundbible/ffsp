@@ -1,0 +1,85 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #006400;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pitch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  margin: 20px;
+}
+
+.team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  margin: 5px 0;
+}
+
+.player {
+  margin: 5px;
+  text-align: center;
+}
+
+.shirt {
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.score-center {
+  text-align: center;
+  margin: 20px;
+}
+
+.score-center h2, .score-center h3 {
+  margin: 5px;
+}
+
+#publish {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #ff4500;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#publish:hover {
+  background-color: #ff6347;
+}
+
+.score-table {
+  width: 80%;
+  margin: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  color: black;
+  background-color: white;
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+
+th, td {
+  padding: 10px;
+  text-align: center;
+}
