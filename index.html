@@ -17,7 +17,7 @@
     th {
       background-color: #f4f4f4;
     }
-    input {
+    select, input {
       width: 100%;
       border: none;
       text-align: center;
@@ -46,7 +46,13 @@
   </div>
 
   <script>
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbx-0cX-LedOozvRRdh_x8jAJsoOXz7_ktQSEvXvU_tHjdHlUm8U1DhHRgXY10enzoZ6aw/exec';
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbwuKyMthagaNjuQAoP3N-QGZHzsn2NkojqTmmHmAj2NaMVdFAb4KIM6MZY4SKTr5y7ZFA/exec';
+
+    // Define dropdown options for specific columns (e.g., Team, Role)
+    const dropdownOptions = {
+      1: ['Cel', 'StJ', 'Abd', 'DDU', 'Ran', 'Mot', 'Kil'], // Teams (Column 2)
+      2: ['GK', 'DEF', 'MID', 'FWD'], // Roles (Column 3)
+    };
 
     // Fetch data from Google Sheet
     async function fetchData() {
@@ -64,17 +70,41 @@
       const table = document.getElementById('data-table');
       table.innerHTML = ''; // Clear existing table data
 
+      // Create table headers
+      const headers = ['Player', 'Team', 'Role', 'Price', 'Points', 'Captain', 'Vice-Captain', 'Bench'];
+      const headerRow = document.createElement('tr');
+      headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        headerRow.appendChild(th);
+      });
+      table.appendChild(headerRow);
+
       // Populate table rows
       data.forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
         row.forEach((cell, cellIndex) => {
           const td = document.createElement('td');
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.value = cell || ''; // Populate cell value
-          input.dataset.row = rowIndex;
-          input.dataset.col = cellIndex;
-          td.appendChild(input);
+
+          if (dropdownOptions[cellIndex]) {
+            // Render a dropdown menu for cells with predefined options
+            const select = document.createElement('select');
+            dropdownOptions[cellIndex].forEach(option => {
+              const optionElement = document.createElement('option');
+              optionElement.value = option;
+              optionElement.textContent = option;
+              if (cell === option) optionElement.selected = true;
+              select.appendChild(optionElement);
+            });
+            td.appendChild(select);
+          } else {
+            // Render an input field for other cells
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = cell || ''; // Populate cell value
+            td.appendChild(input);
+          }
+
           tr.appendChild(td);
         });
         table.appendChild(tr);
@@ -84,8 +114,15 @@
     // Save data back to Google Sheet
     async function saveData() {
       const table = document.getElementById('data-table');
-      const rows = Array.from(table.rows);
-      const data = rows.map(row => Array.from(row.cells).map(cell => cell.firstChild.value));
+      const rows = Array.from(table.rows).slice(1); // Skip header row
+      const data = rows.map(row =>
+        Array.from(row.cells).map(cell => {
+          const inputOrSelect = cell.firstChild;
+          return inputOrSelect.tagName === 'SELECT'
+            ? inputOrSelect.value
+            : inputOrSelect.value;
+        })
+      );
 
       try {
         const response = await fetch(apiUrl, {
