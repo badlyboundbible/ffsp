@@ -24,25 +24,28 @@ const teamColors = {
 
 // Fetch data from Airtable
 async function fetchData() {
+    console.log("Fetching data from Airtable...");
     try {
         const response = await fetch(url, {
             headers: { Authorization: `Bearer ${apiKey}` }
         });
 
+        // Log response status
         if (!response.ok) {
-            throw new Error(`Failed to fetch data: ${response.statusText}`);
+            throw new Error(`Error fetching data: ${response.statusText} (HTTP ${response.status})`);
         }
 
         const data = await response.json();
-        console.log("Airtable Response:", data);
+        console.log("Data received from Airtable:", data);
 
         if (data.records) {
             displayPlayers(data.records);
         } else {
-            console.error("Error fetching Airtable data:", data.error);
+            console.error("No records found in Airtable response:", data);
         }
     } catch (error) {
-        console.error("Network error:", error);
+        console.error("Failed to fetch data from Airtable:", error);
+        alert("Error fetching data. Check console logs for more details.");
     }
 }
 
@@ -57,6 +60,7 @@ function getPositionAbbreviation(playerId) {
 
 // Display players on the pitch
 function displayPlayers(records) {
+    console.log("Displaying players...");
     ["ells", "jacks"].forEach(team => {
         ["gk", "def", "mid", "fwd"].forEach(position => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
@@ -125,7 +129,6 @@ async function handleInputChange(event) {
 
     console.log(`Updating ${field} for record ${recordId} to: ${value}`);
 
-    // Format the payload correctly
     const payload = {
         fields: {
             [field]: isNaN(value) ? value : parseFloat(value) // Convert numerical fields to float
