@@ -1,9 +1,9 @@
 // Your Airtable configuration
-const apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489"; // Replace with your Airtable Personal Access Token
-const baseId = "appoF7fRSS4nuF9u2"; // Replace with your Airtable Base ID
+const apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489";
+const baseId = "appoF7fRSS4nuF9u2";
 const tableName = "Table 1"; // Change if your table has a different name
 
-// Airtable API URL
+// Airtable API URLs
 const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
 // Fetch data from Airtable
@@ -44,6 +44,7 @@ function displayPlayers(records) {
             return;
         }
 
+        const { id } = record; // Airtable record ID
         const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0" } = fields;
 
         // Determine team and position
@@ -55,11 +56,16 @@ function displayPlayers(records) {
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
         playerDiv.innerHTML = `
-            <input value="${name}" placeholder="Name" />
-            <input value="${team}" placeholder="Team" />
-            <input value="${value}" placeholder="Value (£)" />
-            <input value="${score}" placeholder="Score" />
+            <input data-id="${id}" data-field="name" value="${name}" placeholder="Name" />
+            <input data-id="${id}" data-field="team" value="${team}" placeholder="Team" />
+            <input data-id="${id}" data-field="value" value="${value}" placeholder="Value (£)" />
+            <input data-id="${id}" data-field="score" value="${score}" placeholder="Score" />
         `;
+
+        // Attach event listeners for updating data
+        playerDiv.querySelectorAll("input").forEach(input => {
+            input.addEventListener("change", handleInputChange);
+        });
 
         // Append player card to correct position
         const positionContainer = document.getElementById(`${teamPrefix}-${position}`);
@@ -71,13 +77,46 @@ function displayPlayers(records) {
     });
 }
 
+// Handle input changes and update Airtable
+async function handleInputChange(event) {
+    const input = event.target;
+    const recordId = input.dataset.id; // Airtable record ID
+    const field = input.dataset.field; // Field to update (e.g., name, team, etc.)
+    const value = input.value; // New value
+
+    try {
+        const response = await fetch(`${url}/${recordId}`, {
+            method: "PATCH",
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                fields: {
+                    [field]: value
+                }
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log(`Updated ${field} for record ${recordId}:`, data);
+        } else {
+            console.error("Error updating Airtable:", data.error);
+        }
+    } catch (error) {
+        console.error("Network error while updating Airtable:", error);
+    }
+}
+
 // Calculate the winner
 function calculateWinner() {
     let ellScore = 0;
     let jackScore = 0;
 
     document.querySelectorAll(".player").forEach(player => {
-        const score = parseFloat(player.querySelector("input:nth-child(4)").value) || 0;
+        const score = parseFloat(player.querySelector("input[data-field='score']").value) || 0;
         if (player.parentElement.id.startsWith("ells")) {
             ellScore += score;
         } else {
