@@ -22,6 +22,15 @@ const teamColors = {
     ROS: "#040957"
 };
 
+// Map player_id to position abbreviation
+function getPositionAbbreviation(playerId) {
+    if (playerId.includes("gk")) return "G";
+    if (playerId.includes("def")) return "D";
+    if (playerId.includes("mid")) return "M";
+    if (playerId.includes("fwd")) return "F";
+    return "?"; // Default if no position match
+}
+
 // Fetch data from Airtable
 async function fetchData() {
     try {
@@ -44,15 +53,6 @@ async function fetchData() {
     } catch (error) {
         console.error("Network error:", error);
     }
-}
-
-// Map position abbreviations
-function getPositionAbbreviation(playerId) {
-    if (playerId.includes("gk")) return "G";
-    if (playerId.includes("def")) return "D";
-    if (playerId.includes("mid")) return "M";
-    if (playerId.includes("fwd")) return "F";
-    return "?"; // Default if no position match
 }
 
 // Display players on the pitch
