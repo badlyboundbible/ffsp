@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fantasy Football Calculator</title>
+    <title>Fantasy Football</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,7 +11,7 @@
             padding: 0;
             background-color: #f5f5f5;
         }
-        h1, h2 {
+        h1, h2, h3 {
             text-align: center;
         }
         .team-container {
@@ -56,6 +56,12 @@
         .btn:hover {
             background-color: #0056b3;
         }
+        .winner-display {
+            text-align: center;
+            margin: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -68,20 +74,13 @@
             <table id="ell-team">
                 <thead>
                     <tr>
-                        <th>Player</th>
                         <th>Position</th>
-                        <th>Value (£M)</th>
+                        <th>Player</th>
                         <th>Score</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Example player -->
-                    <tr>
-                        <td>Player 1</td>
-                        <td>DEF</td>
-                        <td><input type="number" value="4.0"></td>
-                        <td><input type="number" value="0"></td>
-                    </tr>
+                    <!-- Template for each player -->
                 </tbody>
             </table>
         </div>
@@ -92,43 +91,40 @@
             <table id="jack-team">
                 <thead>
                     <tr>
-                        <th>Player</th>
                         <th>Position</th>
-                        <th>Value (£M)</th>
+                        <th>Player</th>
                         <th>Score</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Example player -->
-                    <tr>
-                        <td>Player 1</td>
-                        <td>DEF</td>
-                        <td><input type="number" value="4.0"></td>
-                        <td><input type="number" value="0"></td>
-                    </tr>
+                    <!-- Template for each player -->
                 </tbody>
             </table>
         </div>
     </div>
 
+    <div class="winner-display" id="winner-display">
+        Winner: -
+    </div>
+
     <div class="button-container">
-        <button class="btn" onclick="calculateScores()">Calculate Scores</button>
-        <button class="btn" onclick="saveToHistory()">Save to History</button>
+        <button class="btn" onclick="calculateWinner()">Calculate Winner</button>
         <button class="btn" onclick="resetScores()">Reset Scores</button>
     </div>
 
+    <h2>History</h2>
     <div class="history-table">
-        <h2>Score History</h2>
         <table id="history-table">
             <thead>
                 <tr>
                     <th>Week</th>
-                    <th>Ell's Allstars</th>
-                    <th>Jack's Team</th>
+                    <th>Ell's Score</th>
+                    <th>Jack's Score</th>
+                    <th>Winner</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Weekly scores will be appended here -->
+                <!-- History will populate here -->
             </tbody>
         </table>
     </div>
