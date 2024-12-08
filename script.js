@@ -57,7 +57,6 @@ function getPositionAbbreviation(playerId) {
 
 // Display players on the pitch
 function displayPlayers(records) {
-    // Clear previous players
     ["ells", "jacks"].forEach(team => {
         ["gk", "def", "mid", "fwd"].forEach(position => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
@@ -83,31 +82,19 @@ function displayPlayers(records) {
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
 
-        // Create dropdown options for teams
-        const teamOptions = Object.keys(teamColors)
-            .map(
-                teamKey =>
-                    `<option value="${teamKey}" ${teamKey === team ? "selected" : ""}>${teamKey}</option>`
-            )
-            .join("");
-
         playerDiv.innerHTML = `
             <div class="position-circle" style="background-color: ${
                 teamColors[team.toUpperCase()] || "#cccccc"
             };">${positionAbbreviation}</div>
             <input data-id="${id}" data-field="name" value="${name}" placeholder="Name" />
-            <select data-id="${id}" data-field="team">${teamOptions}</select>
+            <input data-id="${id}" data-field="team" value="${team}" placeholder="Team" />
             <input data-id="${id}" data-field="value" value="${value}" placeholder="Value (£)" />
             <input data-id="${id}" data-field="score" value="${score}" placeholder="Score" />
         `;
 
-        // Attach event listeners for inputs and dropdowns
+        // Attach event listeners for updating inputs
         playerDiv.querySelectorAll("input").forEach(input => {
             input.addEventListener("blur", handleInputChange); // Trigger update on blur
-        });
-
-        playerDiv.querySelectorAll("select").forEach(select => {
-            select.addEventListener("change", handleInputChange); // Trigger update on change
         });
 
         // Append player to the appropriate container
