@@ -1,10 +1,12 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+// Initialize Supabase client
 const supabase = createClient(
     "https://cfmtrhlovulezzswxqsu.supabase.co", // Replace with your Supabase Project URL
-    "YOUR_NEW_ANON_PUBLIC_KEY" // Replace with your valid anon public key
+    "YOUR_ANON_PUBLIC_KEY" // Replace with your anon public key
 );
 
+// Test the connection
 (async function testConnection() {
     console.log("Testing Supabase connection...");
 
