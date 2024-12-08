@@ -12,16 +12,21 @@
     th, td {
       border: 1px solid #ddd;
       padding: 8px;
-      text-align: left;
+      text-align: center;
     }
     th {
       background-color: #f4f4f4;
     }
+    input {
+      width: 100%;
+      border: none;
+      text-align: center;
+    }
     button {
-      margin-top: 10px;
-      padding: 10px 15px;
+      margin-top: 20px;
+      padding: 10px 20px;
       background-color: #007BFF;
-      color: #fff;
+      color: white;
       border: none;
       cursor: pointer;
     }
@@ -33,22 +38,12 @@
 <body>
   <h1>Fantasy League Player Management</h1>
 
-  <table id="data-table">
-    <thead>
-      <tr>
-        <th>Player</th>
-        <th>Team</th>
-        <th>Role</th>
-        <th>Price</th>
-        <th>Points</th>
-        <th>Captain</th>
-        <th>Vice-Captain</th>
-        <th>Bench</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <button id="save-button">Save Changes</button>
+  <div>
+    <table id="data-table">
+      <!-- Table headers and data will be dynamically populated -->
+    </table>
+    <button id="save-button">Save Changes</button>
+  </div>
 
   <script>
     const apiUrl = 'https://script.google.com/macros/s/AKfycbwuKyMthagaNjuQAoP3N-QGZHzsn2NkojqTmmHmAj2NaMVdFAb4KIM6MZY4SKTr5y7ZFA/exec';
@@ -66,28 +61,31 @@
 
     // Populate table with data
     function populateTable(data) {
-      const tableBody = document.querySelector('#data-table tbody');
-      tableBody.innerHTML = ''; // Clear existing rows
-      data.forEach(row => {
+      const table = document.getElementById('data-table');
+      table.innerHTML = ''; // Clear existing table data
+
+      // Populate table rows
+      data.forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
-        row.forEach(cell => {
+        row.forEach((cell, cellIndex) => {
           const td = document.createElement('td');
           const input = document.createElement('input');
           input.type = 'text';
-          input.value = cell || ''; // Handle empty cells
+          input.value = cell || ''; // Populate cell value
+          input.dataset.row = rowIndex;
+          input.dataset.col = cellIndex;
           td.appendChild(input);
           tr.appendChild(td);
         });
-        tableBody.appendChild(tr);
+        table.appendChild(tr);
       });
     }
 
     // Save data back to Google Sheet
     async function saveData() {
-      const tableBody = document.querySelector('#data-table tbody');
-      const data = Array.from(tableBody.rows).map(row =>
-        Array.from(row.cells).map(cell => cell.firstChild.value)
-      );
+      const table = document.getElementById('data-table');
+      const rows = Array.from(table.rows);
+      const data = rows.map(row => Array.from(row.cells).map(cell => cell.firstChild.value));
 
       try {
         const response = await fetch(apiUrl, {
