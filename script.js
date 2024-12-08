@@ -46,6 +46,15 @@ async function fetchData() {
     }
 }
 
+// Map position abbreviations
+function getPositionAbbreviation(playerId) {
+    if (playerId.includes("gk")) return "G";
+    if (playerId.includes("def")) return "D";
+    if (playerId.includes("mid")) return "M";
+    if (playerId.includes("fwd")) return "F";
+    return "?"; // Default if no position match
+}
+
 // Display players on the pitch
 function displayPlayers(records) {
     ["ells", "jacks"].forEach(team => {
@@ -63,18 +72,19 @@ function displayPlayers(records) {
         }
 
         const { id } = record;
-        const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0", position = "?" } = fields;
+        const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0" } = fields;
 
         const isEll = player_id.startsWith("ell");
         const teamPrefix = isEll ? "ells" : "jacks";
         const positionType = player_id.split("-")[1];
+        const positionAbbreviation = getPositionAbbreviation(player_id);
 
         const teamColor = teamColors[team.toUpperCase()] || "#cccccc";
 
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
         playerDiv.innerHTML = `
-            <div class="position-circle" style="background-color: ${teamColor};">${position}</div>
+            <div class="position-circle" style="background-color: ${teamColor};">${positionAbbreviation}</div>
             <input data-id="${id}" data-field="name" value="${name}" placeholder="Name" />
             <input data-id="${id}" data-field="team" value="${team}" placeholder="Team" />
             <input data-id="${id}" data-field="value" value="${value}" placeholder="Value (£)" />
