@@ -15,8 +15,8 @@ const teamColors = {
     KIL: "#0e00f7",
     MOT: "#ffbe00",
     RAN: "#1b458f",
-    StM: "#000000",
-    StJ: "#243f90",
+    SMN: "#000000", // Updated StM to SMN
+    SJN: "#243f90", // Updated StJ to SJN
     DUN: "#1a315a",
     DDU: "#f29400",
     ROS: "#040957"
@@ -86,7 +86,7 @@ function displayPlayers(records) {
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
 
-        // Safeguard team matching to ensure exact matches
+        // Match team color or use a default gray
         const teamColor = teamColors[team.trim()] || "#cccccc";
 
         // Build dropdown options
