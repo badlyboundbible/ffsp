@@ -27,15 +27,19 @@ function displayPlayers(records) {
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
 
+        // Debugging team value
+        console.log(`Processing player with team: ${team}`);
+
+        // Get the exact color for the team, or use a default gray color if not found
+        const teamColor = teamColors[team.trim()] || "#cccccc";
+
+        // Build team dropdown options
         const teamOptions = Object.keys(teamColors)
             .map(
                 teamKey =>
-                    `<option value="${teamKey}" ${teamKey === team ? "selected" : ""}>${teamKey}</option>`
+                    `<option value="${teamKey}" ${teamKey === team.trim() ? "selected" : ""}>${teamKey}</option>`
             )
             .join("");
-
-        // Get the exact color for the team, or use a default
-        const teamColor = teamColors[team] || "#cccccc";
 
         // Render player card
         playerDiv.innerHTML = `
