@@ -1,64 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fantasy Football League</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Football Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .team-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px;
+        }
+        .team {
+            background: #ffffff;
+            padding: 15px;
+            width: 48%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        .button-container {
+            text-align: center;
+            margin: 20px;
+        }
+        .history-table {
+            margin: 20px auto;
+            width: 90%;
+        }
+        .btn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>Fantasy Football League</h1>
-    <h2>Jack vs Ell</h2>
-  </header>
 
-  <main>
+    <h1>Scottish Premiership Fantasy Football</h1>
     <div class="team-container">
-      <!-- Team 1: Lord Frosty's XI -->
-      <div class="team">
-        <h3>Lord Frosty's XI</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th>Team</th>
-              <th>Position</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody id="team-jack">
-            <!-- Rows will be rendered dynamically -->
-          </tbody>
-        </table>
-      </div>
+        <!-- Ell's Team -->
+        <div class="team">
+            <h2>Ell's Allstars</h2>
+            <table id="ell-team">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Position</th>
+                        <th>Value (£M)</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Example player -->
+                    <tr>
+                        <td>Player 1</td>
+                        <td>DEF</td>
+                        <td><input type="number" value="4.0"></td>
+                        <td><input type="number" value="0"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-      <!-- Team 2: Ell's Allstars -->
-      <div class="team">
-        <h3>Ell's Allstars</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th>Team</th>
-              <th>Position</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody id="team-ell">
-            <!-- Rows will be rendered dynamically -->
-          </tbody>
-        </table>
-      </div>
+        <!-- Jack's Team -->
+        <div class="team">
+            <h2>Jack's Team</h2>
+            <table id="jack-team">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Position</th>
+                        <th>Value (£M)</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Example player -->
+                    <tr>
+                        <td>Player 1</td>
+                        <td>DEF</td>
+                        <td><input type="number" value="4.0"></td>
+                        <td><input type="number" value="0"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- Totals and Winner -->
-    <div class="results">
-      <h3>Winner</h3>
-      <p id="winner">TBD</p>
-      <button id="calculate-winner">Calculate Winner</button>
+    <div class="button-container">
+        <button class="btn" onclick="calculateScores()">Calculate Scores</button>
+        <button class="btn" onclick="saveToHistory()">Save to History</button>
+        <button class="btn" onclick="resetScores()">Reset Scores</button>
     </div>
-  </main>
 
-  <script src="script.js"></script>
+    <div class="history-table">
+        <h2>Score History</h2>
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th>Week</th>
+                    <th>Ell's Allstars</th>
+                    <th>Jack's Team</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Weekly scores will be appended here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
