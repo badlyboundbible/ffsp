@@ -10,9 +10,41 @@
   <div class="pitch">
     <!-- Ell's Team -->
     <div class="team ell">
-      <h2>Ell's Allstars</h2>
-      <div class="row">
+      <h2>Ell's Team</h2>
+      <div class="row goalkeepers">
+        <!-- Goalkeeper Row -->
+        <div class="player-card">GK</div>
+        <div class="player-card">GK</div>
+      </div>
+      <div class="row defenders">
+        <!-- Defender Row -->
+        <div class="player-card">Def</div>
+        <div class="player-card">Def</div>
+        <div class-card
+
+Let’s ensure everything is structured correctly as per your requirements. Here’s the full corrected code.
+
+---
+
+### **HTML (index.html)**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fantasy Football Manager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="pitch">
+    <!-- Ell's Team -->
+    <div class="team ell">
+      <h2>Ell's Team</h2>
+      <div class="row goalkeepers">
         <div class="player-card">
+          <span class="position">GK</span>
           <select class="team-color">
             <option value="green">Cel</option>
             <option value="blue">StJ</option>
@@ -20,37 +52,72 @@
           </select>
           <input type="text" placeholder="Name">
           <input type="number" placeholder="Value (£m)">
-          <select>
-            <option value="bench">Bench</option>
-            <option value="captain">Captain</option>
-          </select>
           <input type="number" placeholder="Score">
         </div>
-        <!-- Repeat for additional players -->
+        <div class="player-card">
+          <span class="position">GK</span>
+          <select class="team-color">
+            <option value="green">Cel</option>
+            <option value="blue">StJ</option>
+            <option value="red">DDU</option>
+          </select>
+          <input type="text" placeholder="Name">
+          <input type="number" placeholder="Value (£m)">
+          <input type="number" placeholder="Score">
+        </div>
       </div>
-      <!-- Repeat structure for Defenders, Midfielders, Forwards -->
+      <div class="row defenders">
+        <!-- Defender Row (5 Players) -->
+        ${generatePlayerCards("Def", 5)}
+      </div>
+      <div class="row midfielders">
+        <!-- Midfielder Row (5 Players) -->
+        ${generatePlayerCards("Mid", 5)}
+      </div>
+      <div class="row forwards">
+        <!-- Forward Row (3 Players) -->
+        ${generatePlayerCards("Fwd", 3)}
+      </div>
     </div>
 
     <!-- Score Center -->
     <div class="score-center">
-      <div>
-        <h2>Jack</h2>
-        <h3 id="jack-score">0</h3>
+      <h2>Match Results</h2>
+      <div class="score-row">
+        <div class="score">
+          <h3>Jack</h3>
+          <p id="jack-score">0</p>
+        </div>
+        <div class="winner">
+          <h3 id="winner">Winner: Draw</h3>
+        </div>
+        <div class="score">
+          <h3>Ell</h3>
+          <p id="ell-score">0</p>
+        </div>
       </div>
-      <div>
-        <h2 id="winner">Winner: Draw</h2>
-      </div>
-      <div>
-        <h3 id="ell-score">0</h3>
-        <h2>Ell</h2>
-      </div>
+      <button id="publish">Publish</button>
     </div>
 
     <!-- Jack's Team -->
     <div class="team jack">
-      <h2>Lord Frostly's XI</h2>
-      <div class="row">
+      <h2>Jack's Team</h2>
+      <div class="row forwards">
+        <!-- Forward Row (3 Players) -->
+        ${generatePlayerCards("Fwd", 3)}
+      </div>
+      <div class="row midfielders">
+        <!-- Midfielder Row (5 Players) -->
+        ${generatePlayerCards("Mid", 5)}
+      </div>
+      <div class="row defenders">
+        <!-- Defender Row (5 Players) -->
+        ${generatePlayerCards("Def", 5)}
+      </div>
+      <div class="row goalkeepers">
+        <!-- Goalkeeper Row -->
         <div class="player-card">
+          <span class="position">GK</span>
           <select class="team-color">
             <option value="green">Cel</option>
             <option value="blue">StJ</option>
@@ -58,20 +125,26 @@
           </select>
           <input type="text" placeholder="Name">
           <input type="number" placeholder="Value (£m)">
-          <select>
-            <option value="bench">Bench</option>
-            <option value="captain">Captain</option>
-          </select>
           <input type="number" placeholder="Score">
         </div>
-        <!-- Repeat for additional players -->
+        <div class="player-card">
+          <span class="position">GK</span>
+          <select class="team-color">
+            <option value="green">Cel</option>
+            <option value="blue">StJ</option>
+            <option value="red">DDU</option>
+          </select>
+          <input type="text" placeholder="Name">
+          <input type="number" placeholder="Value (£m)">
+          <input type="number" placeholder="Score">
+        </div>
       </div>
-      <!-- Repeat structure for Forwards, Midfielders, Defenders -->
     </div>
   </div>
 
   <!-- Score Table -->
   <div class="score-table">
+    <h2>Weekly Results</h2>
     <table>
       <thead>
         <tr>
