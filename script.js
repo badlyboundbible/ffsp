@@ -24,49 +24,49 @@ const teamColors = {
 
 // Fetch data from Airtable
 async function fetchData() {
-    console.log("Fetching data from Airtable...");
     try {
+        console.log("Fetching data...");
         const response = await fetch(url, {
             headers: { Authorization: `Bearer ${apiKey}` }
         });
 
-        // Log response status
         if (!response.ok) {
-            throw new Error(`Error fetching data: ${response.statusText} (HTTP ${response.status})`);
+            throw new Error(`Failed to fetch data: ${response.statusText} (HTTP ${response.status})`);
         }
 
         const data = await response.json();
-        console.log("Data received from Airtable:", data);
+        console.log("Data fetched successfully:", data);
 
         if (data.records) {
             displayPlayers(data.records);
         } else {
-            console.error("No records found in Airtable response:", data);
+            console.error("No records found in Airtable.");
         }
     } catch (error) {
-        console.error("Failed to fetch data from Airtable:", error);
-        alert("Error fetching data. Check console logs for more details.");
+        console.error("Error fetching data:", error);
     }
 }
 
-// Map player_id to position abbreviation
+// Determine position abbreviation from player_id
 function getPositionAbbreviation(playerId) {
     if (playerId.includes("gk")) return "G";
     if (playerId.includes("def")) return "D";
     if (playerId.includes("mid")) return "M";
     if (playerId.includes("fwd")) return "F";
-    return "?"; // Default if no position match
+    return "?";
 }
 
 // Display players on the pitch
 function displayPlayers(records) {
     console.log("Displaying players...");
+    // Clear all existing players
     ["ells", "jacks"].forEach(team => {
         ["gk", "def", "mid", "fwd"].forEach(position => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
         });
     });
 
+    // Process and display each record
     records.forEach(record => {
         const fields = record.fields;
 
@@ -86,6 +86,7 @@ function displayPlayers(records) {
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
 
+        // Build team dropdown options
         const teamOptions = Object.keys(teamColors)
             .map(
                 teamKey =>
@@ -93,6 +94,7 @@ function displayPlayers(records) {
             )
             .join("");
 
+        // Render player card
         playerDiv.innerHTML = `
             <div class="position-circle" style="background-color: ${
                 teamColors[team.toUpperCase()] || "#cccccc"
@@ -103,6 +105,7 @@ function displayPlayers(records) {
             <input data-id="${id}" data-field="score" value="${score}" placeholder="Score" />
         `;
 
+        // Attach event listeners for inputs and dropdowns
         playerDiv.querySelectorAll("input").forEach(input => {
             input.addEventListener("blur", handleInputChange); // Trigger update on blur
         });
@@ -111,6 +114,7 @@ function displayPlayers(records) {
             select.addEventListener("change", handleInputChange); // Trigger update on change
         });
 
+        // Append to appropriate team and position container
         const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
         if (positionContainer) {
             positionContainer.appendChild(playerDiv);
@@ -127,7 +131,7 @@ async function handleInputChange(event) {
     const field = input.dataset.field; // Field to update (e.g., "name", "team", "score")
     const value = input.value; // New value
 
-    console.log(`Updating ${field} for record ${recordId} to: ${value}`);
+    console.log(`Updating ${field} for record ${recordId} with value: ${value}`);
 
     const payload = {
         fields: {
@@ -145,15 +149,14 @@ async function handleInputChange(event) {
             body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log(`Successfully updated ${field} for record ${recordId}:`, data);
-        } else {
-            console.error(`Error updating ${field} for record ${recordId}:`, data.error);
+        if (!response.ok) {
+            throw new Error(`Failed to update Airtable: ${response.statusText} (HTTP ${response.status})`);
         }
+
+        const data = await response.json();
+        console.log(`Successfully updated ${field} for record ${recordId}:`, data);
     } catch (error) {
-        console.error(`Network error while updating ${field} for record ${recordId}:`, error);
+        console.error(`Error updating ${field} for record ${recordId}:`, error);
     }
 }
 
