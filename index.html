@@ -1,100 +1,38 @@
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 0;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scottish Premiership Fantasy Football</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <h1>Scottish Premiership Fantasy Football</h1>
 
-h1 {
-    margin-top: 20px;
-}
+    <!-- Ell's Team -->
+    <div class="team">
+        <h2>Ell's Allstars</h2>
+        <div id="ells-gk" class="position"></div>
+        <div id="ells-def" class="position"></div>
+        <div id="ells-mid" class="position"></div>
+        <div id="ells-fwd" class="position"></div>
+    </div>
 
-.team {
-    margin: 20px auto;
-    width: 80%;
-    background-color: #a3d977;
-    border: 2px solid #333;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-}
+    <!-- Final Score Section -->
+    <div id="final-score">
+        <h2>Final Score</h2>
+        <p id="winner-display">Winner: -</p>
+        <button onclick="calculateWinner()">Calculate Winner</button>
+    </div>
 
-.team h2 {
-    margin: 10px 0;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.position {
-    display: flex;
-    justify-content: space-around;
-    margin: 10px 0;
-}
-
-.player {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    padding: 10px;
-    width: 150px;
-    text-align: center;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.player input, .player select {
-    width: 100%;
-    margin: 5px 0;
-    font-size: 14px;
-    text-align: center;
-    box-sizing: border-box;
-}
-
-.position-circle {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
-    color: white;
-    margin: 0 auto 10px;
-}
-
-#final-score {
-    margin: 20px auto;
-    width: 50%;
-    background-color: #fff;
-    border: 2px solid #333;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-#final-score h2 {
-    margin: 0;
-    font-size: 24px;
-    color: #333;
-}
-
-#final-score p {
-    margin: 10px 0;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-#final-score button {
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-#final-score button:hover {
-    background-color: #0056b3;
-}
+    <!-- Jack's Team (Mirrored Layout) -->
+    <div class="team">
+        <div id="jacks-fwd" class="position"></div>
+        <div id="jacks-mid" class="position"></div>
+        <div id="jacks-def" class="position"></div>
+        <div id="jacks-gk" class="position"></div>
+        <h2>Lord Frostly's XI</h2>
+    </div>
+</body>
+</html>
