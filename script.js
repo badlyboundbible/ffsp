@@ -14,7 +14,7 @@ const teamColors = {
     HIB: "#005000",
     KIL: "#0e00f7",
     MOT: "#ffbe00",
-    RAN: "#1b458f",
+    RAN: "#0e00f7",
     SMN: "#000000", // Updated StM to SMN
     SJN: "#243f90", // Updated StJ to SJN
     DUN: "#1a315a",
