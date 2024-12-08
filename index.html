@@ -3,149 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fantasy League Manager</title>
-  <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background-color: #f4f4f4;
-    }
-    select, input {
-      width: 100%;
-      border: none;
-      text-align: center;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
+  <title>Fantasy Football Manager</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Fantasy League Player Management</h1>
+  <div class="pitch">
+    <!-- Ell's Team -->
+    <div class="team ell">
+      <h2>Ell's Team</h2>
+      <div class="row goalkeepers">
+        <div class="player">
+          <div class="shirt" style="background-color: lightblue;"></div>
+          <input type="text" placeholder="Name">
+          <input type="number" placeholder="Value (£m)">
+          <input type="number" placeholder="Score">
+        </div>
+        <div class="player">
+          <div class="shirt" style="background-color: lightblue;"></div>
+          <input type="text" placeholder="Name">
+          <input type="number" placeholder="Value (£m)">
+          <input type="number" placeholder="Score">
+        </div>
+      </div>
+      <div class="row defenders">
+        <!-- Repeat similar player divs for 5 defenders -->
+      </div>
+      <div class="row midfielders">
+        <!-- Repeat similar player divs for 5 midfielders -->
+      </div>
+      <div class="row forwards">
+        <!-- Repeat similar player divs for 3 forwards -->
+      </div>
+    </div>
 
-  <div>
-    <table id="data-table">
-      <!-- Table headers and data will be dynamically populated -->
-    </table>
-    <button id="save-button">Save Changes</button>
+    <!-- Center Score -->
+    <div class="score-center">
+      <div>
+        <h2 id="jack-name">Jack</h2>
+        <h3 id="jack-score">0</h3>
+      </div>
+      <div>
+        <h2 id="winner">Draw</h2>
+      </div>
+      <div>
+        <h2 id="ell-score">0</h2>
+        <h2 id="ell-name">Ell</h2>
+      </div>
+      <button id="publish">Publish</button>
+    </div>
+
+    <!-- Jack's Team -->
+    <div class="team jack">
+      <h2>Jack's Team</h2>
+      <div class="row forwards">
+        <!-- Repeat similar player divs for 3 forwards -->
+      </div>
+      <div class="row midfielders">
+        <!-- Repeat similar player divs for 5 midfielders -->
+      </div>
+      <div class="row defenders">
+        <!-- Repeat similar player divs for 5 defenders -->
+      </div>
+      <div class="row goalkeepers">
+        <div class="player">
+          <div class="shirt" style="background-color: lightgreen;"></div>
+          <input type="text" placeholder="Name">
+          <input type="number" placeholder="Value (£m)">
+          <input type="number" placeholder="Score">
+        </div>
+        <div class="player">
+          <div class="shirt" style="background-color: lightgreen;"></div>
+          <input type="text" placeholder="Name">
+          <input type="number" placeholder="Value (£m)">
+          <input type="number" placeholder="Score">
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script>
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbzLnbHASPv1D34FID8KfYC7s1PRtp_8YAKh8-MSVo1auwN1xQyv8am5ma9bNDq25QoyEg/exec';
+  <!-- Score Table -->
+  <div class="score-table">
+    <table id="results">
+      <thead>
+        <tr>
+          <th>Week</th>
+          <th>Jack's Score</th>
+          <th>Winner</th>
+          <th>Ell's Score</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-    // Define dropdown options for specific columns (e.g., Team, Role)
-    const dropdownOptions = {
-      1: ['Cel', 'StJ', 'Abd', 'DDU', 'Ran', 'Mot', 'Kil'], // Teams (Column 2)
-      2: ['GK', 'DEF', 'MID', 'FWD'], // Roles (Column 3)
-    };
-
-    // Fetch data from Google Sheet
-    async function fetchData() {
-      try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-        populateTable(data);
-      } catch (error) {
-        alert('Failed to fetch data: ' + error.message);
-      }
-    }
-
-    // Populate table with data
-    function populateTable(data) {
-      const table = document.getElementById('data-table');
-      table.innerHTML = ''; // Clear existing table data
-
-      // Create table headers
-      const headers = ['Player', 'Team', 'Role', 'Price', 'Points', 'Captain', 'Vice-Captain', 'Bench'];
-      const headerRow = document.createElement('tr');
-      headers.forEach(header => {
-        const th = document.createElement('th');
-        th.textContent = header;
-        headerRow.appendChild(th);
-      });
-      table.appendChild(headerRow);
-
-      // Populate table rows
-      data.forEach((row, rowIndex) => {
-        const tr = document.createElement('tr');
-        row.forEach((cell, cellIndex) => {
-          const td = document.createElement('td');
-
-          if (dropdownOptions[cellIndex]) {
-            // Render a dropdown menu for cells with predefined options
-            const select = document.createElement('select');
-            dropdownOptions[cellIndex].forEach(option => {
-              const optionElement = document.createElement('option');
-              optionElement.value = option;
-              optionElement.textContent = option;
-              if (cell === option) optionElement.selected = true;
-              select.appendChild(optionElement);
-            });
-            td.appendChild(select);
-          } else {
-            // Render an input field for other cells
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = cell || ''; // Populate cell value
-            td.appendChild(input);
-          }
-
-          tr.appendChild(td);
-        });
-        table.appendChild(tr);
-      });
-    }
-
-    // Save data back to Google Sheet
-    async function saveData() {
-      const table = document.getElementById('data-table');
-      const rows = Array.from(table.rows).slice(1); // Skip header row
-      const data = rows.map(row =>
-        Array.from(row.cells).map(cell => {
-          const inputOrSelect = cell.firstChild;
-          return inputOrSelect.tagName === 'SELECT'
-            ? inputOrSelect.value
-            : inputOrSelect.value;
-        })
-      );
-
-      try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ values: data }),
-        });
-
-        if (response.ok) {
-          alert('Data saved successfully!');
-        } else {
-          throw new Error('Failed to save data');
-        }
-      } catch (error) {
-        alert('Failed to save data: ' + error.message);
-      }
-    }
-
-    // Attach save event to the button
-    document.getElementById('save-button').addEventListener('click', saveData);
-
-    // Fetch data on page load
-    fetchData();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
