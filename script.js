@@ -1,96 +1,71 @@
-let weekCounter = 1;
-
-// Example player list for each team
 const positions = [
-    { position: "GK", count: 2 },
-    { position: "DEF", count: 5 },
-    { position: "MID", count: 5 },
-    { position: "FWD", count: 3 },
+    { id: "gk", name: "Goalkeepers", count: 2 },
+    { id: "def", name: "Defenders", count: 5 },
+    { id: "mid", name: "Midfielders", count: 5 },
+    { id: "fwd", name: "Forwards", count: 3 },
 ];
 
-function setupTeams() {
-    const ellTeam = document.querySelector("#ell-team tbody");
-    const jackTeam = document.querySelector("#jack-team tbody");
-
-    // Generate rows for Ell's and Jack's teams
+// Set up teams on the football pitch
+function setupPitch() {
     positions.forEach(pos => {
+        const ellSection = document.getElementById(`ell-${pos.id}`);
+        const jackSection = document.getElementById(`jack-${pos.id}`);
+        
         for (let i = 0; i < pos.count; i++) {
-            const ellRow = document.createElement("tr");
-            ellRow.innerHTML = `<td>${pos.position}</td><td><input type="text" placeholder="Player Name"></td><td><input type="number" value="0"></td>`;
-            ellTeam.appendChild(ellRow);
+            // Ell's Players
+            const ellPlayer = createPlayerInput(pos.name);
+            ellSection.appendChild(ellPlayer);
 
-            const jackRow = document.createElement("tr");
-            jackRow.innerHTML = `<td>${pos.position}</td><td><input type="text" placeholder="Player Name"></td><td><input type="number" value="0"></td>`;
-            jackTeam.appendChild(jackRow);
+            // Jack's Players
+            const jackPlayer = createPlayerInput(pos.name);
+            jackSection.appendChild(jackPlayer);
         }
     });
-
-    loadHistory();
 }
 
+// Create a player input card
+function createPlayerInput(position) {
+    const div = document.createElement("div");
+    div.className = "player";
+    div.innerHTML = `
+        <div>${position}</div>
+        <input type="text" placeholder="Name">
+        <input type="text" placeholder="Team">
+        <input type="number" placeholder="Value (£)" step="0.1">
+        <input type="number" placeholder="Score" value="0">
+    `;
+    return div;
+}
+
+// Calculate winner based on scores
 function calculateWinner() {
-    const ellTeam = document.querySelectorAll("#ell-team tbody tr");
-    const jackTeam = document.querySelectorAll("#jack-team tbody tr");
+    const ellPlayers = document.querySelectorAll("#ell-gk input:last-child, #ell-def input:last-child, #ell-mid input:last-child, #ell-fwd input:last-child");
+    const jackPlayers = document.querySelectorAll("#jack-gk input:last-child, #jack-def input:last-child, #jack-mid input:last-child, #jack-fwd input:last-child");
+    
+    let ellScore = 0, jackScore = 0;
 
-    let ellTotal = 0;
-    let jackTotal = 0;
-
-    ellTeam.forEach(row => {
-        const score = parseFloat(row.querySelector("td:nth-child(3) input").value) || 0;
-        ellTotal += score;
+    ellPlayers.forEach(input => {
+        ellScore += parseFloat(input.value) || 0;
     });
 
-    jackTeam.forEach(row => {
-        const score = parseFloat(row.querySelector("td:nth-child(3) input").value) || 0;
-        jackTotal += score;
+    jackPlayers.forEach(input => {
+        jackScore += parseFloat(input.value) || 0;
     });
 
     let winner = "Draw";
-    if (ellTotal > jackTotal) {
-        winner = "Ell's Allstars";
-    } else if (jackTotal > ellTotal) {
-        winner = "Jack's Team";
-    }
+    if (ellScore > jackScore) winner = "Ell's Allstars";
+    else if (jackScore > ellScore) winner = "Jack's Team";
 
     document.getElementById("winner-display").innerText = `Winner: ${winner}`;
-    saveToHistory(ellTotal, jackTotal, winner);
 }
 
-function saveToHistory(ellScore, jackScore, winner) {
-    const historyTable = document.querySelector("#history-table tbody");
-
-    const newRow = document.createElement("tr");
-    newRow.innerHTML = `<td>Week ${weekCounter}</td><td>${ellScore}</td><td>${jackScore}</td><td>${winner}</td>`;
-    historyTable.appendChild(newRow);
-
-    saveToLocalStorage(ellScore, jackScore, winner);
-    weekCounter++;
-}
-
-function saveToLocalStorage(ellScore, jackScore, winner) {
-    const history = JSON.parse(localStorage.getItem("fantasyHistory")) || [];
-    history.push({ week: weekCounter, ellScore, jackScore, winner });
-    localStorage.setItem("fantasyHistory", JSON.stringify(history));
-}
-
-function loadHistory() {
-    const history = JSON.parse(localStorage.getItem("fantasyHistory")) || [];
-    const historyTable = document.querySelector("#history-table tbody");
-
-    history.forEach(entry => {
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = `<td>Week ${entry.week}</td><td>${entry.ellScore}</td><td>${entry.jackScore}</td><td>${entry.winner}</td>`;
-        historyTable.appendChild(newRow);
-        weekCounter = entry.week + 1;
-    });
-}
-
+// Reset scores for next week
 function resetScores() {
     document.querySelectorAll("input[type='number']").forEach(input => {
         input.value = 0;
     });
-
     document.getElementById("winner-display").innerText = "Winner: -";
 }
 
-document.addEventListener("DOMContentLoaded", setupTeams);
+// Initialize the pitch layout
+document.addEventListener("DOMContentLoaded", setupPitch);
