@@ -1,102 +1,54 @@
 body {
   font-family: Arial, sans-serif;
   margin: 0;
-  background-color: #006400;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 0;
+  background-color: #f4f4f9;
+  color: #333;
 }
 
-.pitch {
-  display: flex;
-  flex-direction: column;
-  width: 90%;
-  margin: 20px;
-  background-color: #d2f8d2;
-  border-radius: 15px;
+header {
+  text-align: center;
+  background-color: #282c34;
+  color: #fff;
   padding: 20px;
+}
+
+h1, h2 {
+  margin: 0;
+}
+
+main {
+  padding: 20px;
+  display: flex;
+  justify-content: space-around;
 }
 
 .team {
-  margin-bottom: 20px;
-}
-
-.team h2 {
-  text-align: center;
-}
-
-.row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin: 10px 0;
-}
-
-.player-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: white;
-  color: black;
-  border-radius: 8px;
-  padding: 10px;
-  text-align: center;
-}
-
-input,
-select {
-  margin: 5px 0;
-  width: 100%;
-  padding: 5px;
-}
-
-.score-center {
-  background-color: #ffcccb;
-  color: black;
-  padding: 20px;
+  background: #fff;
   border-radius: 10px;
-  margin: 20px 0;
-  text-align: center;
-}
-
-.scoreboard {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.scoreboard .team-score,
-.scoreboard .winner {
-  width: 30%;
-  text-align: center;
-}
-
-button {
-  padding: 10px;
-  background-color: orange;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: darkorange;
-}
-
-.score-table {
-  width: 90%;
-  margin: 20px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  text-align: center;
+  margin-top: 20px;
 }
 
-th,
-td {
+th, td {
   padding: 10px;
-  border: 1px solid white;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #f8f8f8;
+}
+
+footer {
+  text-align: center;
+  padding: 10px;
+  background-color: #282c34;
+  color: #fff;
 }
