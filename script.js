@@ -1,7 +1,9 @@
-// Airtable configuration
-const apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489";
-const baseId = "appoF7fRSS4nuF9u2";
-const tableName = "Table 1";
+// Your Airtable configuration
+const apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489"; // Replace with your Airtable Personal Access Token
+const baseId = "appoF7fRSS4nuF9u2"; // Replace with your Airtable Base ID
+const tableName = "Table 1"; // Change if your table has a different name
+
+// Airtable API URL
 const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
 // Fetch data from Airtable
@@ -11,9 +13,16 @@ async function fetchData() {
             headers: { Authorization: `Bearer ${apiKey}` }
         });
         const data = await response.json();
-        displayPlayers(data.records);
+
+        console.log("Airtable Response:", data); // Log the raw response
+
+        if (data.records) {
+            displayPlayers(data.records);
+        } else {
+            console.error("Error fetching Airtable data:", data.error);
+        }
     } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Network error:", error);
     }
 }
 
@@ -27,7 +36,15 @@ function displayPlayers(records) {
     });
 
     records.forEach(record => {
-        const { player_id, name, team, value, score } = record.fields;
+        const fields = record.fields;
+
+        // Check if fields and player_id exist
+        if (!fields || !fields.player_id) {
+            console.warn("Skipping record due to missing player_id:", record);
+            return;
+        }
+
+        const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0" } = fields;
 
         // Determine team and position
         const isEll = player_id.startsWith("ell");
@@ -45,7 +62,12 @@ function displayPlayers(records) {
         `;
 
         // Append player card to correct position
-        document.getElementById(`${teamPrefix}-${position}`).appendChild(playerDiv);
+        const positionContainer = document.getElementById(`${teamPrefix}-${position}`);
+        if (positionContainer) {
+            positionContainer.appendChild(playerDiv);
+        } else {
+            console.warn(`Invalid position: ${position} for player ${player_id}`);
+        }
     });
 }
 
