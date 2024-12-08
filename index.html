@@ -17,6 +17,17 @@
     th {
       background-color: #f4f4f4;
     }
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
@@ -40,13 +51,17 @@
   <button id="save-button">Save Changes</button>
 
   <script>
-    const apiUrl = 'YOUR_GOOGLE_APPS_SCRIPT_URL'; // Replace with your Apps Script URL
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbwuKyMthagaNjuQAoP3N-QGZHzsn2NkojqTmmHmAj2NaMVdFAb4KIM6MZY4SKTr5y7ZFA/exec';
 
     // Fetch data from Google Sheet
     async function fetchData() {
-      const response = await fetch(apiUrl);
-      const data = await response.json();
-      populateTable(data);
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        populateTable(data);
+      } catch (error) {
+        alert('Failed to fetch data: ' + error.message);
+      }
     }
 
     // Populate table with data
@@ -59,7 +74,7 @@
           const td = document.createElement('td');
           const input = document.createElement('input');
           input.type = 'text';
-          input.value = cell || '';
+          input.value = cell || ''; // Handle empty cells
           td.appendChild(input);
           tr.appendChild(td);
         });
@@ -74,12 +89,21 @@
         Array.from(row.cells).map(cell => cell.firstChild.value)
       );
 
-      await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ values: data }),
-      });
-      alert('Data saved successfully!');
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ values: data }),
+        });
+
+        if (response.ok) {
+          alert('Data saved successfully!');
+        } else {
+          throw new Error('Failed to save data');
+        }
+      } catch (error) {
+        alert('Failed to save data: ' + error.message);
+      }
     }
 
     // Attach save event to the button
