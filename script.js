@@ -48,7 +48,6 @@ async function fetchData() {
 
 // Display players on the pitch
 function displayPlayers(records) {
-    // Clear existing players
     ["ells", "jacks"].forEach(team => {
         ["gk", "def", "mid", "fwd"].forEach(position => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
@@ -58,24 +57,20 @@ function displayPlayers(records) {
     records.forEach(record => {
         const fields = record.fields;
 
-        // Check if fields and player_id exist
         if (!fields || !fields.player_id) {
             console.warn("Skipping record due to missing player_id:", record);
             return;
         }
 
-        const { id } = record; // Airtable record ID
+        const { id } = record;
         const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0", position = "?" } = fields;
 
-        // Determine team and position
         const isEll = player_id.startsWith("ell");
         const teamPrefix = isEll ? "ells" : "jacks";
-        const positionType = player_id.split("-")[1]; // e.g., gk, def, mid, fwd
+        const positionType = player_id.split("-")[1];
 
-        // Get team color
-        const teamColor = teamColors[team.toUpperCase()] || "#cccccc"; // Default to gray if team not found
+        const teamColor = teamColors[team.toUpperCase()] || "#cccccc";
 
-        // Create player card
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
         playerDiv.innerHTML = `
@@ -86,12 +81,10 @@ function displayPlayers(records) {
             <input data-id="${id}" data-field="score" value="${score}" placeholder="Score" />
         `;
 
-        // Attach event listeners for updating data
         playerDiv.querySelectorAll("input").forEach(input => {
-            input.addEventListener("blur", handleInputChange); // Trigger update on losing focus
+            input.addEventListener("blur", handleInputChange);
         });
 
-        // Append player card to correct position
         const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
         if (positionContainer) {
             positionContainer.appendChild(playerDiv);
@@ -104,9 +97,9 @@ function displayPlayers(records) {
 // Handle input changes and update Airtable
 async function handleInputChange(event) {
     const input = event.target;
-    const recordId = input.dataset.id; // Airtable record ID
-    const field = input.dataset.field; // Field to update (e.g., name, team, etc.)
-    const value = input.value; // New value
+    const recordId = input.dataset.id;
+    const field = input.dataset.field;
+    const value = input.value;
 
     console.log(`Updating ${field} for record ${recordId} to: ${value}`);
 
