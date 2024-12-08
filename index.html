@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fantasy League Manager</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fantasy League Player Management</h1>
+
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>Team</th>
+        <th>Role</th>
+        <th>Price</th>
+        <th>Points</th>
+        <th>Captain</th>
+        <th>Vice-Captain</th>
+        <th>Bench</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button id="save-button">Save Changes</button>
+
+  <script>
+    const apiUrl = 'YOUR_GOOGLE_APPS_SCRIPT_URL'; // Replace with your Apps Script URL
+
+    // Fetch data from Google Sheet
+    async function fetchData() {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      populateTable(data);
+    }
+
+    // Populate table with data
+    function populateTable(data) {
+      const tableBody = document.querySelector('#data-table tbody');
+      tableBody.innerHTML = ''; // Clear existing rows
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = cell || '';
+          td.appendChild(input);
+          tr.appendChild(td);
+        });
+        tableBody.appendChild(tr);
+      });
+    }
+
+    // Save data back to Google Sheet
+    async function saveData() {
+      const tableBody = document.querySelector('#data-table tbody');
+      const data = Array.from(tableBody.rows).map(row =>
+        Array.from(row.cells).map(cell => cell.firstChild.value)
+      );
+
+      await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ values: data }),
+      });
+      alert('Data saved successfully!');
+    }
+
+    // Attach save event to the button
+    document.getElementById('save-button').addEventListener('click', saveData);
+
+    // Fetch data on page load
+    fetchData();
+  </script>
+</body>
+</html>
