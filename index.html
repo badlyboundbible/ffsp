@@ -10,80 +10,69 @@
   <div class="pitch">
     <!-- Ell's Team -->
     <div class="team ell">
-      <h2>Ell's Team</h2>
-      <div class="row goalkeepers">
-        <div class="player">
-          <div class="shirt" style="background-color: lightblue;"></div>
+      <h2>Ell's Allstars</h2>
+      <div class="row">
+        <div class="player-card">
+          <select class="team-color">
+            <option value="green">Cel</option>
+            <option value="blue">StJ</option>
+            <option value="red">DDU</option>
+          </select>
           <input type="text" placeholder="Name">
           <input type="number" placeholder="Value (£m)">
+          <select>
+            <option value="bench">Bench</option>
+            <option value="captain">Captain</option>
+          </select>
           <input type="number" placeholder="Score">
         </div>
-        <div class="player">
-          <div class="shirt" style="background-color: lightblue;"></div>
-          <input type="text" placeholder="Name">
-          <input type="number" placeholder="Value (£m)">
-          <input type="number" placeholder="Score">
-        </div>
+        <!-- Repeat for additional players -->
       </div>
-      <div class="row defenders">
-        <!-- Repeat similar player divs for 5 defenders -->
-      </div>
-      <div class="row midfielders">
-        <!-- Repeat similar player divs for 5 midfielders -->
-      </div>
-      <div class="row forwards">
-        <!-- Repeat similar player divs for 3 forwards -->
-      </div>
+      <!-- Repeat structure for Defenders, Midfielders, Forwards -->
     </div>
 
-    <!-- Center Score -->
+    <!-- Score Center -->
     <div class="score-center">
       <div>
-        <h2 id="jack-name">Jack</h2>
+        <h2>Jack</h2>
         <h3 id="jack-score">0</h3>
       </div>
       <div>
-        <h2 id="winner">Draw</h2>
+        <h2 id="winner">Winner: Draw</h2>
       </div>
       <div>
-        <h2 id="ell-score">0</h2>
-        <h2 id="ell-name">Ell</h2>
+        <h3 id="ell-score">0</h3>
+        <h2>Ell</h2>
       </div>
-      <button id="publish">Publish</button>
     </div>
 
     <!-- Jack's Team -->
     <div class="team jack">
-      <h2>Jack's Team</h2>
-      <div class="row forwards">
-        <!-- Repeat similar player divs for 3 forwards -->
-      </div>
-      <div class="row midfielders">
-        <!-- Repeat similar player divs for 5 midfielders -->
-      </div>
-      <div class="row defenders">
-        <!-- Repeat similar player divs for 5 defenders -->
-      </div>
-      <div class="row goalkeepers">
-        <div class="player">
-          <div class="shirt" style="background-color: lightgreen;"></div>
+      <h2>Lord Frostly's XI</h2>
+      <div class="row">
+        <div class="player-card">
+          <select class="team-color">
+            <option value="green">Cel</option>
+            <option value="blue">StJ</option>
+            <option value="red">DDU</option>
+          </select>
           <input type="text" placeholder="Name">
           <input type="number" placeholder="Value (£m)">
+          <select>
+            <option value="bench">Bench</option>
+            <option value="captain">Captain</option>
+          </select>
           <input type="number" placeholder="Score">
         </div>
-        <div class="player">
-          <div class="shirt" style="background-color: lightgreen;"></div>
-          <input type="text" placeholder="Name">
-          <input type="number" placeholder="Value (£m)">
-          <input type="number" placeholder="Score">
-        </div>
+        <!-- Repeat for additional players -->
       </div>
+      <!-- Repeat structure for Forwards, Midfielders, Defenders -->
     </div>
   </div>
 
   <!-- Score Table -->
   <div class="score-table">
-    <table id="results">
+    <table>
       <thead>
         <tr>
           <th>Week</th>
