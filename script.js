@@ -3,7 +3,7 @@ const supabase = supabase.createClient(
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbXRyaGxvdnVsZXp6c3d4cXN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM2NDc1NjEsImV4cCI6MjA0OTIyMzU2MX0.J72n-YGyt1HkeYG4GGuKvZ9JeSZDz4rj1pI6bYPLEIU" // Your Supabase Public Key
 );
 
-// Positions for each team
+// Player positions
 const positions = [
     { id: "gk", name: "Goalkeepers", count: 2 },
     { id: "def", name: "Defenders", count: 5 },
@@ -29,7 +29,7 @@ function setupPitch() {
     loadFromSupabase();
 }
 
-// Create a player input card
+// Create player input fields
 function createPlayerInput(position, id) {
     const div = document.createElement("div");
     div.className = "player";
@@ -69,7 +69,7 @@ async function saveToSupabase(playerId) {
     if (error) console.error("Error saving to Supabase:", error);
 }
 
-// Load data from Supabase
+// Load player data from Supabase
 async function loadFromSupabase() {
     const { data, error } = await supabase.from("fantasy_football").select("*");
     if (error) {
@@ -114,9 +114,9 @@ function calculateWinner() {
     }
 }
 
-// Reset scores
+// Reset all scores
 function resetScores() {
-    document.querySelectorAll("input[type='number']").forEach(input => {
+    document.querySelectorAll("input[data-id$='-score']").forEach(input => {
         input.value = 0;
         saveToSupabase(input.dataset.id.split("-")[0]);
     });
@@ -124,5 +124,5 @@ function resetScores() {
     document.getElementById("winner-display").innerText = "Winner: -";
 }
 
-// Load pitch on page load
+// Initialize pitch on page load
 document.addEventListener("DOMContentLoaded", setupPitch);
