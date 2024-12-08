@@ -1,9 +1,9 @@
-document.querySelector("#publish").addEventListener("click", function () {
-  const jackScores = [...document.querySelectorAll(".jack input[type='number']")].map(
-    (input) => parseInt(input.value) || 0
+function calculateScoresAndPublish() {
+  const jackScores = [...document.querySelectorAll(".jack input[type='number']:last-child")].map(
+    input => parseInt(input.value) || 0
   );
-  const ellScores = [...document.querySelectorAll(".ell input[type='number']")].map(
-    (input) => parseInt(input.value) || 0
+  const ellScores = [...document.querySelectorAll(".ell input[type='number']:last-child")].map(
+    input => parseInt(input.value) || 0
   );
 
   const jackTotal = jackScores.reduce((a, b) => a + b, 0);
@@ -12,13 +12,7 @@ document.querySelector("#publish").addEventListener("click", function () {
   document.getElementById("jack-score").textContent = jackTotal;
   document.getElementById("ell-score").textContent = ellTotal;
 
-  let winner = "Draw";
-  if (jackTotal > ellTotal) {
-    winner = "Jack";
-  } else if (ellTotal > jackTotal) {
-    winner = "Ell";
-  }
-
+  const winner = jackTotal > ellTotal ? "Jack" : ellTotal > jackTotal ? "Ell" : "Draw";
   document.getElementById("winner").textContent = `Winner: ${winner}`;
 
   const resultsTable = document.querySelector(".score-table tbody");
@@ -30,4 +24,6 @@ document.querySelector("#publish").addEventListener("click", function () {
     <td>${ellTotal}</td>
   `;
   resultsTable.appendChild(newRow);
-});
+}
+
+document.getElementById("publish").addEventListener("click", calculateScoresAndPublish);
