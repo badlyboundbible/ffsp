@@ -24,8 +24,8 @@ const teamColors = {
 
 // Fetch data from Airtable
 async function fetchData() {
+    console.log("Fetching data from Airtable...");
     try {
-        console.log("Fetching data from Airtable...");
         const response = await fetch(url, {
             headers: { Authorization: `Bearer ${apiKey}` }
         });
@@ -35,7 +35,7 @@ async function fetchData() {
         }
 
         const data = await response.json();
-        console.log("Data fetched successfully:", data);
+        console.log("Data fetched from Airtable:", data);
 
         if (data.records) {
             displayPlayers(data.records);
@@ -59,14 +59,14 @@ function getPositionAbbreviation(playerId) {
 // Display players on the pitch
 function displayPlayers(records) {
     console.log("Displaying players...");
-    // Clear existing players
+    // Clear all containers
     ["ells", "jacks"].forEach(team => {
         ["gk", "def", "mid", "fwd"].forEach(position => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
         });
     });
 
-    // Process each record
+    // Iterate through records and display each player
     records.forEach(record => {
         const fields = record.fields;
 
@@ -86,10 +86,10 @@ function displayPlayers(records) {
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
 
-        // Match team color or use a default gray
+        // Get team color or default to gray
         const teamColor = teamColors[team.trim()] || "#cccccc";
 
-        // Build dropdown options
+        // Build dropdown options for team
         const teamOptions = Object.keys(teamColors)
             .map(
                 teamKey =>
@@ -110,14 +110,14 @@ function displayPlayers(records) {
 
         // Attach event listeners for inputs and dropdowns
         playerDiv.querySelectorAll("input").forEach(input => {
-            input.addEventListener("blur", handleInputChange); // Trigger update on blur
+            input.addEventListener("blur", handleInputChange); // Update on blur
         });
 
         playerDiv.querySelectorAll("select").forEach(select => {
-            select.addEventListener("change", handleInputChange); // Trigger update on change
+            select.addEventListener("change", handleInputChange); // Update on change
         });
 
-        // Append to correct position container
+        // Append to appropriate team and position container
         const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
         if (positionContainer) {
             positionContainer.appendChild(playerDiv);
@@ -127,7 +127,7 @@ function displayPlayers(records) {
     });
 }
 
-// Handle updates to inputs and dropdowns
+// Handle input and dropdown changes
 async function handleInputChange(event) {
     const input = event.target;
     const recordId = input.dataset.id; // Airtable record ID
@@ -187,5 +187,5 @@ function calculateWinner() {
     }
 }
 
-// Initialize fetching on page load
+// Load data on page load
 document.addEventListener("DOMContentLoaded", fetchData);
