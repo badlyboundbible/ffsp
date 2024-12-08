@@ -57,6 +57,7 @@ function getPositionAbbreviation(playerId) {
 
 // Display players on the pitch
 function displayPlayers(records) {
+    // Clear previous players
     ["ells", "jacks"].forEach(team => {
         ["gk", "def", "mid", "fwd"].forEach(position => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
@@ -82,6 +83,7 @@ function displayPlayers(records) {
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
 
+        // Create dropdown options for teams
         const teamOptions = Object.keys(teamColors)
             .map(
                 teamKey =>
@@ -99,10 +101,16 @@ function displayPlayers(records) {
             <input data-id="${id}" data-field="score" value="${score}" placeholder="Score" />
         `;
 
-        playerDiv.querySelectorAll("input, select").forEach(input => {
-            input.addEventListener("blur", handleInputChange);
+        // Attach event listeners for inputs and dropdowns
+        playerDiv.querySelectorAll("input").forEach(input => {
+            input.addEventListener("blur", handleInputChange); // Trigger update on blur
         });
 
+        playerDiv.querySelectorAll("select").forEach(select => {
+            select.addEventListener("change", handleInputChange); // Trigger update on change
+        });
+
+        // Append player to the appropriate container
         const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
         if (positionContainer) {
             positionContainer.appendChild(playerDiv);
