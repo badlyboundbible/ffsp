@@ -82,22 +82,31 @@ function displayPlayers(records) {
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
 
+        const teamOptions = Object.keys(teamColors)
+            .map(
+                teamKey =>
+                    `<option value="${teamKey}" ${teamKey === team ? "selected" : ""}>${teamKey}</option>`
+            )
+            .join("");
+
         playerDiv.innerHTML = `
             <div class="position-circle" style="background-color: ${
                 teamColors[team.toUpperCase()] || "#cccccc"
             };">${positionAbbreviation}</div>
             <input data-id="${id}" data-field="name" value="${name}" placeholder="Name" />
-            <input data-id="${id}" data-field="team" value="${team}" placeholder="Team" />
+            <select data-id="${id}" data-field="team">${teamOptions}</select>
             <input data-id="${id}" data-field="value" value="${value}" placeholder="Value (£)" />
             <input data-id="${id}" data-field="score" value="${score}" placeholder="Score" />
         `;
 
-        // Attach event listeners for updating inputs
         playerDiv.querySelectorAll("input").forEach(input => {
-            input.addEventListener("blur", handleInputChange); // Trigger update on blur
+            input.addEventListener("blur", handleInputChange);
         });
 
-        // Append player to the appropriate container
+        playerDiv.querySelectorAll("select").forEach(select => {
+            select.addEventListener("change", handleInputChange);
+        });
+
         const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
         if (positionContainer) {
             positionContainer.appendChild(playerDiv);
@@ -107,7 +116,7 @@ function displayPlayers(records) {
     });
 }
 
-// Handle input changes and update Airtable
+// Handle input and dropdown changes
 async function handleInputChange(event) {
     const input = event.target;
     const recordId = input.dataset.id;
