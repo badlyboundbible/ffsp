@@ -3,7 +3,7 @@ const apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d
 const baseId = "appoF7fRSS4nuF9u2";
 const tableName = "Table 1"; // Change if your table has a different name
 
-// Airtable API URLs
+// Airtable API URL
 const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
 // Fetch data from Airtable
@@ -12,9 +12,13 @@ async function fetchData() {
         const response = await fetch(url, {
             headers: { Authorization: `Bearer ${apiKey}` }
         });
-        const data = await response.json();
 
-        console.log("Airtable Response:", data); // Log the raw response
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log("Airtable Response:", data);
 
         if (data.records) {
             displayPlayers(data.records);
@@ -64,7 +68,7 @@ function displayPlayers(records) {
 
         // Attach event listeners for updating data
         playerDiv.querySelectorAll("input").forEach(input => {
-            input.addEventListener("change", handleInputChange);
+            input.addEventListener("blur", handleInputChange); // Trigger update on losing focus
         });
 
         // Append player card to correct position
@@ -83,6 +87,8 @@ async function handleInputChange(event) {
     const recordId = input.dataset.id; // Airtable record ID
     const field = input.dataset.field; // Field to update (e.g., name, team, etc.)
     const value = input.value; // New value
+
+    console.log(`Updating ${field} for record ${recordId} to: ${value}`);
 
     try {
         const response = await fetch(`${url}/${recordId}`, {
