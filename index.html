@@ -3,160 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fantasy Football Manager</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="pitch">
-    <!-- Ell's Team -->
-    <div class="team">
-      <h2>Ell's Team</h2>
-      <div class="row">
-        <div class="player">GK</div>
-        <div class="player">GK</div>
-      </div>
-    </div>
-
-  <---j
-
-Let’s restart and ensure everything is designed exactly as per your requirements. Here’s a structured and functional implementation of your fantasy football manager web app.
-
----
-
-### Final Overview
-1. **Ell's Team at the top**:
-   - Organized as Goalkeepers, Defenders, Midfielders, and Forwards.
-2. **Scoring Section in the middle**:
-   - Calculates weekly scores and determines the winner.
-3. **Jack's Team at the bottom**:
-   - Reverse order of Ell’s team layout (Forwards, Midfielders, Defenders, Goalkeepers).
-4. **Player Cards**:
-   - Dropdown for team color, input fields for name, value, and weekly score, and captain/bench options.
-5. **Dynamic Score Calculation**:
-   - Player scores are summed and results are shown on a scoreboard.
-
----
-
-### **Complete HTML Code**
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fantasy Football League</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="pitch">
-    <!-- Ell's Team -->
-    <div class="team">
-      <h2>Ell's Team</h2>
-      <div class="row goalkeepers">
-        <div class="player-card">
-          <span class="position">GK</span>
-          <select class="team-color">
-            <option value="green">Celtic</option>
-            <option value="blue">Rangers</option>
-          </select>
-          <input type="text" placeholder="Player Name">
-          <input type="number" placeholder="Value (£m)">
-          <input type="number" placeholder="Score">
-        </div>
-        <div class="player-card">
-          <span class="position">GK</span>
-          <select class="team-color">
-            <option value="green">Celtic</option>
-            <option value="blue">Rangers</option>
-          </select>
-          <input type="text" placeholder="Player Name">
-          <input type="number" placeholder="Value (£m)">
-          <input type="number" placeholder="Score">
-        </div>
-      </div>
-      <div class="row defenders">
-        <!-- Repeat similar structure for defenders (5 players) -->
-      </div>
-      <div class="row midfielders">
-        <!-- Repeat similar structure for midfielders (5 players) -->
-      </div>
-      <div class="row forwards">
-        <!-- Repeat similar structure for forwards (3 players) -->
-      </div>
-    </div>
+  <header>
+    <h1>Fantasy Football League</h1>
+    <h2>Jack vs. Ell</h2>
+  </header>
 
-    <!-- Scoring Section -->
-    <div class="score-center">
-      <h2>Match Results</h2>
-      <div class="scoreboard">
-        <div class="team-score">
-          <h3>Jack</h3>
-          <p id="jack-score">0</p>
-        </div>
-        <div class="winner">
-          <h3 id="winner">Winner: Draw</h3>
-        </div>
-        <div class="team-score">
-          <h3>Ell</h3>
-          <p id="ell-score">0</p>
-        </div>
+  <main>
+    <!-- Player Table -->
+    <section class="teams">
+      <div class="team">
+        <h3>Lord Frosty's XI</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Position</th>
+              <th>Team</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody id="team-jack">
+            <!-- Rows will be dynamically added here -->
+          </tbody>
+        </table>
       </div>
-      <button id="publish">Publish</button>
-    </div>
 
-    <!-- Jack's Team -->
-    <div class="team">
-      <h2>Jack's Team</h2>
-      <div class="row forwards">
-        <!-- Repeat similar structure for forwards (3 players) -->
+      <div class="team">
+        <h3>Ell's Allstars</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Position</th>
+              <th>Team</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody id="team-ell">
+            <!-- Rows will be dynamically added here -->
+          </tbody>
+        </table>
       </div>
-      <div class="row midfielders">
-        <!-- Repeat similar structure for midfielders (5 players) -->
-      </div>
-      <div class="row defenders">
-        <!-- Repeat similar structure for defenders (5 players) -->
-      </div>
-      <div class="row goalkeepers">
-        <div class="player-card">
-          <span class="position">GK</span>
-          <select class="team-color">
-            <option value="green">Celtic</option>
-            <option value="blue">Rangers</option>
-          </select>
-          <input type="text" placeholder="Player Name">
-          <input type="number" placeholder="Value (£m)">
-          <input type="number" placeholder="Score">
-        </div>
-        <div class="player-card">
-          <span class="position">GK</span>
-          <select class="team-color">
-            <option value="green">Celtic</option>
-            <option value="blue">Rangers</option>
-          </select>
-          <input type="text" placeholder="Player Name">
-          <input type="number" placeholder="Value (£m)">
-          <input type="number" placeholder="Score">
-        </div>
-      </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
-  <!-- Score Table -->
-  <div class="score-table">
-    <h2>Weekly Results</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Week</th>
-          <th>Jack's Score</th>
-          <th>Winner</th>
-          <th>Ell's Score</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <footer>
+    <p>Fantasy Football League © 2024</p>
+  </footer>
 
   <script src="script.js"></script>
 </body>
