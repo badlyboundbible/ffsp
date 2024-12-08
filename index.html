@@ -4,10 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fantasy Football</title>
+    <link rel="stylesheet" href="style.css">
     <script defer src="script.js"></script>
 </head>
 <body>
-    <h1>Fantasy Football</h1>
-    <div id="data-container"></div>
+    <h1>Scottish Premiership Fantasy Football</h1>
+
+    <div class="pitch">
+        <!-- Ell's Team -->
+        <div class="team">
+            <h2>Ell's Allstars</h2>
+            <div class="position" id="ells-gk"></div>
+            <div class="position" id="ells-def"></div>
+            <div class="position" id="ells-mid"></div>
+            <div class="position" id="ells-fwd"></div>
+        </div>
+
+        <hr>
+
+        <!-- Jack's Team -->
+        <div class="team">
+            <h2>Jack's Team</h2>
+            <div class="position" id="jacks-gk"></div>
+            <div class="position" id="jacks-def"></div>
+            <div class="position" id="jacks-mid"></div>
+            <div class="position" id="jacks-fwd"></div>
+        </div>
+    </div>
+
+    <div id="controls">
+        <button onclick="calculateWinner()">Calculate Winner</button>
+        <p id="winner-display">Winner: -</p>
+    </div>
 </body>
 </html>
