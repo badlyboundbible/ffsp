@@ -12,7 +12,7 @@ const teamColors = {
     CEL: "#16973b",
     HEA: "#800910",
     HIB: "#005000",
-    KIL: "#0e00f7",
+    KIL: "#2f368f",
     MOT: "#ffbe00",
     RAN: "#0e00f7",
     SMN: "#000000", // Updated StM to SMN
