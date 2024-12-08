@@ -1,23 +1,41 @@
-document.getElementById("publish").addEventListener("click", () => {
-  const jackScores = [...document.querySelectorAll(".jack .player-card input:last-of-type")].map(input => Number(input.value) || 0);
-  const ellScores = [...document.querySelectorAll(".ell .player-card input:last-of-type")].map(input => Number(input.value) || 0);
+// Example team data (can replace this with a JSON file or API)
+const teams = {
+  jack: [
+    { name: "K. Schmeichel", position: "GK", team: "Cel", score: 6 },
+    { name: "N. Devlin", position: "DEF", team: "Abd", score: 2 },
+    // Add more players here
+  ],
+  ell: [
+    { name: "N. Kuhn", position: "FWD", team: "Cel", score: 6 },
+    { name: "S. Dalby", position: "FWD", team: "DDU", score: 1 },
+    // Add more players here
+  ],
+};
 
-  const jackTotal = jackScores.reduce((a, b) => a + b, 0);
-  const ellTotal = ellScores.reduce((a, b) => a + b, 0);
+// Function to render teams
+function renderTeam(teamId, teamData) {
+  const teamContainer = document.getElementById(teamId);
+  teamData.forEach((player) => {
+    const row = document.createElement("tr");
 
-  document.getElementById("jack-score").textContent = jackTotal;
-  document.getElementById("ell-score").textContent = ellTotal;
+    row.innerHTML = `
+      <td>${player.name}</td>
+      <td>${player.position}</td>
+      <td>${player.team}</td>
+      <td><input type="number" value="${player.score}" class="score-input"></td>
+    `;
+    teamContainer.appendChild(row);
+  });
+}
 
-  const winner = jackTotal > ellTotal ? "Jack" : ellTotal > jackTotal ? "Ell" : "Draw";
-  document.getElementById("winner").textContent = `Winner: ${winner}`;
+// Render teams on page load
+renderTeam("team-jack", teams.jack);
+renderTeam("team-ell", teams.ell);
 
-  const table = document.querySelector(".score-table tbody");
-  const newRow = document.createElement("tr");
-  newRow.innerHTML = `
-    <td>Week ${table.children.length + 1}</td>
-    <td>${jackTotal}</td>
-    <td>${winner}</td>
-    <td>${ellTotal}</td>
-  `;
-  table.appendChild(newRow);
+// Update scores dynamically (optional feature)
+document.querySelectorAll(".score-input").forEach((input) => {
+  input.addEventListener("change", (event) => {
+    const newScore = event.target.value;
+    console.log("Updated Score:", newScore);
+  });
 });
