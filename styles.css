@@ -1,54 +1,71 @@
 body {
   font-family: Arial, sans-serif;
+  background-color: #eaf7e1;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f9;
-  color: #333;
 }
 
 header {
   text-align: center;
-  background-color: #282c34;
-  color: #fff;
-  padding: 20px;
+  background: #333;
+  color: white;
+  padding: 20px 0;
 }
 
 h1, h2 {
   margin: 0;
 }
 
-main {
-  padding: 20px;
+.team-container {
   display: flex;
   justify-content: space-around;
+  padding: 20px;
 }
 
 .team {
-  background: #fff;
+  background: white;
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
 }
 
 th, td {
   padding: 10px;
-  text-align: left;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
+  text-align: center;
 }
 
 th {
-  background-color: #f8f8f8;
+  background: #f8f8f8;
 }
 
-footer {
+input[type="number"] {
+  width: 60px;
+}
+
+select {
+  width: 100px;
+}
+
+.results {
   text-align: center;
-  padding: 10px;
-  background-color: #282c34;
-  color: #fff;
+  margin-top: 20px;
+}
+
+button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background: #218838;
 }
