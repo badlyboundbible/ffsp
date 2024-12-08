@@ -6,6 +6,22 @@ const tableName = "Table 1"; // Change if your table has a different name
 // Airtable API URL
 const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
+// Team colors
+const teamColors = {
+    ABD: "#e2001a",
+    CEL: "#16973b",
+    HEA: "#800910",
+    HIB: "#005000",
+    KIL: "#0e00f7",
+    MOT: "#ffbe00",
+    RAN: "#1b458f",
+    StM: "#000000",
+    StJ: "#243f90",
+    DUN: "#1a315a",
+    DDU: "#f29400",
+    ROS: "#040957"
+};
+
 // Fetch data from Airtable
 async function fetchData() {
     try {
@@ -49,17 +65,21 @@ function displayPlayers(records) {
         }
 
         const { id } = record; // Airtable record ID
-        const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0" } = fields;
+        const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0", position = "?" } = fields;
 
         // Determine team and position
         const isEll = player_id.startsWith("ell");
         const teamPrefix = isEll ? "ells" : "jacks";
-        const position = player_id.split("-")[1]; // e.g., gk, def, mid, fwd
+        const positionType = player_id.split("-")[1]; // e.g., gk, def, mid, fwd
+
+        // Get team color
+        const teamColor = teamColors[team.toUpperCase()] || "#cccccc"; // Default to gray if team not found
 
         // Create player card
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
         playerDiv.innerHTML = `
+            <div class="position-circle" style="background-color: ${teamColor};">${position}</div>
             <input data-id="${id}" data-field="name" value="${name}" placeholder="Name" />
             <input data-id="${id}" data-field="team" value="${team}" placeholder="Team" />
             <input data-id="${id}" data-field="value" value="${value}" placeholder="Value (£)" />
@@ -72,11 +92,11 @@ function displayPlayers(records) {
         });
 
         // Append player card to correct position
-        const positionContainer = document.getElementById(`${teamPrefix}-${position}`);
+        const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
         if (positionContainer) {
             positionContainer.appendChild(playerDiv);
         } else {
-            console.warn(`Invalid position: ${position} for player ${player_id}`);
+            console.warn(`Invalid position: ${positionType} for player ${player_id}`);
         }
     });
 }
