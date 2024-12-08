@@ -9,51 +9,55 @@
 <body>
   <header>
     <h1>Fantasy Football League</h1>
-    <h2>Jack vs. Ell</h2>
+    <h2>Jack vs Ell</h2>
   </header>
 
   <main>
-    <!-- Player Table -->
-    <section class="teams">
+    <div class="team-container">
+      <!-- Team 1: Lord Frosty's XI -->
       <div class="team">
         <h3>Lord Frosty's XI</h3>
         <table>
           <thead>
             <tr>
               <th>Player</th>
-              <th>Position</th>
               <th>Team</th>
+              <th>Position</th>
               <th>Score</th>
             </tr>
           </thead>
           <tbody id="team-jack">
-            <!-- Rows will be dynamically added here -->
+            <!-- Rows will be rendered dynamically -->
           </tbody>
         </table>
       </div>
 
+      <!-- Team 2: Ell's Allstars -->
       <div class="team">
         <h3>Ell's Allstars</h3>
         <table>
           <thead>
             <tr>
               <th>Player</th>
-              <th>Position</th>
               <th>Team</th>
+              <th>Position</th>
               <th>Score</th>
             </tr>
           </thead>
           <tbody id="team-ell">
-            <!-- Rows will be dynamically added here -->
+            <!-- Rows will be rendered dynamically -->
           </tbody>
         </table>
       </div>
-    </section>
-  </main>
+    </div>
 
-  <footer>
-    <p>Fantasy Football League © 2024</p>
-  </footer>
+    <!-- Totals and Winner -->
+    <div class="results">
+      <h3>Winner</h3>
+      <p id="winner">TBD</p>
+      <button id="calculate-winner">Calculate Winner</button>
+    </div>
+  </main>
 
   <script src="script.js"></script>
 </body>
