@@ -17,11 +17,20 @@ h1 {
     border: 2px solid #333;
     padding: 10px;
     border-radius: 8px;
+    text-align: center;
+}
+
+.team h2 {
+    margin: 10px 0;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 .position {
     display: flex;
-    justify-content: space-around;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
     margin: 10px 0;
 }
 
@@ -35,7 +44,8 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.player input, .player select {
+.player input,
+.player select {
     width: 100%;
     margin: 5px 0;
     font-size: 14px;
@@ -58,7 +68,7 @@ h1 {
 
 #final-score {
     margin: 20px auto;
-    width: 50%;
+    width: 80%;
     background-color: #fff;
     border: 2px solid #333;
     padding: 10px;
