@@ -12,11 +12,11 @@ const teamColors = {
     CEL: "#16973b",
     HEA: "#800910",
     HIB: "#005000",
-    KIL: "#2f368f",
+    KIL: "#2f368f", // Updated KIL color
     MOT: "#ffbe00",
     RAN: "#0e00f7",
-    SMN: "#000000", // Updated StM to SMN
-    SJN: "#243f90", // Updated StJ to SJN
+    SMN: "#000000", // StM changed to SMN
+    SJN: "#243f90", // StJ changed to SJN
     DUN: "#1a315a",
     DDU: "#f29400",
     ROS: "#040957"
@@ -27,7 +27,10 @@ async function fetchData() {
     console.log("Fetching data from Airtable...");
     try {
         const response = await fetch(url, {
-            headers: { Authorization: `Bearer ${apiKey}` }
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Cache-Control": "no-cache", // Force no-cache for Safari compatibility
+            }
         });
 
         if (!response.ok) {
@@ -181,7 +184,7 @@ function calculateWinner() {
     if (ellScore > jackScore) {
         winnerDisplay.textContent = "Winner: Ell's Allstars";
     } else if (jackScore > ellScore) {
-        winnerDisplay.textContent = "Winner: Jack's Team";
+        winnerDisplay.textContent = "Winner: Lord Frostly's XI";
     } else {
         winnerDisplay.textContent = "Winner: Draw";
     }
