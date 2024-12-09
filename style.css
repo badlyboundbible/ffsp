@@ -12,7 +12,7 @@ h1 {
 
 .team {
     margin: 20px auto;
-    width: 80%;
+    width: 90%; /* Reduced width for smaller screens */
     background-color: #a3d977;
     border: 2px solid #333;
     padding: 10px;
@@ -28,7 +28,9 @@ h1 {
 
 .position {
     display: flex;
-    justify-content: space-around;
+    flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+    justify-content: center; /* Centers items horizontally */
+    gap: 10px; /* Adds spacing between items */
     margin: 10px 0;
 }
 
@@ -40,9 +42,11 @@ h1 {
     text-align: center;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin: 5px; /* Adds spacing between player cards */
 }
 
-.player input, .player select {
+.player input,
+.player select {
     width: 100%;
     margin: 5px 0;
     font-size: 14px;
@@ -65,7 +69,7 @@ h1 {
 
 #final-score {
     margin: 20px auto;
-    width: 50%;
+    width: 90%; /* Adjusted width for smaller screens */
     background-color: #fff;
     border: 2px solid #333;
     padding: 10px;
@@ -97,4 +101,43 @@ h1 {
 
 #final-score button:hover {
     background-color: #0056b3;
+}
+
+/* Media query for mobile screens */
+@media screen and (max-width: 768px) {
+    h1 {
+        font-size: 24px; /* Reduce title size on smaller screens */
+    }
+
+    .team h2 {
+        font-size: 18px; /* Reduce team title size */
+    }
+
+    .player {
+        width: 100px; /* Reduce player card size */
+        padding: 8px;
+    }
+
+    .position-circle {
+        width: 40px; /* Smaller circle */
+        height: 40px;
+        font-size: 12px;
+    }
+
+    #final-score {
+        width: 95%; /* Expand to nearly full width */
+    }
+
+    #final-score h2 {
+        font-size: 20px;
+    }
+
+    #final-score p {
+        font-size: 16px;
+    }
+
+    #final-score button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
 }
