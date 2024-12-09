@@ -4,9 +4,25 @@ const baseId = "appoF7fRSS4nuF9u2";
 const tableName = "Table 1";
 const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
+// Team colors
+const teamColors = {
+    ABD: "#e2001a",
+    CEL: "#16973b",
+    HEA: "#800910",
+    HIB: "#005000",
+    KIL: "#2f368f",
+    MOT: "#ffbe00",
+    RAN: "#0e00f7",
+    SMN: "#000000",
+    SJN: "#243f90",
+    DUN: "#1a315a",
+    DDU: "#f29400",
+    ROS: "#040957"
+};
+
 // Fetch data from Airtable
 async function fetchData() {
-    console.log("Attempting to fetch data from Airtable...");
+    console.log("Fetching data from Airtable...");
     try {
         const response = await fetch(url, {
             headers: {
@@ -29,48 +45,54 @@ async function fetchData() {
         }
     } catch (error) {
         console.error("Error fetching data from Airtable:", error);
-        const container = document.getElementById("data-container");
-        container.innerHTML = "<p>Failed to load data. Check the console for details.</p>";
     }
 }
 
-// Display players on the page
+// Display players
 function displayPlayers(records) {
-    console.log("Rendering players...");
-    const ellContainer = document.getElementById("ells-fwd"); // Display Ell's data here for testing
-    const jackContainer = document.getElementById("jacks-fwd"); // Display Jack's data here for testing
-
-    ellContainer.innerHTML = ""; // Clear the container
-    jackContainer.innerHTML = ""; // Clear the container
+    console.log("Displaying players...");
+    // Clear containers
+    ["ells", "jacks"].forEach(team => {
+        ["gk", "def", "mid", "fwd"].forEach(position => {
+            const container = document.getElementById(`${team}-${position}`);
+            if (container) container.innerHTML = "";
+        });
+    });
 
     records.forEach(record => {
-        const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0" } = record.fields || {};
-        if (!player_id) {
-            console.warn("Skipping record with missing player_id:", record);
-            return;
-        }
+        const fields = record.fields;
+        const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0" } = fields;
 
-        // Create a basic player card
+        const isEll = player_id.startsWith("ell");
+        const teamPrefix = isEll ? "ells" : "jacks";
+        const positionType = player_id.split("-")[1];
+
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
+
+        // Team color
+        const teamColor = teamColors[team.trim()] || "#cccccc";
+
         playerDiv.innerHTML = `
-            <p>Player ID: ${player_id}</p>
+            <div class="position-circle" style="background-color: ${teamColor};">${getPositionAbbreviation(player_id)}</div>
             <p>Name: ${name}</p>
             <p>Team: ${team}</p>
             <p>Value: £${value}</p>
             <p>Score: ${score}</p>
         `;
 
-        // Append to the appropriate container
-        if (player_id.startsWith("ell")) {
-            ellContainer.appendChild(playerDiv);
-        } else if (player_id.startsWith("jack")) {
-            jackContainer.appendChild(playerDiv);
-        }
+        const container = document.getElementById(`${teamPrefix}-${positionType}`);
+        if (container) container.appendChild(playerDiv);
     });
 }
 
+function getPositionAbbreviation(playerId) {
+    if (playerId.includes("gk")) return "G";
+    if (playerId.includes("def")) return "D";
+    if (playerId.includes("mid")) return "M";
+    if (playerId.includes("fwd")) return "F";
+    return "?";
+}
+
 // Initialize app
-document.addEventListener("DOMContentLoaded", () => {
-    fetchData();
-});
+document.addEventListener("DOMContentLoaded", fetchData);
