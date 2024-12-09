@@ -36,38 +36,30 @@ async function fetchData() {
         }
 
         const data = await response.json();
-        console.log("Data fetched:", data);
+        console.log("Data fetched successfully:", data);
 
         if (data.records && data.records.length > 0) {
             displayPlayers(data.records);
         } else {
-            console.error("No records found in Airtable.");
+            console.warn("No records found.");
         }
     } catch (error) {
         console.error("Error fetching data:", error);
     }
 }
 
-// Display players on the pitch
+// Display players
 function displayPlayers(records) {
-    console.log("Displaying players...");
-    // Clear containers for both teams
+    // Clear containers
     ["ells", "jacks"].forEach(team => {
         ["gk", "def", "mid", "fwd"].forEach(position => {
             const container = document.getElementById(`${team}-${position}`);
-            if (container) container.innerHTML = ""; // Clear existing content
+            if (container) container.innerHTML = "";
         });
     });
 
     records.forEach(record => {
         const fields = record.fields;
-
-        if (!fields || !fields.player_id) {
-            console.warn("Skipping record with missing player_id:", record);
-            return;
-        }
-
-        const { id } = record;
         const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0" } = fields;
 
         const isEll = player_id.startsWith("ell");
@@ -77,80 +69,28 @@ function displayPlayers(records) {
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
 
-        // Get team color or default to gray
+        // Team color
         const teamColor = teamColors[team.trim()] || "#cccccc";
 
-        // Build player card
         playerDiv.innerHTML = `
-            <div class="position-circle" style="background-color: ${teamColor};">
-                ${getPositionAbbreviation(player_id)}
-            </div>
-            <input data-id="${id}" data-field="name" value="${name}" placeholder="Name" />
-            <select data-id="${id}" data-field="team">
-                ${Object.keys(teamColors)
-                    .map(
-                        teamKey =>
-                            `<option value="${teamKey}" ${
-                                teamKey === team.trim() ? "selected" : ""
-                            }>${teamKey}</option>`
-                    )
-                    .join("")}
-            </select>
-            <input data-id="${id}" data-field="value" value="${value}" placeholder="Value (£)" />
-            <input data-id="${id}" data-field="score" value="${score}" placeholder="Score" />
+            <div class="position-circle" style="background-color: ${teamColor};">${getPositionAbbreviation(player_id)}</div>
+            <p>Name: ${name}</p>
+            <p>Team: ${team}</p>
+            <p>Value: £${value}</p>
+            <p>Score: ${score}</p>
         `;
 
-        // Attach event listeners
-        playerDiv.querySelectorAll("input, select").forEach(input => {
-            input.addEventListener("blur", handleInputChange);
-        });
-
-        // Append to correct position container
-        const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
-        if (positionContainer) {
-            positionContainer.appendChild(playerDiv);
-        } else {
-            console.warn(`Invalid position: ${positionType} for player ${player_id}`);
-        }
+        const container = document.getElementById(`${teamPrefix}-${positionType}`);
+        if (container) container.appendChild(playerDiv);
     });
 }
 
-// Determine position abbreviation
 function getPositionAbbreviation(playerId) {
     if (playerId.includes("gk")) return "G";
     if (playerId.includes("def")) return "D";
     if (playerId.includes("mid")) return "M";
     if (playerId.includes("fwd")) return "F";
     return "?";
-}
-
-// Update Airtable when inputs or dropdowns change
-async function handleInputChange(event) {
-    const input = event.target;
-    const recordId = input.dataset.id;
-    const field = input.dataset.field;
-    const value = input.value;
-
-    console.log(`Updating ${field} for record ${recordId} with value: ${value}`);
-
-    try {
-        const response = await fetch(`${url}/${recordId}`, {
-            method: "PATCH",
-            headers: {
-                Authorization: `Bearer ${apiKey}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ fields: { [field]: isNaN(value) ? value : parseFloat(value) } })
-        });
-
-        if (!response.ok) {
-            throw new Error(`Update failed: ${response.statusText} (${response.status})`);
-        }
-
-        console.log("Update successful:", await response.json());
-    } catch (error) {
-        console.error(`Error updating ${field} for record ${recordId}:`, error);
-    }
 }
 
 // Initialize app
