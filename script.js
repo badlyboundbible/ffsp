@@ -1,9 +1,7 @@
 // Airtable configuration
 const apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489";
 const baseId = "appoF7fRSS4nuF9u2";
-const tableName = "Table 1"; // Ensure this matches your Airtable table name
-
-// Airtable API URL
+const tableName = "Table 1";
 const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
 // Team colors
@@ -12,9 +10,9 @@ const teamColors = {
     CEL: "#16973b",
     HEA: "#800910",
     HIB: "#005000",
-    KIL: "#2f368f", // Updated KIL color
+    KIL: "#2f368f",
     MOT: "#ffbe00",
-    RAN: "#0e00f7", // Fixed RAN color
+    RAN: "#0e00f7",
     SMN: "#000000",
     SJN: "#243f90",
     DUN: "#1a315a",
@@ -24,21 +22,21 @@ const teamColors = {
 
 // Fetch data from Airtable
 async function fetchData() {
-    console.log("Fetching data from Airtable...");
+    console.log("Fetching data...");
     try {
         const response = await fetch(url, {
             headers: {
                 Authorization: `Bearer ${apiKey}`,
-                "Cache-Control": "no-cache" // Prevent caching issues
+                "Cache-Control": "no-cache"
             }
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch data: ${response.statusText} (HTTP ${response.status})`);
+            throw new Error(`Fetch failed: ${response.statusText} (${response.status})`);
         }
 
         const data = await response.json();
-        console.log("Data fetched successfully:", data);
+        console.log("Data fetched:", data);
 
         if (data.records && data.records.length > 0) {
             displayPlayers(data.records);
@@ -46,35 +44,26 @@ async function fetchData() {
             console.error("No records found in Airtable.");
         }
     } catch (error) {
-        console.error("Error fetching data from Airtable:", error);
+        console.error("Error fetching data:", error);
     }
-}
-
-// Determine position abbreviation from player_id
-function getPositionAbbreviation(playerId) {
-    if (playerId.includes("gk")) return "G";
-    if (playerId.includes("def")) return "D";
-    if (playerId.includes("mid")) return "M";
-    if (playerId.includes("fwd")) return "F";
-    return "?";
 }
 
 // Display players on the pitch
 function displayPlayers(records) {
     console.log("Displaying players...");
-    // Clear containers for Ell's and Jack's players
+    // Clear containers for both teams
     ["ells", "jacks"].forEach(team => {
         ["gk", "def", "mid", "fwd"].forEach(position => {
-            document.getElementById(`${team}-${position}`).innerHTML = "";
+            const container = document.getElementById(`${team}-${position}`);
+            if (container) container.innerHTML = ""; // Clear existing content
         });
     });
 
-    // Loop through records and create player cards
     records.forEach(record => {
         const fields = record.fields;
 
         if (!fields || !fields.player_id) {
-            console.warn("Skipping record due to missing player_id:", record);
+            console.warn("Skipping record with missing player_id:", record);
             return;
         }
 
@@ -84,7 +73,6 @@ function displayPlayers(records) {
         const isEll = player_id.startsWith("ell");
         const teamPrefix = isEll ? "ells" : "jacks";
         const positionType = player_id.split("-")[1];
-        const positionAbbreviation = getPositionAbbreviation(player_id);
 
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
@@ -92,34 +80,32 @@ function displayPlayers(records) {
         // Get team color or default to gray
         const teamColor = teamColors[team.trim()] || "#cccccc";
 
-        // Create team dropdown options
-        const teamOptions = Object.keys(teamColors)
-            .map(
-                teamKey =>
-                    `<option value="${teamKey}" ${teamKey === team.trim() ? "selected" : ""}>${teamKey}</option>`
-            )
-            .join("");
-
-        // Build player card HTML
+        // Build player card
         playerDiv.innerHTML = `
             <div class="position-circle" style="background-color: ${teamColor};">
-                ${positionAbbreviation}
+                ${getPositionAbbreviation(player_id)}
             </div>
             <input data-id="${id}" data-field="name" value="${name}" placeholder="Name" />
-            <select data-id="${id}" data-field="team">${teamOptions}</select>
+            <select data-id="${id}" data-field="team">
+                ${Object.keys(teamColors)
+                    .map(
+                        teamKey =>
+                            `<option value="${teamKey}" ${
+                                teamKey === team.trim() ? "selected" : ""
+                            }>${teamKey}</option>`
+                    )
+                    .join("")}
+            </select>
             <input data-id="${id}" data-field="value" value="${value}" placeholder="Value (£)" />
             <input data-id="${id}" data-field="score" value="${score}" placeholder="Score" />
         `;
 
-        // Attach event listeners to update Airtable on changes
-        playerDiv.querySelectorAll("input").forEach(input => {
+        // Attach event listeners
+        playerDiv.querySelectorAll("input, select").forEach(input => {
             input.addEventListener("blur", handleInputChange);
         });
-        playerDiv.querySelectorAll("select").forEach(select => {
-            select.addEventListener("change", handleInputChange);
-        });
 
-        // Append to the appropriate position container
+        // Append to correct position container
         const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
         if (positionContainer) {
             positionContainer.appendChild(playerDiv);
@@ -129,20 +115,23 @@ function displayPlayers(records) {
     });
 }
 
-// Handle updates to input fields and dropdowns
+// Determine position abbreviation
+function getPositionAbbreviation(playerId) {
+    if (playerId.includes("gk")) return "G";
+    if (playerId.includes("def")) return "D";
+    if (playerId.includes("mid")) return "M";
+    if (playerId.includes("fwd")) return "F";
+    return "?";
+}
+
+// Update Airtable when inputs or dropdowns change
 async function handleInputChange(event) {
     const input = event.target;
-    const recordId = input.dataset.id; // Airtable record ID
-    const field = input.dataset.field; // Field to update
-    const value = input.value; // New value
+    const recordId = input.dataset.id;
+    const field = input.dataset.field;
+    const value = input.value;
 
     console.log(`Updating ${field} for record ${recordId} with value: ${value}`);
-
-    const payload = {
-        fields: {
-            [field]: isNaN(value) ? value : parseFloat(value) // Convert numerical fields to float
-        }
-    };
 
     try {
         const response = await fetch(`${url}/${recordId}`, {
@@ -151,43 +140,18 @@ async function handleInputChange(event) {
                 Authorization: `Bearer ${apiKey}`,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ fields: { [field]: isNaN(value) ? value : parseFloat(value) } })
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to update Airtable: ${response.statusText} (HTTP ${response.status})`);
+            throw new Error(`Update failed: ${response.statusText} (${response.status})`);
         }
 
-        const data = await response.json();
-        console.log(`Successfully updated ${field} for record ${recordId}:`, data);
+        console.log("Update successful:", await response.json());
     } catch (error) {
         console.error(`Error updating ${field} for record ${recordId}:`, error);
     }
 }
 
-// Calculate the winner
-function calculateWinner() {
-    let ellScore = 0;
-    let jackScore = 0;
-
-    document.querySelectorAll(".player").forEach(player => {
-        const score = parseFloat(player.querySelector("input[data-field='score']").value) || 0;
-        if (player.parentElement.id.startsWith("ells")) {
-            ellScore += score;
-        } else {
-            jackScore += score;
-        }
-    });
-
-    const winnerDisplay = document.getElementById("winner-display");
-    if (ellScore > jackScore) {
-        winnerDisplay.textContent = "Winner: Ell's Allstars";
-    } else if (jackScore > ellScore) {
-        winnerDisplay.textContent = "Winner: Lord Frostly's XI";
-    } else {
-        winnerDisplay.textContent = "Winner: Draw";
-    }
-}
-
-// Initialize fetching on page load
+// Initialize app
 document.addEventListener("DOMContentLoaded", fetchData);
