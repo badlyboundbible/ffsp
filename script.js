@@ -14,9 +14,9 @@ const teamColors = {
     HIB: "#005000",
     KIL: "#2f368f", // Updated KIL color
     MOT: "#ffbe00",
-    RAN: "#0e00f7",
-    SMN: "#000000", // StM changed to SMN
-    SJN: "#243f90", // StJ changed to SJN
+    RAN: "#0e00f7", // Fixed RAN color
+    SMN: "#000000",
+    SJN: "#243f90",
     DUN: "#1a315a",
     DDU: "#f29400",
     ROS: "#040957"
@@ -29,7 +29,7 @@ async function fetchData() {
         const response = await fetch(url, {
             headers: {
                 Authorization: `Bearer ${apiKey}`,
-                "Cache-Control": "no-cache", // Force no-cache for Safari compatibility
+                "Cache-Control": "no-cache" // Prevent caching issues
             }
         });
 
@@ -38,9 +38,9 @@ async function fetchData() {
         }
 
         const data = await response.json();
-        console.log("Data fetched from Airtable:", data);
+        console.log("Data fetched successfully:", data);
 
-        if (data.records) {
+        if (data.records && data.records.length > 0) {
             displayPlayers(data.records);
         } else {
             console.error("No records found in Airtable.");
@@ -50,7 +50,7 @@ async function fetchData() {
     }
 }
 
-// Map player_id to position abbreviation
+// Determine position abbreviation from player_id
 function getPositionAbbreviation(playerId) {
     if (playerId.includes("gk")) return "G";
     if (playerId.includes("def")) return "D";
@@ -62,14 +62,14 @@ function getPositionAbbreviation(playerId) {
 // Display players on the pitch
 function displayPlayers(records) {
     console.log("Displaying players...");
-    // Clear all containers
+    // Clear containers for Ell's and Jack's players
     ["ells", "jacks"].forEach(team => {
         ["gk", "def", "mid", "fwd"].forEach(position => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
         });
     });
 
-    // Iterate through records and display each player
+    // Loop through records and create player cards
     records.forEach(record => {
         const fields = record.fields;
 
@@ -92,7 +92,7 @@ function displayPlayers(records) {
         // Get team color or default to gray
         const teamColor = teamColors[team.trim()] || "#cccccc";
 
-        // Build dropdown options for team
+        // Create team dropdown options
         const teamOptions = Object.keys(teamColors)
             .map(
                 teamKey =>
@@ -100,7 +100,7 @@ function displayPlayers(records) {
             )
             .join("");
 
-        // Render player card
+        // Build player card HTML
         playerDiv.innerHTML = `
             <div class="position-circle" style="background-color: ${teamColor};">
                 ${positionAbbreviation}
@@ -111,16 +111,15 @@ function displayPlayers(records) {
             <input data-id="${id}" data-field="score" value="${score}" placeholder="Score" />
         `;
 
-        // Attach event listeners for inputs and dropdowns
+        // Attach event listeners to update Airtable on changes
         playerDiv.querySelectorAll("input").forEach(input => {
-            input.addEventListener("blur", handleInputChange); // Update on blur
+            input.addEventListener("blur", handleInputChange);
         });
-
         playerDiv.querySelectorAll("select").forEach(select => {
-            select.addEventListener("change", handleInputChange); // Update on change
+            select.addEventListener("change", handleInputChange);
         });
 
-        // Append to appropriate team and position container
+        // Append to the appropriate position container
         const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
         if (positionContainer) {
             positionContainer.appendChild(playerDiv);
@@ -130,7 +129,7 @@ function displayPlayers(records) {
     });
 }
 
-// Handle input and dropdown changes
+// Handle updates to input fields and dropdowns
 async function handleInputChange(event) {
     const input = event.target;
     const recordId = input.dataset.id; // Airtable record ID
@@ -141,7 +140,7 @@ async function handleInputChange(event) {
 
     const payload = {
         fields: {
-            [field]: isNaN(value) ? value : parseFloat(value) // Convert numbers to float
+            [field]: isNaN(value) ? value : parseFloat(value) // Convert numerical fields to float
         }
     };
 
@@ -190,5 +189,5 @@ function calculateWinner() {
     }
 }
 
-// Load data on page load
+// Initialize fetching on page load
 document.addEventListener("DOMContentLoaded", fetchData);
