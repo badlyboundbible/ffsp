@@ -22,15 +22,6 @@ const teamColors = {
     ROS: "#040957"
 };
 
-// Map player_id to position abbreviation
-function getPositionAbbreviation(playerId) {
-    if (playerId.includes("gk")) return "G";
-    if (playerId.includes("def")) return "D";
-    if (playerId.includes("mid")) return "M";
-    if (playerId.includes("fwd")) return "F";
-    return "?"; // Default if no position match
-}
-
 // Fetch data from Airtable
 async function fetchData() {
     try {
@@ -53,6 +44,15 @@ async function fetchData() {
     } catch (error) {
         console.error("Network error:", error);
     }
+}
+
+// Map player_id to position abbreviation
+function getPositionAbbreviation(playerId) {
+    if (playerId.includes("gk")) return "G";
+    if (playerId.includes("def")) return "D";
+    if (playerId.includes("mid")) return "M";
+    if (playerId.includes("fwd")) return "F";
+    return "?"; // Default if no position match
 }
 
 // Display players on the pitch
@@ -79,22 +79,25 @@ function displayPlayers(records) {
         const positionType = player_id.split("-")[1];
         const positionAbbreviation = getPositionAbbreviation(player_id);
 
-        const teamColor = teamColors[team.toUpperCase()] || "#cccccc";
-
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
+
         playerDiv.innerHTML = `
-            <div class="position-circle" style="background-color: ${teamColor};">${positionAbbreviation}</div>
+            <div class="position-circle" style="background-color: ${
+                teamColors[team.toUpperCase()] || "#cccccc"
+            };">${positionAbbreviation}</div>
             <input data-id="${id}" data-field="name" value="${name}" placeholder="Name" />
             <input data-id="${id}" data-field="team" value="${team}" placeholder="Team" />
             <input data-id="${id}" data-field="value" value="${value}" placeholder="Value (£)" />
             <input data-id="${id}" data-field="score" value="${score}" placeholder="Score" />
         `;
 
+        // Attach event listeners for updating inputs
         playerDiv.querySelectorAll("input").forEach(input => {
-            input.addEventListener("blur", handleInputChange);
+            input.addEventListener("blur", handleInputChange); // Trigger update on blur
         });
 
+        // Append player to the appropriate container
         const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
         if (positionContainer) {
             positionContainer.appendChild(playerDiv);
