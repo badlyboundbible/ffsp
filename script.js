@@ -1,89 +1,41 @@
-// ... Previous JavaScript (Unchanged)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scottish Premiership Fantasy Football</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <h1>Scottish Premiership Fantasy Football</h1>
+    
+    <!-- Loader -->
+    <div id="loader">Loading...</div>
 
-async function fetchData() {
-    const loader = document.getElementById('loader');
-    loader.style.display = 'block'; // Show loader
-    console.log("Fetching data from Airtable...");
-    try {
-        const response = await fetch(url, {
-            headers: { Authorization: `Bearer ${apiKey}` }
-        });
+    <!-- Ell's Team -->
+    <div class="team">
+        <h2>Ell's Allstars</h2>
+        <div id="ells-gk" class="position"></div>
+        <div id="ells-def" class="position"></div>
+        <div id="ells-mid" class="position"></div>
+        <div id="ells-fwd" class="position"></div>
+    </div>
 
-        if (!response.ok) {
-            throw new Error(`Failed to fetch data: ${response.statusText} (HTTP ${response.status})`);
-        }
+    <!-- Final Score Section -->
+    <div id="final-score">
+        <h2>Final Score</h2>
+        <p id="winner-display">Winner: -</p>
+        <button onclick="calculateWinner()">Calculate Winner</button>
+    </div>
 
-        const data = await response.json();
-        console.log("Data fetched from Airtable:", data);
-
-        if (data.records) {
-            displayPlayers(data.records);
-        } else {
-            console.error("No records found in Airtable.");
-            alert("No player data found! Check Airtable configuration.");
-        }
-    } catch (error) {
-        console.error("Error fetching data from Airtable:", error);
-        alert("Error fetching player data. Please try again later.");
-    } finally {
-        loader.style.display = 'none'; // Hide loader
-    }
-}
-
-async function handleInputChange(event) {
-    const input = event.target;
-    const recordId = input.dataset.id; // Airtable record ID
-    const field = input.dataset.field; // Field to update
-    const value = input.value; // New value
-
-    const payload = {
-        fields: {
-            [field]: isNaN(value) ? value : parseFloat(value) // Convert numbers to float
-        }
-    };
-
-    try {
-        const response = await fetch(`${url}/${recordId}`, {
-            method: "PATCH",
-            headers: {
-                Authorization: `Bearer ${apiKey}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to update Airtable: ${response.statusText} (HTTP ${response.status})`);
-        }
-
-        alert("Data saved successfully!"); // User feedback
-    } catch (error) {
-        console.error(`Error updating ${field} for record ${recordId}:`, error);
-        alert("Failed to save data. Please try again.");
-    }
-}
-
-function calculateWinner() {
-    let ellScore = 0;
-    let jackScore = 0;
-
-    document.querySelectorAll(".player").forEach(player => {
-        const score = parseFloat(player.querySelector("input[data-field='score']").value) || 0;
-        if (player.parentElement.id.startsWith("ells")) {
-            ellScore += score;
-        } else {
-            jackScore += score;
-        }
-    });
-
-    const winnerDisplay = document.getElementById("winner-display");
-    if (ellScore > jackScore) {
-        winnerDisplay.textContent = "Winner: Ell's Allstars";
-    } else if (jackScore > ellScore) {
-        winnerDisplay.textContent = "Winner: Jack's Team";
-    } else {
-        winnerDisplay.textContent = "Winner: Draw";
-    }
-
-    alert("Winner calculated!"); // User feedback
-}
+    <!-- Jack's Team (Mirrored Layout) -->
+    <div class="team">
+        <div id="jacks-fwd" class="position"></div>
+        <div id="jacks-mid" class="position"></div>
+        <div id="jacks-def" class="position"></div>
+        <div id="jacks-gk" class="position"></div>
+        <h2>Lord Frostly's XI</h2>
+    </div>
+</body>
+</html>
