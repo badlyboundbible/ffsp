@@ -15,8 +15,8 @@ const teamColors = {
     KIL: "#0e00f7",
     MOT: "#ffbe00",
     RAN: "#1b458f",
-    StM: "#000000",
-    StJ: "#243f90",
+    SMN: "#000000",
+    SJN: "#243f90",
     DUN: "#1a315a",
     DDU: "#f29400",
     ROS: "#040957"
