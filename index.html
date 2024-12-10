@@ -10,31 +10,29 @@
 <body>
     <h1>Scottish Premiership Fantasy Football</h1>
 
-    <div class="pitch">
-        <!-- Ell's Team -->
-        <div class="team">
-            <h2>Ell's Allstars</h2>
-            <div class="position" id="ells-gk"></div>
-            <div class="position" id="ells-def"></div>
-            <div class="position" id="ells-mid"></div>
-            <div class="position" id="ells-fwd"></div>
-        </div>
-
-        <hr>
-
-        <!-- Jack's Team -->
-        <div class="team">
-            <h2>Jack's Team</h2>
-            <div class="position" id="jacks-gk"></div>
-            <div class="position" id="jacks-def"></div>
-            <div class="position" id="jacks-mid"></div>
-            <div class="position" id="jacks-fwd"></div>
-        </div>
+    <!-- Ell's Team -->
+    <div class="team">
+        <h2>Ell's Allstars</h2>
+        <div id="ells-gk" class="position"></div>
+        <div id="ells-def" class="position"></div>
+        <div id="ells-mid" class="position"></div>
+        <div id="ells-fwd" class="position"></div>
     </div>
 
-    <div id="controls">
-        <button onclick="calculateWinner()">Calculate Winner</button>
+    <!-- Final Score Section -->
+    <div id="final-score">
+        <h2>Final Score</h2>
         <p id="winner-display">Winner: -</p>
+        <button onclick="calculateWinner()">Calculate Winner</button>
+    </div>
+
+    <!-- Jack's Team (Mirrored Layout) -->
+    <div class="team">
+        <h2>Jack's Team</h2>
+        <div id="jacks-fwd" class="position"></div>
+        <div id="jacks-mid" class="position"></div>
+        <div id="jacks-def" class="position"></div>
+        <div id="jacks-gk" class="position"></div>
     </div>
 </body>
 </html>
