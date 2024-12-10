@@ -22,6 +22,7 @@ h1 {
     text-align: center;
 }
 
+/* Team Titles */
 .team h2 {
     margin: 10px 0;
     font-size: 20px;
@@ -37,10 +38,10 @@ h1 {
 }
 
 .position:nth-child(1) {
-    justify-content: space-around; /* Center the 2 GKs */
+    justify-content: space-around; /* Center 2 GKs */
 }
 
-/* Player Cards - Simplified Design */
+/* Player Cards - Simplified */
 .player {
     display: flex;
     flex-direction: column;
@@ -72,7 +73,7 @@ h1 {
     background-color: #ccc; /* Default gray */
 }
 
-/* Adjust Final Score Section */
+/* Final Score Section */
 #final-score {
     margin: 20px auto;
     width: 90%;
