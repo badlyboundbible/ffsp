@@ -74,6 +74,7 @@ function displayPlayers(records) {
         positionCircle.style.backgroundColor = bench ? "#cccccc" : (teamColors[team] || "#cccccc");
         positionCircle.dataset.id = record.id;
         positionCircle.dataset.bench = bench;
+        positionCircle.dataset.team = team; // Store team for color changes
         positionCircle.addEventListener("click", () => toggleBenchStatus(positionCircle));
         playerDiv.appendChild(positionCircle);
 
@@ -130,12 +131,12 @@ function displayPlayers(records) {
 // Toggle bench status and update Airtable
 async function toggleBenchStatus(circle) {
     const recordId = circle.dataset.id;
-    const isBench = circle.dataset.bench === "true"; // Current bench status
-    const newBenchStatus = !isBench; // Toggle the status
+    const currentBenchStatus = circle.dataset.bench === "true"; // Current bench status
+    const newBenchStatus = !currentBenchStatus; // Toggle the status
 
     // Update the circle color
-    circle.dataset.bench = newBenchStatus;
-    circle.style.backgroundColor = newBenchStatus ? "#cccccc" : teamColors[circle.dataset.team] || "#cccccc";
+    circle.dataset.bench = newBenchStatus.toString();
+    circle.style.backgroundColor = newBenchStatus ? "#cccccc" : (teamColors[circle.dataset.team] || "#cccccc");
 
     // Update Airtable
     const payload = {
@@ -166,8 +167,9 @@ async function toggleBenchStatus(circle) {
 // Update the circle color based on the selected team
 function updateCircleColor(teamSelect, positionCircle) {
     const selectedTeam = teamSelect.value;
-    const newColor = teamColors[selectedTeam] || "#cccccc"; // Default to gray if no color
-    positionCircle.style.backgroundColor = newColor;
+    const isBench = positionCircle.dataset.bench === "true"; // Check if the player is benched
+    positionCircle.dataset.team = selectedTeam; // Update stored team
+    positionCircle.style.backgroundColor = isBench ? "#cccccc" : (teamColors[selectedTeam] || "#cccccc");
 }
 
 // Handle updates to player fields
