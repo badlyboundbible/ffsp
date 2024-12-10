@@ -59,7 +59,7 @@ function displayPlayers(records) {
         const { fields } = record;
         if (!fields || !fields.player_id) return;
 
-        const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0" } = fields;
+        const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0", bench = false } = fields;
         const isEll = player_id.startsWith("ell");
         const teamPrefix = isEll ? "ells" : "jacks";
         const positionType = player_id.split("-")[1];
@@ -71,7 +71,10 @@ function displayPlayers(records) {
         const positionCircle = document.createElement("div");
         positionCircle.className = "position-circle";
         positionCircle.textContent = positionType.toUpperCase();
-        positionCircle.style.backgroundColor = teamColors[team] || "#cccccc"; // Default to gray if no team color
+        positionCircle.style.backgroundColor = bench ? "#cccccc" : (teamColors[team] || "#cccccc");
+        positionCircle.dataset.id = record.id;
+        positionCircle.dataset.bench = bench;
+        positionCircle.addEventListener("click", () => toggleBenchStatus(positionCircle));
         playerDiv.appendChild(positionCircle);
 
         // Player Name Input
@@ -122,6 +125,42 @@ function displayPlayers(records) {
         const container = document.getElementById(`${teamPrefix}-${positionType}`);
         if (container) container.appendChild(playerDiv);
     });
+}
+
+// Toggle bench status and update Airtable
+async function toggleBenchStatus(circle) {
+    const recordId = circle.dataset.id;
+    const isBench = circle.dataset.bench === "true"; // Current bench status
+    const newBenchStatus = !isBench; // Toggle the status
+
+    // Update the circle color
+    circle.dataset.bench = newBenchStatus;
+    circle.style.backgroundColor = newBenchStatus ? "#cccccc" : teamColors[circle.dataset.team] || "#cccccc";
+
+    // Update Airtable
+    const payload = {
+        fields: { bench: newBenchStatus },
+    };
+
+    try {
+        const response = await fetch(`${url}/${recordId}`, {
+            method: "PATCH",
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to update Airtable: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log(`Successfully updated bench status for record ${recordId}:`, data);
+    } catch (error) {
+        console.error(`Error updating bench status for record ${recordId}:`, error);
+    }
 }
 
 // Update the circle color based on the selected team
