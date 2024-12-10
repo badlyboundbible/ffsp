@@ -1,13 +1,15 @@
+// Replace these with your actual values from Airtable
+const apiKey = "your_actual_api_key"; // Your Airtable API Key
+const baseId = "your_base_id";        // Your Airtable Base ID
+const tableName = "Table 1";          // Your Airtable Table Name (check case sensitivity)
+
+// Construct the Airtable API URL
+const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+
+// Function to fetch data from Airtable
 async function fetchData() {
-    const loader = document.getElementById("loader");
-
-    if (!loader) {
-        console.error("Loader element not found in the DOM.");
-        return;
-    }
-
-    loader.style.display = "block"; // Show the loader
     console.log("Fetching data from Airtable...");
+    console.log("API URL:", url); // This logs the API URL to check for correctness
 
     try {
         const response = await fetch(url, {
@@ -26,13 +28,23 @@ async function fetchData() {
         if (data.records) {
             displayPlayers(data.records);
         } else {
-            console.error("No records found in Airtable.");
-            alert("No player data found! Check Airtable configuration.");
+            alert("No player data found in Airtable.");
         }
     } catch (error) {
-        console.error("Error fetching data from Airtable:", error);
-        alert("Unable to fetch data. Please try again later.");
-    } finally {
-        loader.style.display = "none"; // Hide the loader
+        console.error("Error fetching data:", error);
+        alert(
+            "Unable to fetch data from Airtable. Please check the configuration and try again."
+        );
     }
 }
+
+// Display players on the page
+function displayPlayers(records) {
+    console.log("Displaying players...");
+    records.forEach((record) => {
+        console.log(record.fields); // For debugging purposes
+    });
+}
+
+// Fetch data on page load
+document.addEventListener("DOMContentLoaded", fetchData);
