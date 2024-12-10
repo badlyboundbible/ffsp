@@ -73,7 +73,7 @@ function displayPlayers(records) {
         positionCircle.textContent = positionType.toUpperCase();
         positionCircle.style.backgroundColor = bench ? "#cccccc" : (teamColors[team] || "#cccccc");
         positionCircle.dataset.id = record.id;
-        positionCircle.dataset.bench = bench;
+        positionCircle.dataset.bench = bench.toString(); // Store bench status as a string
         positionCircle.dataset.team = team; // Store team for color changes
         positionCircle.addEventListener("click", () => toggleBenchStatus(positionCircle));
         playerDiv.appendChild(positionCircle);
