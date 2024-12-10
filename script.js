@@ -1,41 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scottish Premiership Fantasy Football</title>
-    <link rel="stylesheet" href="style.css">
-    <script defer src="script.js"></script>
-</head>
-<body>
-    <h1>Scottish Premiership Fantasy Football</h1>
-    
-    <!-- Loader -->
-    <div id="loader">Loading...</div>
+const apiKey = "your_actual_api_key";
+const baseId = "your_base_id";
+const tableName = "your_table_name"; // Match your Airtable table name
 
-    <!-- Ell's Team -->
-    <div class="team">
-        <h2>Ell's Allstars</h2>
-        <div id="ells-gk" class="position"></div>
-        <div id="ells-def" class="position"></div>
-        <div id="ells-mid" class="position"></div>
-        <div id="ells-fwd" class="position"></div>
-    </div>
+const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
-    <!-- Final Score Section -->
-    <div id="final-score">
-        <h2>Final Score</h2>
-        <p id="winner-display">Winner: -</p>
-        <button onclick="calculateWinner()">Calculate Winner</button>
-    </div>
+// Fetch data from Airtable
+async function fetchData() {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+    console.log("Fetching data from Airtable...");
+    console.log("API URL:", url); // Debugging
 
-    <!-- Jack's Team (Mirrored Layout) -->
-    <div class="team">
-        <div id="jacks-fwd" class="position"></div>
-        <div id="jacks-mid" class="position"></div>
-        <div id="jacks-def" class="position"></div>
-        <div id="jacks-gk" class="position"></div>
-        <h2>Lord Frostly's XI</h2>
-    </div>
-</body>
-</html>
+    try {
+        const response = await fetch(url, {
+            headers: { Authorization: `Bearer ${apiKey}` }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data: ${response.statusText} (HTTP ${response.status})`);
+        }
+
+        const data = await response.json();
+        console.log("Data fetched from Airtable:", data);
+
+        if (data.records) {
+            displayPlayers(data.records);
+        } else {
+            console.error("No records found in Airtable.");
+            alert("No player data found! Check Airtable configuration.");
+        }
+    } catch (error) {
+        console.error("Error fetching data from Airtable:", error);
+        alert("Error fetching player data. Please try again later.");
+    } finally {
+        loader.style.display = 'none';
+    }
+}
+
+// Load data on page load
+document.addEventListener("DOMContentLoaded", fetchData);
