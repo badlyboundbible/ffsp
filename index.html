@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scottish Premiership Fantasy Football</title>
-    <!-- Add /ffsp to file paths -->
     <link rel="stylesheet" href="/ffsp/style.css">
     <script defer src="/ffsp/script.js"></script>
 </head>
@@ -27,6 +26,10 @@
     <!-- Final Score Section -->
     <div id="final-score">
         <h2>Final Score</h2>
+        <div class="scores">
+            <div id="jacks-score" class="score">Jack's Score: 0</div>
+            <div id="ells-score" class="score">Ell's Score: 0</div>
+        </div>
         <p id="winner-display">Winner: -</p>
         <button onclick="calculateWinner()">Calculate Winner</button>
     </div>
