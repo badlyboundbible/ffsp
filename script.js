@@ -51,23 +51,93 @@ function displayPlayers(records) {
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
 
+        // Position Circle
         const positionCircle = document.createElement("div");
         positionCircle.className = "position-circle";
         positionCircle.textContent = positionType.toUpperCase();
         playerDiv.appendChild(positionCircle);
 
+        // Player Name Input
         const nameInput = document.createElement("input");
         nameInput.value = name;
+        nameInput.placeholder = "Name";
+        nameInput.dataset.field = "name";
+        nameInput.dataset.id = record.id;
+        nameInput.addEventListener("blur", handleInputChange);
         playerDiv.appendChild(nameInput);
 
+        // Team Dropdown
+        const teamSelect = document.createElement("select");
+        teamSelect.dataset.field = "team";
+        teamSelect.dataset.id = record.id;
+        ["ABD", "CEL", "HEA", "HIB", "KIL", "MOT", "RAN", "SMN", "SJN", "DUN", "DDU", "ROS"].forEach((teamOption) => {
+            const option = document.createElement("option");
+            option.value = teamOption;
+            option.textContent = teamOption;
+            if (teamOption === team) option.selected = true;
+            teamSelect.appendChild(option);
+        });
+        teamSelect.addEventListener("change", handleInputChange);
+        playerDiv.appendChild(teamSelect);
+
+        // Value Input
+        const valueInput = document.createElement("input");
+        valueInput.value = value;
+        valueInput.placeholder = "Value (£)";
+        valueInput.dataset.field = "value";
+        valueInput.dataset.id = record.id;
+        valueInput.addEventListener("blur", handleInputChange);
+        playerDiv.appendChild(valueInput);
+
+        // Score Input
         const scoreInput = document.createElement("input");
         scoreInput.value = score;
+        scoreInput.placeholder = "Score";
         scoreInput.dataset.field = "score";
+        scoreInput.dataset.id = record.id;
+        scoreInput.addEventListener("blur", handleInputChange);
         playerDiv.appendChild(scoreInput);
 
+        // Append playerDiv to the appropriate position container
         const container = document.getElementById(`${teamPrefix}-${positionType}`);
         if (container) container.appendChild(playerDiv);
     });
+}
+
+// Handle updates to player fields
+async function handleInputChange(event) {
+    const input = event.target;
+    const recordId = input.dataset.id;
+    const field = input.dataset.field;
+    const value = input.value;
+
+    console.log(`Updating ${field} for record ${recordId} with value: ${value}`);
+
+    const payload = {
+        fields: {
+            [field]: isNaN(value) ? value : parseFloat(value),
+        },
+    };
+
+    try {
+        const response = await fetch(`${url}/${recordId}`, {
+            method: "PATCH",
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to update Airtable: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log(`Successfully updated ${field} for record ${recordId}:`, data);
+    } catch (error) {
+        console.error(`Error updating ${field} for record ${recordId}:`, error);
+    }
 }
 
 // Calculate the winner and update individual scores
