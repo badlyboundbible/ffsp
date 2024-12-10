@@ -14,65 +14,68 @@ h1 {
 /* Teams Section */
 .team {
     margin: 20px auto;
-    width: 80%;
+    width: 90%;
     background-color: #a3d977;
     border: 2px solid #333;
     padding: 10px;
     border-radius: 8px;
     text-align: center;
-    display: flex; /* Keep players aligned side by side */
-    flex-direction: column; /* Default column layout */
-    align-items: center; /* Center-align content */
 }
 
-/* Positions Section */
+.team h2 {
+    margin: 10px 0;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* Position Rows */
 .position {
     display: flex;
-    justify-content: center; /* Center-align positions */
-    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    justify-content: center;
+    gap: 10px; /* Space between players */
     margin: 10px 0;
-    gap: 5px; /* Add some space between player boxes */
 }
 
-/* Player Cards */
+.position:nth-child(1) {
+    justify-content: space-around; /* Center the 2 GKs */
+}
+
+/* Player Cards - Simplified Design */
 .player {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    padding: 10px;
-    width: 120px; /* Narrower player cards */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    margin: 5px;
 }
 
 .player input,
 .player select {
-    width: 100%;
-    margin: 5px 0;
-    font-size: 12px; /* Slightly smaller text */
+    width: 80px; /* Smaller inputs */
+    margin-top: 5px;
+    font-size: 12px;
     text-align: center;
     box-sizing: border-box;
 }
 
 /* Position Circles */
 .position-circle {
-    width: 40px; /* Smaller circles */
+    width: 40px;
     height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
     color: white;
     margin: 0 auto 5px;
+    background-color: #ccc; /* Default gray */
 }
 
-/* Final Score Section */
+/* Adjust Final Score Section */
 #final-score {
     margin: 20px auto;
-    width: 80%; /* Adjust for smaller screens */
+    width: 90%;
     background-color: #fff;
     border: 2px solid #333;
     padding: 10px;
@@ -106,52 +109,34 @@ h1 {
     background-color: #0056b3;
 }
 
-/* Media Queries for Mobile Screens */
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-    .team {
-        flex-direction: row; /* Align teams in rows */
-        flex-wrap: wrap; /* Allow wrapping */
-        justify-content: space-between;
+    .player input,
+    .player select {
+        width: 70px;
     }
 
-    .player {
-        width: 100px; /* Further narrow player cards for mobile */
-    }
-
-    .position {
-        flex-direction: row; /* Ensure positions align horizontally */
-    }
-
-    #final-score {
-        width: 90%; /* Expand width for smaller screens */
+    .position-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 12px;
     }
 }
 
 @media (max-width: 480px) {
     h1 {
-        font-size: 18px; /* Smaller font size for headings */
+        font-size: 18px;
     }
 
-    .team {
-        flex-direction: column; /* Stack team rows for very small screens */
-    }
-
-    .player {
-        width: 90px; /* Smallest player cards for very small screens */
-    }
-
-    .position-circle {
-        width: 35px; /* Reduce circle size */
-        height: 35px;
+    .player input,
+    .player select {
+        width: 60px;
         font-size: 10px;
     }
 
-    #final-score h2 {
-        font-size: 20px;
-    }
-
-    #final-score button {
-        font-size: 14px;
-        padding: 8px 16px;
+    .position-circle {
+        width: 30px;
+        height: 30px;
+        font-size: 10px;
     }
 }
