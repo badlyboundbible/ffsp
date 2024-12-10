@@ -73,7 +73,7 @@ function displayPlayers(records) {
         positionCircle.textContent = positionType.toUpperCase();
         positionCircle.style.backgroundColor = bench ? (teamColors[team] || "#cccccc") : "#cccccc";
         positionCircle.dataset.id = record.id;
-        positionCircle.dataset.bench = bench.toString(); // Store bench status as a string
+        positionCircle.dataset.bench = bench; // Store bench status as a boolean
         positionCircle.dataset.team = team; // Store team for color changes
         positionCircle.addEventListener("click", () => toggleBenchStatus(positionCircle));
         playerDiv.appendChild(positionCircle);
@@ -135,12 +135,12 @@ async function toggleBenchStatus(circle) {
     const newBenchStatus = !currentBenchStatus; // Toggle the status
 
     // Update the circle color
-    circle.dataset.bench = newBenchStatus.toString();
+    circle.dataset.bench = newBenchStatus; // Store updated bench status as a boolean
     circle.style.backgroundColor = newBenchStatus ? (teamColors[circle.dataset.team] || "#cccccc") : "#cccccc";
 
     // Update Airtable
     const payload = {
-        fields: { bench: newBenchStatus },
+        fields: { bench: newBenchStatus }, // Send true or false as a boolean
     };
 
     try {
