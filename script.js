@@ -6,6 +6,22 @@ const tableName = "Table 1";
 // Airtable API URL
 const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
+// Define team colors
+const teamColors = {
+    ABD: "#e2001a",
+    CEL: "#16973b",
+    HEA: "#800910",
+    HIB: "#005000",
+    KIL: "#0e00f7",
+    MOT: "#ffbe00",
+    RAN: "#1b458f",
+    SMN: "#000000", // St. Mirren
+    SJN: "#243f90", // St. Johnstone
+    DUN: "#1a315a",
+    DDU: "#f29400", // Dundee United
+    ROS: "#040957", // Ross County
+};
+
 // Fetch data from Airtable
 async function fetchData() {
     console.log("Fetching data from Airtable...");
@@ -55,6 +71,7 @@ function displayPlayers(records) {
         const positionCircle = document.createElement("div");
         positionCircle.className = "position-circle";
         positionCircle.textContent = positionType.toUpperCase();
+        positionCircle.style.backgroundColor = teamColors[team] || "#cccccc"; // Default to gray if no team color
         playerDiv.appendChild(positionCircle);
 
         // Player Name Input
@@ -77,7 +94,10 @@ function displayPlayers(records) {
             if (teamOption === team) option.selected = true;
             teamSelect.appendChild(option);
         });
-        teamSelect.addEventListener("change", handleInputChange);
+        teamSelect.addEventListener("change", (event) => {
+            handleInputChange(event);
+            updateCircleColor(teamSelect, positionCircle);
+        });
         playerDiv.appendChild(teamSelect);
 
         // Value Input
@@ -102,6 +122,13 @@ function displayPlayers(records) {
         const container = document.getElementById(`${teamPrefix}-${positionType}`);
         if (container) container.appendChild(playerDiv);
     });
+}
+
+// Update the circle color based on the selected team
+function updateCircleColor(teamSelect, positionCircle) {
+    const selectedTeam = teamSelect.value;
+    const newColor = teamColors[selectedTeam] || "#cccccc"; // Default to gray if no color
+    positionCircle.style.backgroundColor = newColor;
 }
 
 // Handle updates to player fields
