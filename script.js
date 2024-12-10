@@ -1,7 +1,7 @@
-// Your Airtable configuration
+// Airtable configuration
 const apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489";
 const baseId = "appoF7fRSS4nuF9u2";
-const tableName = "Table 1"; // Change if your table has a different name
+const tableName = "Table 1"; // Ensure this matches your Airtable table name
 
 // Airtable API URL
 const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
@@ -15,8 +15,8 @@ const teamColors = {
     KIL: "#0e00f7",
     MOT: "#ffbe00",
     RAN: "#1b458f",
-    SMN: "#000000",
-    SJN: "#243f90",
+    SMN: "#000000", // Updated StM to SMN
+    SJN: "#243f90", // Updated StJ to SJN
     DUN: "#1a315a",
     DDU: "#f29400",
     ROS: "#040957"
@@ -24,25 +24,26 @@ const teamColors = {
 
 // Fetch data from Airtable
 async function fetchData() {
+    console.log("Fetching data from Airtable...");
     try {
         const response = await fetch(url, {
             headers: { Authorization: `Bearer ${apiKey}` }
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch data: ${response.statusText}`);
+            throw new Error(`Failed to fetch data: ${response.statusText} (HTTP ${response.status})`);
         }
 
         const data = await response.json();
-        console.log("Airtable Response:", data);
+        console.log("Data fetched from Airtable:", data);
 
         if (data.records) {
             displayPlayers(data.records);
         } else {
-            console.error("Error fetching Airtable data:", data.error);
+            console.error("No records found in Airtable.");
         }
     } catch (error) {
-        console.error("Network error:", error);
+        console.error("Error fetching data from Airtable:", error);
     }
 }
 
@@ -52,17 +53,20 @@ function getPositionAbbreviation(playerId) {
     if (playerId.includes("def")) return "D";
     if (playerId.includes("mid")) return "M";
     if (playerId.includes("fwd")) return "F";
-    return "?"; // Default if no position match
+    return "?";
 }
 
 // Display players on the pitch
 function displayPlayers(records) {
+    console.log("Displaying players...");
+    // Clear all containers
     ["ells", "jacks"].forEach(team => {
         ["gk", "def", "mid", "fwd"].forEach(position => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
         });
     });
 
+    // Iterate through records and display each player
     records.forEach(record => {
         const fields = record.fields;
 
@@ -82,22 +86,38 @@ function displayPlayers(records) {
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
 
+        // Get team color or default to gray
+        const teamColor = teamColors[team.trim()] || "#cccccc";
+
+        // Build dropdown options for team
+        const teamOptions = Object.keys(teamColors)
+            .map(
+                teamKey =>
+                    `<option value="${teamKey}" ${teamKey === team.trim() ? "selected" : ""}>${teamKey}</option>`
+            )
+            .join("");
+
+        // Render player card
         playerDiv.innerHTML = `
-            <div class="position-circle" style="background-color: ${
-                teamColors[team.toUpperCase()] || "#cccccc"
-            };">${positionAbbreviation}</div>
+            <div class="position-circle" style="background-color: ${teamColor};">
+                ${positionAbbreviation}
+            </div>
             <input data-id="${id}" data-field="name" value="${name}" placeholder="Name" />
-            <input data-id="${id}" data-field="team" value="${team}" placeholder="Team" />
+            <select data-id="${id}" data-field="team">${teamOptions}</select>
             <input data-id="${id}" data-field="value" value="${value}" placeholder="Value (£)" />
             <input data-id="${id}" data-field="score" value="${score}" placeholder="Score" />
         `;
 
-        // Attach event listeners for updating inputs
+        // Attach event listeners for inputs and dropdowns
         playerDiv.querySelectorAll("input").forEach(input => {
-            input.addEventListener("blur", handleInputChange); // Trigger update on blur
+            input.addEventListener("blur", handleInputChange); // Update on blur
         });
 
-        // Append player to the appropriate container
+        playerDiv.querySelectorAll("select").forEach(select => {
+            select.addEventListener("change", handleInputChange); // Update on change
+        });
+
+        // Append to appropriate team and position container
         const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
         if (positionContainer) {
             positionContainer.appendChild(playerDiv);
@@ -107,14 +127,20 @@ function displayPlayers(records) {
     });
 }
 
-// Handle input changes and update Airtable
+// Handle input and dropdown changes
 async function handleInputChange(event) {
     const input = event.target;
-    const recordId = input.dataset.id;
-    const field = input.dataset.field;
-    const value = input.value;
+    const recordId = input.dataset.id; // Airtable record ID
+    const field = input.dataset.field; // Field to update
+    const value = input.value; // New value
 
-    console.log(`Updating ${field} for record ${recordId} to: ${value}`);
+    console.log(`Updating ${field} for record ${recordId} with value: ${value}`);
+
+    const payload = {
+        fields: {
+            [field]: isNaN(value) ? value : parseFloat(value) // Convert numbers to float
+        }
+    };
 
     try {
         const response = await fetch(`${url}/${recordId}`, {
@@ -123,22 +149,17 @@ async function handleInputChange(event) {
                 Authorization: `Bearer ${apiKey}`,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                fields: {
-                    [field]: value
-                }
-            })
+            body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log(`Updated ${field} for record ${recordId}:`, data);
-        } else {
-            console.error("Error updating Airtable:", data.error);
+        if (!response.ok) {
+            throw new Error(`Failed to update Airtable: ${response.statusText} (HTTP ${response.status})`);
         }
+
+        const data = await response.json();
+        console.log(`Successfully updated ${field} for record ${recordId}:`, data);
     } catch (error) {
-        console.error("Network error while updating Airtable:", error);
+        console.error(`Error updating ${field} for record ${recordId}:`, error);
     }
 }
 
@@ -166,5 +187,5 @@ function calculateWinner() {
     }
 }
 
-// Load players on page load
+// Load data on page load
 document.addEventListener("DOMContentLoaded", fetchData);
