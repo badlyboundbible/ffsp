@@ -71,7 +71,7 @@ function displayPlayers(records) {
         const positionCircle = document.createElement("div");
         positionCircle.className = "position-circle";
         positionCircle.textContent = positionType.toUpperCase();
-        positionCircle.style.backgroundColor = bench ? "#cccccc" : (teamColors[team] || "#cccccc");
+        positionCircle.style.backgroundColor = bench ? (teamColors[team] || "#cccccc") : "#cccccc";
         positionCircle.dataset.id = record.id;
         positionCircle.dataset.bench = bench.toString(); // Store bench status as a string
         positionCircle.dataset.team = team; // Store team for color changes
@@ -136,7 +136,7 @@ async function toggleBenchStatus(circle) {
 
     // Update the circle color
     circle.dataset.bench = newBenchStatus.toString();
-    circle.style.backgroundColor = newBenchStatus ? "#cccccc" : (teamColors[circle.dataset.team] || "#cccccc");
+    circle.style.backgroundColor = newBenchStatus ? (teamColors[circle.dataset.team] || "#cccccc") : "#cccccc";
 
     // Update Airtable
     const payload = {
