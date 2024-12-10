@@ -1,3 +1,4 @@
+/* General Body Styling */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
@@ -10,6 +11,7 @@ h1 {
     margin-top: 20px;
 }
 
+/* Teams Section */
 .team {
     margin: 20px auto;
     width: 80%;
@@ -26,13 +28,15 @@ h1 {
     font-weight: bold;
 }
 
+/* Positions Section */
 .position {
     display: flex;
     justify-content: space-around;
-    flex-wrap: wrap; /* Allow wrapping for small screens */
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
     margin: 10px 0;
 }
 
+/* Player Cards */
 .player {
     background-color: #fff;
     border: 1px solid #ddd;
@@ -44,7 +48,8 @@ h1 {
     margin: 10px;
 }
 
-.player input, .player select {
+.player input,
+.player select {
     width: 100%;
     margin: 5px 0;
     font-size: 14px;
@@ -52,6 +57,7 @@ h1 {
     box-sizing: border-box;
 }
 
+/* Position Circles */
 .position-circle {
     width: 50px;
     height: 50px;
@@ -65,6 +71,7 @@ h1 {
     margin: 0 auto 10px;
 }
 
+/* Final Score Section */
 #final-score {
     margin: 20px auto;
     width: 80%; /* Adjust for smaller screens */
@@ -101,29 +108,51 @@ h1 {
     background-color: #0056b3;
 }
 
-/* Loader */
-#loader {
-    display: none; /* Hidden by default */
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-}
-
-/* Media Query for Mobile */
-@media (max-width: 600px) {
+/* Media Queries for Mobile Screens */
+@media (max-width: 768px) {
     .team {
-        width: 95%;
+        width: 95%; /* Expand width for smaller screens */
+    }
+
+    .position {
+        flex-direction: column; /* Stack positions vertically */
+        align-items: center; /* Center align players */
     }
 
     .player {
-        width: 120px; /* Smaller player cards for mobile */
+        width: 120px; /* Slightly smaller player cards for mobile */
     }
 
     #final-score {
-        width: 90%;
+        width: 90%; /* Expand width for smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 18px; /* Smaller font size for headings on small screens */
+    }
+
+    .team h2 {
+        font-size: 16px; /* Adjust team title font size */
+    }
+
+    .player {
+        width: 100px; /* Further reduce player card size */
+    }
+
+    .position-circle {
+        width: 40px; /* Smaller position circles */
+        height: 40px;
+        font-size: 12px;
+    }
+
+    #final-score h2 {
+        font-size: 20px; /* Smaller final score heading */
+    }
+
+    #final-score button {
+        font-size: 14px; /* Smaller button text */
+        padding: 8px 16px; /* Adjust button padding */
     }
 }
