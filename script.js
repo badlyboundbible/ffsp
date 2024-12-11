@@ -139,18 +139,18 @@ function trackChange(event) {
     console.log("Unsaved changes:", unsavedChanges);
 }
 
-// Toggle bench status and update Airtable
+// Toggle bench status and track changes
 function toggleBenchStatus(event) {
     const circle = event.target;
     const recordId = circle.dataset.id;
     const currentBenchStatus = circle.dataset.bench === "true";
     const newBenchStatus = !currentBenchStatus;
 
-    // Update the circle color
+    // Update the circle's visual appearance
     circle.style.backgroundColor = newBenchStatus ? "#cccccc" : (teamColors[circle.dataset.team] || "#cccccc");
     circle.dataset.bench = newBenchStatus;
 
-    // Track the bench change
+    // Track the bench status change
     const existingChange = unsavedChanges.find((change) => change.id === recordId);
     if (existingChange) {
         existingChange.fields["bench"] = newBenchStatus;
