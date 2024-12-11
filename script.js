@@ -8,19 +8,14 @@ let unsavedChanges = []; // To track unsaved changes
 
 // Fetch data from Airtable
 async function fetchData() {
-    console.log("Fetching data from Airtable...");
     try {
         const response = await fetch(url, {
             headers: { Authorization: `Bearer ${apiKey}` },
         });
 
-        if (!response.ok) {
-            throw new Error(`Failed to fetch data: ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Failed to fetch data: ${response.statusText}`);
 
         const data = await response.json();
-        console.log("Data fetched:", data);
-
         if (data.records) {
             displayPlayers(data.records);
         }
@@ -31,7 +26,7 @@ async function fetchData() {
 
 // Display players on the pitch
 function displayPlayers(records) {
-    console.log("Displaying players...");
+    // Clear existing data
     ["ells", "jacks"].forEach((team) => {
         ["gk", "def", "mid", "fwd"].forEach((position) => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
@@ -40,9 +35,7 @@ function displayPlayers(records) {
 
     records.forEach((record) => {
         const { fields } = record;
-        if (!fields || !fields.player_id) return;
-
-        const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0", bench = false } = fields;
+        const { player_id, name = "", team = "N/A", value = "0.0", score = "0", bench = false } = fields;
         const isEll = player_id.startsWith("ell");
         const teamPrefix = isEll ? "ells" : "jacks";
         const positionType = player_id.split("-")[1];
@@ -53,23 +46,20 @@ function displayPlayers(records) {
         const positionCircle = document.createElement("div");
         positionCircle.className = "position-circle";
         positionCircle.textContent = positionType.toUpperCase();
-        positionCircle.style.backgroundColor = bench ? "#cccccc" : (teamColors[team] || "#cccccc");
-        positionCircle.dataset.id = record.id;
-        positionCircle.dataset.bench = bench;
-        positionCircle.dataset.team = team;
+        positionCircle.style.backgroundColor = bench ? "#cccccc" : "#ffffff";
         playerDiv.appendChild(positionCircle);
 
         const nameInput = document.createElement("input");
         nameInput.value = name;
         nameInput.placeholder = "Name";
-        nameInput.dataset.field = "name";
         nameInput.dataset.id = record.id;
-        nameInput.addEventListener("blur", handleInputChange);
+        nameInput.dataset.field = "name";
+        nameInput.addEventListener("input", trackChange);
         playerDiv.appendChild(nameInput);
 
         const teamSelect = document.createElement("select");
-        teamSelect.dataset.field = "team";
         teamSelect.dataset.id = record.id;
+        teamSelect.dataset.field = "team";
         ["ABD", "CEL", "HEA", "HIB", "KIL", "MOT", "RAN", "SMN", "SJN", "DUN", "DDU", "ROS"].forEach((teamOption) => {
             const option = document.createElement("option");
             option.value = teamOption;
@@ -77,23 +67,23 @@ function displayPlayers(records) {
             if (teamOption === team) option.selected = true;
             teamSelect.appendChild(option);
         });
-        teamSelect.addEventListener("change", handleInputChange);
+        teamSelect.addEventListener("change", trackChange);
         playerDiv.appendChild(teamSelect);
 
         const valueInput = document.createElement("input");
         valueInput.value = value;
         valueInput.placeholder = "Value (£)";
-        valueInput.dataset.field = "value";
         valueInput.dataset.id = record.id;
-        valueInput.addEventListener("blur", handleInputChange);
+        valueInput.dataset.field = "value";
+        valueInput.addEventListener("input", trackChange);
         playerDiv.appendChild(valueInput);
 
         const scoreInput = document.createElement("input");
         scoreInput.value = score;
         scoreInput.placeholder = "Score";
-        scoreInput.dataset.field = "score";
         scoreInput.dataset.id = record.id;
-        scoreInput.addEventListener("blur", handleInputChange);
+        scoreInput.dataset.field = "score";
+        scoreInput.addEventListener("input", trackChange);
         playerDiv.appendChild(scoreInput);
 
         const container = document.getElementById(`${teamPrefix}-${positionType}`);
@@ -101,33 +91,29 @@ function displayPlayers(records) {
     });
 }
 
-// Store unsaved changes
-function handleInputChange(event) {
+// Track changes to fields
+function trackChange(event) {
     const input = event.target;
     const recordId = input.dataset.id;
     const field = input.dataset.field;
     const value = input.value;
 
-    console.log(`Storing change for ${field} on record ${recordId}: ${value}`);
-
-    const existingChange = unsavedChanges.find(change => change.id === recordId);
+    const existingChange = unsavedChanges.find((change) => change.id === recordId);
     if (existingChange) {
-        existingChange.fields[field] = isNaN(value) ? value : parseFloat(value);
+        existingChange.fields[field] = value;
     } else {
         unsavedChanges.push({
             id: recordId,
-            fields: {
-                [field]: isNaN(value) ? value : parseFloat(value),
-            },
+            fields: { [field]: value },
         });
     }
+    console.log("Unsaved changes:", unsavedChanges);
 }
 
-// Save all changes
+// Save all changes to Airtable
 async function saveChanges() {
-    console.log("Saving changes to Airtable...");
     try {
-        const updates = unsavedChanges.map(change => ({
+        const updates = unsavedChanges.map((change) => ({
             id: change.id,
             fields: change.fields,
         }));
@@ -141,9 +127,7 @@ async function saveChanges() {
             body: JSON.stringify({ records: updates }),
         });
 
-        if (!response.ok) {
-            throw new Error(`Failed to save changes: ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Failed to save changes: ${response.statusText}`);
 
         const data = await response.json();
         console.log("Changes saved:", data);
@@ -166,14 +150,14 @@ function calculateWinner() {
 
     document.getElementById("jacks-score").textContent = `Jack's Score: ${jackScore}`;
     document.getElementById("ells-score").textContent = `Ell's Score: ${ellScore}`;
-
-    const winnerDisplay = document.getElementById("winner-display");
-    winnerDisplay.textContent = ellScore > jackScore
-        ? "Winner: Ell's Allstars"
-        : jackScore > ellScore
-        ? "Winner: Jack's Team"
-        : "Winner: Draw";
+    document.getElementById("winner-display").textContent =
+        ellScore > jackScore
+            ? "Winner: Ell's Allstars"
+            : jackScore > ellScore
+            ? "Winner: Jack's Team"
+            : "Winner: Draw";
 }
 
+// Event listeners
 document.addEventListener("DOMContentLoaded", fetchData);
 document.getElementById("save-button").addEventListener("click", saveChanges);
