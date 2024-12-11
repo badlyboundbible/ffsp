@@ -1,6 +1,6 @@
 // Airtable configuration
-const apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489";
-const baseId = "appoF7fRSS4nuF9u2";
+const apiKey = "YOUR_AIRTABLE_API_KEY";
+const baseId = "YOUR_AIRTABLE_BASE_ID";
 const tableName = "Table 1";
 
 // Airtable API URL
