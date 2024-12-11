@@ -1,32 +1,14 @@
 // Airtable configuration
-const apiKey = "YOUR_AIRTABLE_API_KEY";
-const baseId = "YOUR_AIRTABLE_BASE_ID";
+const apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489";
+const baseId = "appoF7fRSS4nuF9u2";
 const tableName = "Table 1";
-
-// Airtable API URL
 const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
-// Define team colors
-const teamColors = {
-    ABD: "#e2001a",
-    CEL: "#16973b",
-    HEA: "#800910",
-    HIB: "#005000",
-    KIL: "#0e00f7",
-    MOT: "#ffbe00",
-    RAN: "#1b458f",
-    SMN: "#000000",
-    SJN: "#243f90",
-    DUN: "#1a315a",
-    DDU: "#f29400",
-    ROS: "#040957",
-};
-
-// Local state for bench status
-const localState = {};
+let unsavedChanges = []; // To track unsaved changes
 
 // Fetch data from Airtable
 async function fetchData() {
+    console.log("Fetching data from Airtable...");
     try {
         const response = await fetch(url, {
             headers: { Authorization: `Bearer ${apiKey}` },
@@ -37,7 +19,11 @@ async function fetchData() {
         }
 
         const data = await response.json();
-        displayPlayers(data.records);
+        console.log("Data fetched:", data);
+
+        if (data.records) {
+            displayPlayers(data.records);
+        }
     } catch (error) {
         console.error("Error fetching data:", error);
     }
@@ -45,6 +31,7 @@ async function fetchData() {
 
 // Display players on the pitch
 function displayPlayers(records) {
+    console.log("Displaying players...");
     ["ells", "jacks"].forEach((team) => {
         ["gk", "def", "mid", "fwd"].forEach((position) => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
@@ -53,12 +40,12 @@ function displayPlayers(records) {
 
     records.forEach((record) => {
         const { fields } = record;
-        const { player_id, name = "Unknown", team = "N/A", bench = false } = fields;
-        const teamPrefix = player_id.startsWith("ell") ? "ells" : "jacks";
-        const positionType = player_id.split("-")[1];
+        if (!fields || !fields.player_id) return;
 
-        // Save the initial bench status in local state
-        localState[record.id] = { bench };
+        const { player_id, name = "Unknown", team = "N/A", value = "0.0", score = "0", bench = false } = fields;
+        const isEll = player_id.startsWith("ell");
+        const teamPrefix = isEll ? "ells" : "jacks";
+        const positionType = player_id.split("-")[1];
 
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
@@ -66,43 +53,85 @@ function displayPlayers(records) {
         const positionCircle = document.createElement("div");
         positionCircle.className = "position-circle";
         positionCircle.textContent = positionType.toUpperCase();
-        positionCircle.style.backgroundColor = bench ? teamColors[team] : "#cccccc";
+        positionCircle.style.backgroundColor = bench ? "#cccccc" : (teamColors[team] || "#cccccc");
         positionCircle.dataset.id = record.id;
+        positionCircle.dataset.bench = bench;
         positionCircle.dataset.team = team;
-        positionCircle.addEventListener("click", () => toggleBenchStatus(positionCircle));
         playerDiv.appendChild(positionCircle);
 
         const nameInput = document.createElement("input");
         nameInput.value = name;
-        nameInput.readOnly = true; // Name field is non-editable
+        nameInput.placeholder = "Name";
+        nameInput.dataset.field = "name";
+        nameInput.dataset.id = record.id;
+        nameInput.addEventListener("blur", handleInputChange);
         playerDiv.appendChild(nameInput);
+
+        const teamSelect = document.createElement("select");
+        teamSelect.dataset.field = "team";
+        teamSelect.dataset.id = record.id;
+        ["ABD", "CEL", "HEA", "HIB", "KIL", "MOT", "RAN", "SMN", "SJN", "DUN", "DDU", "ROS"].forEach((teamOption) => {
+            const option = document.createElement("option");
+            option.value = teamOption;
+            option.textContent = teamOption;
+            if (teamOption === team) option.selected = true;
+            teamSelect.appendChild(option);
+        });
+        teamSelect.addEventListener("change", handleInputChange);
+        playerDiv.appendChild(teamSelect);
+
+        const valueInput = document.createElement("input");
+        valueInput.value = value;
+        valueInput.placeholder = "Value (£)";
+        valueInput.dataset.field = "value";
+        valueInput.dataset.id = record.id;
+        valueInput.addEventListener("blur", handleInputChange);
+        playerDiv.appendChild(valueInput);
+
+        const scoreInput = document.createElement("input");
+        scoreInput.value = score;
+        scoreInput.placeholder = "Score";
+        scoreInput.dataset.field = "score";
+        scoreInput.dataset.id = record.id;
+        scoreInput.addEventListener("blur", handleInputChange);
+        playerDiv.appendChild(scoreInput);
 
         const container = document.getElementById(`${teamPrefix}-${positionType}`);
         if (container) container.appendChild(playerDiv);
     });
 }
 
-// Toggle bench status locally
-function toggleBenchStatus(circle) {
-    const recordId = circle.dataset.id;
-    const currentBench = localState[recordId].bench;
-    const newBench = !currentBench;
+// Store unsaved changes
+function handleInputChange(event) {
+    const input = event.target;
+    const recordId = input.dataset.id;
+    const field = input.dataset.field;
+    const value = input.value;
 
-    // Update local state
-    localState[recordId].bench = newBench;
+    console.log(`Storing change for ${field} on record ${recordId}: ${value}`);
 
-    // Update the circle color
-    circle.style.backgroundColor = newBench ? teamColors[circle.dataset.team] : "#cccccc";
+    const existingChange = unsavedChanges.find(change => change.id === recordId);
+    if (existingChange) {
+        existingChange.fields[field] = isNaN(value) ? value : parseFloat(value);
+    } else {
+        unsavedChanges.push({
+            id: recordId,
+            fields: {
+                [field]: isNaN(value) ? value : parseFloat(value),
+            },
+        });
+    }
 }
 
-// Save changes to Airtable
+// Save all changes
 async function saveChanges() {
-    const updates = Object.keys(localState).map((id) => ({
-        id,
-        fields: { bench: localState[id].bench },
-    }));
-
+    console.log("Saving changes to Airtable...");
     try {
+        const updates = unsavedChanges.map(change => ({
+            id: change.id,
+            fields: change.fields,
+        }));
+
         const response = await fetch(url, {
             method: "PATCH",
             headers: {
@@ -116,15 +145,35 @@ async function saveChanges() {
             throw new Error(`Failed to save changes: ${response.statusText}`);
         }
 
-        alert("Changes saved successfully!");
+        const data = await response.json();
+        console.log("Changes saved:", data);
+        unsavedChanges = [];
     } catch (error) {
         console.error("Error saving changes:", error);
-        alert("Failed to save changes.");
     }
 }
 
-// Add event listener to the "Save Changes" button
-document.getElementById("save-changes-button").addEventListener("click", saveChanges);
+// Calculate the winner
+function calculateWinner() {
+    let ellScore = 0;
+    let jackScore = 0;
 
-// Load data on page load
+    document.querySelectorAll(".player").forEach((player) => {
+        const score = parseFloat(player.querySelector("input[data-field='score']").value) || 0;
+        if (player.parentElement.id.startsWith("ells")) ellScore += score;
+        if (player.parentElement.id.startsWith("jacks")) jackScore += score;
+    });
+
+    document.getElementById("jacks-score").textContent = `Jack's Score: ${jackScore}`;
+    document.getElementById("ells-score").textContent = `Ell's Score: ${ellScore}`;
+
+    const winnerDisplay = document.getElementById("winner-display");
+    winnerDisplay.textContent = ellScore > jackScore
+        ? "Winner: Ell's Allstars"
+        : jackScore > ellScore
+        ? "Winner: Jack's Team"
+        : "Winner: Draw";
+}
+
 document.addEventListener("DOMContentLoaded", fetchData);
+document.getElementById("save-button").addEventListener("click", saveChanges);
