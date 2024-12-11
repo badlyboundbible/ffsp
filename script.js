@@ -1,6 +1,6 @@
 // Airtable configuration
-const apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489";
-const baseId = "appoF7fRSS4nuF9u2";
+const apiKey = "YOUR_AIRTABLE_API_KEY";
+const baseId = "YOUR_AIRTABLE_BASE_ID";
 const tableName = "Table 1";
 
 // Airtable API URL
@@ -57,7 +57,7 @@ function displayPlayers(records) {
         const teamPrefix = player_id.startsWith("ell") ? "ells" : "jacks";
         const positionType = player_id.split("-")[1];
 
-        // Store the initial bench status in local state
+        // Save the initial bench status in local state
         localState[record.id] = { bench };
 
         const playerDiv = document.createElement("div");
@@ -116,8 +116,6 @@ async function saveChanges() {
             throw new Error(`Failed to save changes: ${response.statusText}`);
         }
 
-        const data = await response.json();
-        console.log("Changes saved successfully:", data);
         alert("Changes saved successfully!");
     } catch (error) {
         console.error("Error saving changes:", error);
