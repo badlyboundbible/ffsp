@@ -32,25 +32,16 @@ h1 {
 .position {
     display: flex;
     justify-content: center;
-    gap: 10px; /* Space between players */
+    gap: 10px;
     margin: 10px 0;
 }
 
-/* Player Cards - Simplified */
+/* Player Cards */
 .player {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-}
-
-.player input,
-.player select {
-    width: 80px; /* Smaller inputs */
-    margin-top: 5px;
-    font-size: 12px;
-    text-align: center;
-    box-sizing: border-box;
 }
 
 /* Position Circles */
@@ -65,7 +56,7 @@ h1 {
     font-weight: bold;
     color: white;
     margin: 0 auto 5px;
-    background-color: #ccc; /* Default gray */
+    background-color: #cccccc; /* Default gray */
 }
 
 /* Final Score Section */
@@ -95,7 +86,7 @@ h1 {
 .score {
     font-size: 18px;
     font-weight: bold;
-    width: 45%; /* Each score takes half the width */
+    width: 45%;
     text-align: center;
 }
 
@@ -117,4 +108,24 @@ h1 {
 
 #final-score button:hover {
     background-color: #0056b3;
+}
+
+/* Save Changes Section */
+#save-changes-section {
+    margin: 20px 0;
+    text-align: center;
+}
+
+#save-changes-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#save-changes-button:hover {
+    background-color: #218838;
 }
