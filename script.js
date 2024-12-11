@@ -143,6 +143,8 @@ async function toggleBenchStatus(circle) {
         fields: { bench: newBenchStatus }, // Send true or false as a boolean
     };
 
+    console.log(`Sending to Airtable for record ${recordId}:`, payload);
+
     try {
         const response = await fetch(`${url}/${recordId}`, {
             method: "PATCH",
