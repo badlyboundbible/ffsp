@@ -96,7 +96,13 @@ function trackChange(event) {
     const input = event.target;
     const recordId = input.dataset.id;
     const field = input.dataset.field;
-    const value = input.value;
+    let value = input.value;
+
+    // Convert to number if the field is numerical
+    if (["value", "score"].includes(field)) {
+        value = parseFloat(value);
+        if (isNaN(value)) value = 0; // Default to 0 if the input is not a valid number
+    }
 
     const existingChange = unsavedChanges.find((change) => change.id === recordId);
     if (existingChange) {
@@ -112,6 +118,11 @@ function trackChange(event) {
 
 // Save all changes to Airtable
 async function saveChanges() {
+    if (unsavedChanges.length === 0) {
+        console.log("No changes to save.");
+        return;
+    }
+
     try {
         const updates = unsavedChanges.map((change) => ({
             id: change.id,
