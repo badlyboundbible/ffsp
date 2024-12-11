@@ -1,4 +1,3 @@
-/* General Body Styling */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
@@ -11,7 +10,6 @@ h1 {
     margin-top: 20px;
 }
 
-/* Teams Section */
 .team {
     margin: 20px auto;
     width: 90%;
@@ -28,7 +26,6 @@ h1 {
     font-weight: bold;
 }
 
-/* Position Rows */
 .position {
     display: flex;
     justify-content: center;
@@ -36,7 +33,6 @@ h1 {
     margin: 10px 0;
 }
 
-/* Player Cards */
 .player {
     display: flex;
     flex-direction: column;
@@ -44,7 +40,15 @@ h1 {
     text-align: center;
 }
 
-/* Position Circles */
+.player input,
+.player select {
+    width: 80px;
+    margin-top: 5px;
+    font-size: 12px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
 .position-circle {
     width: 40px;
     height: 40px;
@@ -56,10 +60,9 @@ h1 {
     font-weight: bold;
     color: white;
     margin: 0 auto 5px;
-    background-color: #cccccc; /* Default gray */
+    background-color: #ccc;
 }
 
-/* Final Score Section */
 #final-score {
     margin: 20px auto;
     width: 90%;
@@ -90,15 +93,10 @@ h1 {
     text-align: center;
 }
 
-#final-score p {
-    margin: 10px 0;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-#final-score button {
+#save-button {
+    margin-top: 10px;
     padding: 10px 20px;
-    background-color: #007BFF;
+    background-color: #28a745;
     color: white;
     border: none;
     border-radius: 4px;
@@ -106,26 +104,6 @@ h1 {
     font-size: 16px;
 }
 
-#final-score button:hover {
-    background-color: #0056b3;
-}
-
-/* Save Changes Section */
-#save-changes-section {
-    margin: 20px 0;
-    text-align: center;
-}
-
-#save-changes-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    color: white;
-    background-color: #28a745;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#save-changes-button:hover {
+#save-button:hover {
     background-color: #218838;
 }
