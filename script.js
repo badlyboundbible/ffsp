@@ -62,11 +62,11 @@ function displayPlayers(records) {
         const positionCircle = document.createElement("div");
         positionCircle.className = "position-circle";
         positionCircle.textContent = positionType.toUpperCase();
-        positionCircle.style.backgroundColor = teamColors[team] || "#cccccc";
+        positionCircle.style.backgroundColor = bench ? "#cccccc" : (teamColors[team] || "#cccccc");
         positionCircle.dataset.id = record.id;
         positionCircle.dataset.team = team;
-        positionCircle.dataset.field = "team";
         positionCircle.dataset.bench = bench;
+        positionCircle.addEventListener("click", toggleBenchStatus);
         playerDiv.appendChild(positionCircle);
 
         const nameInput = document.createElement("input");
@@ -139,10 +139,35 @@ function trackChange(event) {
     console.log("Unsaved changes:", unsavedChanges);
 }
 
+// Toggle bench status and update Airtable
+function toggleBenchStatus(event) {
+    const circle = event.target;
+    const recordId = circle.dataset.id;
+    const currentBenchStatus = circle.dataset.bench === "true";
+    const newBenchStatus = !currentBenchStatus;
+
+    // Update the circle color
+    circle.style.backgroundColor = newBenchStatus ? "#cccccc" : (teamColors[circle.dataset.team] || "#cccccc");
+    circle.dataset.bench = newBenchStatus;
+
+    // Track the bench change
+    const existingChange = unsavedChanges.find((change) => change.id === recordId);
+    if (existingChange) {
+        existingChange.fields["bench"] = newBenchStatus;
+    } else {
+        unsavedChanges.push({
+            id: recordId,
+            fields: { bench: newBenchStatus },
+        });
+    }
+    console.log("Unsaved changes:", unsavedChanges);
+}
+
 // Update circle color based on the selected team
 function updateCircleColor(teamSelect, positionCircle) {
     const selectedTeam = teamSelect.value;
-    positionCircle.style.backgroundColor = teamColors[selectedTeam] || "#cccccc";
+    const isBench = positionCircle.dataset.bench === "true";
+    positionCircle.style.backgroundColor = isBench ? "#cccccc" : (teamColors[selectedTeam] || "#cccccc");
 }
 
 // Save all changes to Airtable
