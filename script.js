@@ -6,6 +6,22 @@ const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
 let unsavedChanges = []; // To track unsaved changes
 
+// Define team colors
+const teamColors = {
+    ABD: "#e2001a",
+    CEL: "#16973b",
+    HEA: "#800910",
+    HIB: "#005000",
+    KIL: "#0e00f7",
+    MOT: "#ffbe00",
+    RAN: "#1b458f",
+    SMN: "#000000", // St. Mirren
+    SJN: "#243f90", // St. Johnstone
+    DUN: "#1a315a",
+    DDU: "#f29400", // Dundee United
+    ROS: "#040957", // Ross County
+};
+
 // Fetch data from Airtable
 async function fetchData() {
     try {
@@ -46,7 +62,11 @@ function displayPlayers(records) {
         const positionCircle = document.createElement("div");
         positionCircle.className = "position-circle";
         positionCircle.textContent = positionType.toUpperCase();
-        positionCircle.style.backgroundColor = bench ? "#cccccc" : "#ffffff";
+        positionCircle.style.backgroundColor = teamColors[team] || "#cccccc";
+        positionCircle.dataset.id = record.id;
+        positionCircle.dataset.team = team;
+        positionCircle.dataset.field = "team";
+        positionCircle.dataset.bench = bench;
         playerDiv.appendChild(positionCircle);
 
         const nameInput = document.createElement("input");
@@ -67,7 +87,10 @@ function displayPlayers(records) {
             if (teamOption === team) option.selected = true;
             teamSelect.appendChild(option);
         });
-        teamSelect.addEventListener("change", trackChange);
+        teamSelect.addEventListener("change", (event) => {
+            trackChange(event);
+            updateCircleColor(teamSelect, positionCircle);
+        });
         playerDiv.appendChild(teamSelect);
 
         const valueInput = document.createElement("input");
@@ -114,6 +137,12 @@ function trackChange(event) {
         });
     }
     console.log("Unsaved changes:", unsavedChanges);
+}
+
+// Update circle color based on the selected team
+function updateCircleColor(teamSelect, positionCircle) {
+    const selectedTeam = teamSelect.value;
+    positionCircle.style.backgroundColor = teamColors[selectedTeam] || "#cccccc";
 }
 
 // Save all changes to Airtable
