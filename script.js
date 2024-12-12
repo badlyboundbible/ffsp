@@ -100,7 +100,7 @@ function displayPlayers(records) {
         playerDiv.appendChild(teamSelect);
 
         const valueInput = document.createElement("input");
-        valueInput.value = `£${parseFloat(value).toFixed(2)}`;
+        valueInput.value = `£${parseFloat(value).toFixed(1)}`; // Adjusted to 1 decimal place
         valueInput.placeholder = "Value (£)";
         valueInput.dataset.field = "value";
         valueInput.dataset.id = record.id;
