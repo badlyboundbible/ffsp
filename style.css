@@ -44,13 +44,30 @@ h1 {
     text-align: center;
 }
 
+/* Styled Input Fields */
 .player input,
 .player select {
-    width: 80px;
+    width: 100px;
     margin-top: 5px;
     font-size: 12px;
     text-align: center;
     box-sizing: border-box;
+    padding: 5px;
+    border: none;
+    border-radius: 15px; /* Curved edges */
+    background-color: #006400; /* Dark green background */
+    color: white; /* White text */
+    font-weight: bold;
+    outline: none; /* Remove focus outline */
+}
+
+/* Input Fields Hover and Focus */
+.player input:hover,
+.player select:hover,
+.player input:focus,
+.player select:focus {
+    background-color: #004d00; /* Slightly darker green on hover/focus */
+    cursor: pointer; /* Indicate interactivity */
 }
 
 /* Position Circles */
@@ -104,20 +121,6 @@ h1 {
     font-weight: bold;
     width: 30%;
     text-align: center;
-}
-
-#final-score button {
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-#final-score button:hover {
-    background-color: #0056b3;
 }
 
 /* Publish Changes Section */
