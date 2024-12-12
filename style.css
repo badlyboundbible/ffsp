@@ -34,8 +34,20 @@ h1 {
     display: flex;
     flex-wrap: nowrap; /* Prevent wrapping */
     justify-content: center; /* Center align players */
-    gap: 10px; /* Add spacing between players */
-    margin: 10px 0;
+    gap: 10px; /* Horizontal spacing between players */
+    margin: 10px 0; /* Add vertical spacing between rows */
+}
+
+/* Row gap between GK, DEF, MID, and FWD */
+#ells-gk,
+#ells-def,
+#ells-mid,
+#ells-fwd,
+#jacks-gk,
+#jacks-def,
+#jacks-mid,
+#jacks-fwd {
+    margin-bottom: 20px; /* Add row gap between different positions */
 }
 
 /* Player Cards */
@@ -47,13 +59,14 @@ h1 {
     flex: 1; /* Allow fields to resize flexibly */
     max-width: 80px; /* Ensure fields fit well within the container */
     min-width: 70px; /* Maintain a minimum width for smaller screens */
+    gap: 0; /* Remove gap between fields */
 }
 
 /* Styled Input Fields */
 .player input,
 .player select {
     width: 100%; /* Adjust width to fit parent container */
-    margin-top: 5px;
+    margin: 0; /* Remove margin between fields */
     font-size: 12px;
     text-align: center;
     box-sizing: border-box;
