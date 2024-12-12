@@ -68,7 +68,7 @@ function displayPlayers(records) {
         const positionCircle = document.createElement("div");
         positionCircle.className = "position-circle";
         positionCircle.textContent = positionType.toUpperCase();
-        positionCircle.style.backgroundColor = bench ? (teamColors[team] || "#cccccc") : "#cccccc";
+        positionCircle.style.backgroundColor = bench ? "#888888" : (teamColors[team] || "#cccccc");
         positionCircle.dataset.id = record.id;
         positionCircle.dataset.bench = bench;
         positionCircle.dataset.team = team;
@@ -120,14 +120,14 @@ function displayPlayers(records) {
     });
 }
 
-// Toggle bench status
+// Toggle bench status and update unsavedChanges
 function toggleBenchStatus(circle) {
     const recordId = circle.dataset.id;
     const currentBenchStatus = circle.dataset.bench === "true";
     const newBenchStatus = !currentBenchStatus;
 
     circle.dataset.bench = newBenchStatus;
-    circle.style.backgroundColor = newBenchStatus ? teamColors[circle.dataset.team] || "#cccccc" : "#cccccc";
+    circle.style.backgroundColor = newBenchStatus ? "#888888" : teamColors[circle.dataset.team] || "#cccccc";
 
     unsavedChanges.push({
         id: recordId,
@@ -135,12 +135,12 @@ function toggleBenchStatus(circle) {
     });
 }
 
-// Update the circle color
+// Update the circle color based on the selected team
 function updateCircleColor(teamSelect, positionCircle) {
     const selectedTeam = teamSelect.value;
     const isBench = positionCircle.dataset.bench === "true";
     positionCircle.dataset.team = selectedTeam;
-    positionCircle.style.backgroundColor = isBench ? "#cccccc" : teamColors[selectedTeam] || "#cccccc";
+    positionCircle.style.backgroundColor = isBench ? "#888888" : teamColors[selectedTeam] || "#cccccc";
 }
 
 // Handle updates to player fields
@@ -188,7 +188,7 @@ async function publishChanges() {
     }
 }
 
-// Calculate winner
+// Calculate the winner
 function calculateWinner() {
     let ellScore = 0;
     let jackScore = 0;
@@ -210,5 +210,5 @@ function calculateWinner() {
         : "Winner: Draw";
 }
 
-// Load data
+// Load data on page load
 document.addEventListener("DOMContentLoaded", fetchData);
