@@ -97,7 +97,12 @@ function displayPlayers(records) {
         teamSelect.addEventListener("change", (event) => {
             handleInputChange(event);
             updateCircleColor(teamSelect, positionCircle);
+            updateTeamFieldColor(teamSelect); // Update the background color dynamically
         });
+
+        // Set initial background color for the team select field
+        updateTeamFieldColor(teamSelect);
+
         playerDiv.appendChild(teamSelect);
 
         const valueInput = document.createElement("input");
@@ -121,17 +126,18 @@ function displayPlayers(records) {
 
         const container = document.getElementById(`${teamPrefix}-${positionType}`);
         if (container) container.appendChild(playerDiv);
-
-        // Update team container background color
-        const teamContainer = document.getElementById(`${teamPrefix}-${positionType}`).parentElement;
-        if (teamContainer && teamColors[team]) {
-            teamContainer.style.backgroundColor = teamColors[team];
-            teamContainer.style.color = "white"; // White text for team containers
-        }
     });
 
     // Update the scores on initial load
     updateScores();
+}
+
+// Update team field background color dynamically
+function updateTeamFieldColor(selectElement) {
+    const selectedTeam = selectElement.value;
+    const backgroundColor = teamColors[selectedTeam] || "#cccccc";
+    selectElement.style.backgroundColor = backgroundColor;
+    selectElement.style.color = "white"; // White text for better contrast
 }
 
 // Toggle bench status
