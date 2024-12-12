@@ -85,12 +85,20 @@ h1 {
     width: 90%; /* Reduced width by 10% */
 }
 
-/* Value Fields */
+/* Value Fields - Jack and Ell Conditional Styling */
 .player input[data-field="value"] {
-    background-color: #006400; /* Dark green background */
-    color: white; /* White text for contrast */
+    background-color: transparent; /* Default to transparent */
+    color: black; /* Default text color */
     border-radius: 15px; /* Curved edges */
     width: 50%; /* Reduced width by 50% */
+}
+
+.player input[data-field="value"][data-team-prefix="ells"] {
+    background-color: #ffcccc; /* Light red for Ell */
+}
+
+.player input[data-field="value"][data-team-prefix="jacks"] {
+    background-color: #cceeff; /* Light blue for Jack */
 }
 
 /* Score Fields */
