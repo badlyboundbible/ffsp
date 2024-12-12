@@ -100,7 +100,7 @@ function displayPlayers(records) {
         playerDiv.appendChild(teamSelect);
 
         const valueInput = document.createElement("input");
-        valueInput.value = value;
+        valueInput.value = `£${parseFloat(value).toFixed(2)}`;
         valueInput.placeholder = "Value (£)";
         valueInput.dataset.field = "value";
         valueInput.dataset.id = record.id;
@@ -120,7 +120,7 @@ function displayPlayers(records) {
     });
 }
 
-// Toggle bench status and update unsavedChanges
+// Toggle bench status
 function toggleBenchStatus(circle) {
     const recordId = circle.dataset.id;
     const currentBenchStatus = circle.dataset.bench === "true";
@@ -135,7 +135,7 @@ function toggleBenchStatus(circle) {
     });
 }
 
-// Update the circle color based on the selected team
+// Update the circle color
 function updateCircleColor(teamSelect, positionCircle) {
     const selectedTeam = teamSelect.value;
     const isBench = positionCircle.dataset.bench === "true";
@@ -148,7 +148,7 @@ function handleInputChange(event) {
     const input = event.target;
     const recordId = input.dataset.id;
     const field = input.dataset.field;
-    const value = isNaN(input.value) ? input.value : parseFloat(input.value);
+    const value = input.dataset.field === "value" ? parseFloat(input.value.replace("£", "")) : input.value;
 
     unsavedChanges.push({
         id: recordId,
@@ -188,26 +188,44 @@ async function publishChanges() {
     }
 }
 
-// Calculate the winner
+// Calculate winner
 function calculateWinner() {
     let ellScore = 0;
     let jackScore = 0;
 
+    const ellsScoresList = document.getElementById("ells-individual-scores");
+    const jacksScoresList = document.getElementById("jacks-individual-scores");
+    ellsScoresList.innerHTML = "";
+    jacksScoresList.innerHTML = "";
+
     document.querySelectorAll(".player").forEach((player) => {
         const score = parseFloat(player.querySelector("input[data-field='score']").value) || 0;
-        if (player.parentElement.id.startsWith("ells")) ellScore += score;
-        if (player.parentElement.id.startsWith("jacks")) jackScore += score;
+        const playerName = player.querySelector("input[data-field='name']").value || "Unknown Player";
+
+        if (player.parentElement.id.startsWith("ells")) {
+            ellScore += score;
+            const listItem = document.createElement("li");
+            listItem.textContent = `${playerName}: ${score}`;
+            ellsScoresList.appendChild(listItem);
+        }
+
+        if (player.parentElement.id.startsWith("jacks")) {
+            jackScore += score;
+            const listItem = document.createElement("li");
+            listItem.textContent = `${playerName}: ${score}`;
+            jacksScoresList.appendChild(listItem);
+        }
     });
 
-    document.getElementById("jacks-score").textContent = `Jack's Score: ${jackScore}`;
-    document.getElementById("ells-score").textContent = `Ell's Score: ${ellScore}`;
+    document.getElementById("jacks-score").querySelector("p").textContent = `Total Score: ${jackScore}`;
+    document.getElementById("ells-score").querySelector("p").textContent = `Total Score: ${ellScore}`;
 
-    const winnerDisplay = document.getElementById("winner-display");
+    const winnerDisplay = document.getElementById("winner-display").querySelector("span");
     winnerDisplay.textContent = ellScore > jackScore
-        ? "Winner: Ell's Allstars"
+        ? "Ell's Allstars"
         : jackScore > ellScore
-        ? "Winner: Jack's Team"
-        : "Winner: Draw";
+        ? "Jack's Team"
+        : "Draw";
 }
 
 // Load data on page load
