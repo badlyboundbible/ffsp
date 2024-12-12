@@ -80,6 +80,7 @@ function displayPlayers(records) {
         nameInput.placeholder = "Name";
         nameInput.dataset.field = "name";
         nameInput.dataset.id = record.id;
+        nameInput.style.backgroundColor = isEll ? "#ffcccc" : "#cceeff"; // Light red for Ell, light blue for Jack
         nameInput.addEventListener("blur", handleInputChange);
         playerDiv.appendChild(nameInput);
 
