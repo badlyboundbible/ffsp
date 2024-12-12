@@ -134,12 +134,12 @@ function displayPlayers(records) {
     updateBudgets();
 }
 
-// Update the circle color
-function updateCircleColor(teamSelect, positionCircle) {
-    const selectedTeam = teamSelect.value;
-    const isBench = positionCircle.dataset.bench === "true";
-    positionCircle.dataset.team = selectedTeam;
-    positionCircle.style.backgroundColor = isBench ? "#888888" : teamColors[selectedTeam] || "#cccccc";
+// Update team field background color dynamically
+function updateTeamFieldColor(selectElement) {
+    const selectedTeam = selectElement.value;
+    const backgroundColor = teamColors[selectedTeam] || "#cccccc";
+    selectElement.style.backgroundColor = backgroundColor;
+    selectElement.style.color = "white"; // White text for better contrast
 }
 
 // Update budgets dynamically
