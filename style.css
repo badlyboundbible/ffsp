@@ -93,6 +93,15 @@ h1 {
     color: white; /* White text for dropdowns */
     border-radius: 15px; /* Curved edges */
     width: 75%; /* Reduced width by 25% */
+    background-color: transparent; /* Transparent background */
+    text-align: center; /* Center text */
+    text-align-last: center; /* Center text for dropdown */
+    -webkit-appearance: none; /* Remove default dropdown arrow */
+    -moz-appearance: none; /* Remove default dropdown arrow (Firefox) */
+    appearance: none; /* Remove default dropdown arrow */
+    position: relative;
+    padding-right: 20px; /* Adjust padding to ensure text is not clipped */
+    background-image: none; /* Ensure no dropdown icon is visible */
 }
 
 /* Input Fields Hover and Focus */
