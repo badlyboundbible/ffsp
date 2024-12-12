@@ -193,38 +193,26 @@ function calculateWinner() {
     let ellScore = 0;
     let jackScore = 0;
 
-    const ellsScoresList = document.getElementById("ells-individual-scores");
-    const jacksScoresList = document.getElementById("jacks-individual-scores");
-    ellsScoresList.innerHTML = "";
-    jacksScoresList.innerHTML = "";
-
     document.querySelectorAll(".player").forEach((player) => {
         const score = parseFloat(player.querySelector("input[data-field='score']").value) || 0;
-        const playerName = player.querySelector("input[data-field='name']").value || "Unknown Player";
 
         if (player.parentElement.id.startsWith("ells")) {
             ellScore += score;
-            const listItem = document.createElement("li");
-            listItem.textContent = `${playerName}: ${score}`;
-            ellsScoresList.appendChild(listItem);
         }
 
         if (player.parentElement.id.startsWith("jacks")) {
             jackScore += score;
-            const listItem = document.createElement("li");
-            listItem.textContent = `${playerName}: ${score}`;
-            jacksScoresList.appendChild(listItem);
         }
     });
 
-    document.getElementById("jacks-score").querySelector("p").textContent = `Total Score: ${jackScore}`;
-    document.getElementById("ells-score").querySelector("p").textContent = `Total Score: ${ellScore}`;
+    document.getElementById("jacks-score").textContent = jackScore;
+    document.getElementById("ells-score").textContent = ellScore;
 
-    const winnerDisplay = document.getElementById("winner-display").querySelector("span");
+    const winnerDisplay = document.getElementById("winner-display");
     winnerDisplay.textContent = ellScore > jackScore
-        ? "Ell's Allstars"
+        ? "Ell"
         : jackScore > ellScore
-        ? "Jack's Team"
+        ? "Jack"
         : "Draw";
 }
 
