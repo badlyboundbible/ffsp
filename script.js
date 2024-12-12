@@ -134,14 +134,6 @@ function displayPlayers(records) {
     updateBudgets();
 }
 
-// Update team field background color dynamically
-function updateTeamFieldColor(selectElement) {
-    const selectedTeam = selectElement.value;
-    const backgroundColor = teamColors[selectedTeam] || "#cccccc";
-    selectElement.style.backgroundColor = backgroundColor;
-    selectElement.style.color = "white"; // White text for better contrast
-}
-
 // Update budgets dynamically
 function updateBudgets() {
     ["ells", "jacks"].forEach((teamPrefix) => {
@@ -156,6 +148,21 @@ function updateBudgets() {
         // Display total budget
         const budgetElement = document.getElementById(`${teamPrefix}-budget`);
         budgetElement.textContent = `£${totalValue.toFixed(1)}`;
+    });
+}
+
+// Toggle bench status
+function toggleBenchStatus(circle) {
+    const recordId = circle.dataset.id;
+    const currentBenchStatus = circle.dataset.bench === "true";
+    const newBenchStatus = !currentBenchStatus;
+
+    circle.dataset.bench = newBenchStatus;
+    circle.style.backgroundColor = newBenchStatus ? "#888888" : teamColors[circle.dataset.team] || "#cccccc";
+
+    unsavedChanges.push({
+        id: recordId,
+        fields: { bench: newBenchStatus },
     });
 }
 
@@ -187,6 +194,14 @@ function updateScores() {
         : "Draw";
 
     updateBudgets(); // Update budgets whenever scores change
+}
+
+// Update team field background color dynamically
+function updateTeamFieldColor(selectElement) {
+    const selectedTeam = selectElement.value;
+    const backgroundColor = teamColors[selectedTeam] || "#cccccc";
+    selectElement.style.backgroundColor = backgroundColor;
+    selectElement.style.color = "white"; // White text for better contrast
 }
 
 // Handle updates to player fields
