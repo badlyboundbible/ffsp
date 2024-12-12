@@ -23,31 +23,25 @@
     <div id="final-score">
         <h2>Final Score</h2>
         <div class="scores">
-            <div id="jacks-score" class="score">
-                <h3>Jack's Team</h3>
-                <ul id="jacks-individual-scores"></ul>
-                <p>Total Score: 0</p>
-            </div>
-            <div id="ells-score" class="score">
-                <h3>Ell's Team</h3>
-                <ul id="ells-individual-scores"></ul>
-                <p>Total Score: 0</p>
-            </div>
+            <div class="score-label">Jack</div>
+            <div class="score-label">Winner</div>
+            <div class="score-label">Ell</div>
         </div>
-        <p id="winner-display">
-            <strong>Winner:</strong>
-            <span>-</span>
-        </p>
+        <div class="scores">
+            <div id="jacks-score" class="score-value">0</div>
+            <div id="winner-display" class="score-value">-</div>
+            <div id="ells-score" class="score-value">0</div>
+        </div>
         <button onclick="calculateWinner()">Calculate Winner</button>
     </div>
 
     <!-- Jack's Team -->
     <div class="team">
-        <h2>Lord Frostly's XI</h2>
         <div id="jacks-fwd" class="position"></div>
         <div id="jacks-mid" class="position"></div>
         <div id="jacks-def" class="position"></div>
         <div id="jacks-gk" class="position"></div>
+        <h2>Lord Frostly's XI</h2>
     </div>
 
     <!-- Publish Changes Button -->
