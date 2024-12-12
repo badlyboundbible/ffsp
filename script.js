@@ -6,9 +6,24 @@ const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
 let unsavedChanges = []; // To track unsaved changes
 
+// Define team colors
+const teamColors = {
+    ABD: "#e2001a",
+    CEL: "#16973b",
+    HEA: "#800910",
+    HIB: "#005000",
+    KIL: "#0e00f7",
+    MOT: "#ffbe00",
+    RAN: "#1b458f",
+    SMN: "#000000", // St. Mirren
+    SJN: "#243f90", // St. Johnstone
+    DUN: "#1a315a",
+    DDU: "#f29400", // Dundee United
+    ROS: "#040957", // Ross County
+};
+
 // Fetch data from Airtable
 async function fetchData() {
-    console.log("Fetching data from Airtable...");
     try {
         const response = await fetch(url, {
             headers: { Authorization: `Bearer ${apiKey}` },
@@ -17,10 +32,7 @@ async function fetchData() {
         if (!response.ok) throw new Error(`Failed to fetch data: ${response.statusText}`);
 
         const data = await response.json();
-        console.log("Fetched data:", data);
-        if (data.records) {
-            displayPlayers(data.records);
-        }
+        displayPlayers(data.records);
     } catch (error) {
         console.error("Error fetching data:", error);
     }
@@ -28,97 +40,62 @@ async function fetchData() {
 
 // Display players on the pitch
 function displayPlayers(records) {
-    console.log("Displaying players...");
-    // Clear existing data
-    ["ells", "jacks"].forEach((team) => {
-        ["gk", "def", "mid", "fwd"].forEach((position) => {
-            document.getElementById(`${team}-${position}`).innerHTML = "";
-        });
+    const positions = ["ells", "jacks"].flatMap(team =>
+        ["gk", "def", "mid", "fwd"].map(position => `${team}-${position}`)
+    );
+
+    // Clear existing content
+    positions.forEach(position => {
+        document.getElementById(position).innerHTML = "";
     });
 
     records.forEach((record) => {
         const { fields } = record;
         const { player_id, name = "", team = "N/A", value = "0.0", score = "0", bench = false } = fields;
-        const isEll = player_id.startsWith("ell");
-        const teamPrefix = isEll ? "ells" : "jacks";
+
+        const teamPrefix = player_id.startsWith("ell") ? "ells" : "jacks";
         const positionType = player_id.split("-")[1];
+        const container = document.getElementById(`${teamPrefix}-${positionType}`);
+        if (!container) return;
 
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
 
+        // Circle
         const positionCircle = document.createElement("div");
         positionCircle.className = "position-circle";
         positionCircle.textContent = positionType.toUpperCase();
-        positionCircle.style.backgroundColor = bench ? "#cccccc" : "#ffffff";
+        positionCircle.style.backgroundColor = bench ? "#cccccc" : (teamColors[team] || "#ffffff");
         positionCircle.dataset.id = record.id;
         positionCircle.dataset.bench = bench;
         positionCircle.addEventListener("click", toggleBenchStatus);
         playerDiv.appendChild(positionCircle);
 
+        // Name Input
         const nameInput = document.createElement("input");
         nameInput.value = name;
-        nameInput.placeholder = "Name";
         nameInput.dataset.id = record.id;
         nameInput.dataset.field = "name";
         nameInput.addEventListener("input", trackChange);
         playerDiv.appendChild(nameInput);
 
-        const teamSelect = document.createElement("select");
-        teamSelect.dataset.id = record.id;
-        teamSelect.dataset.field = "team";
-        ["ABD", "CEL", "HEA", "HIB", "KIL", "MOT", "RAN", "SMN", "SJN", "DUN", "DDU", "ROS"].forEach((teamOption) => {
-            const option = document.createElement("option");
-            option.value = teamOption;
-            option.textContent = teamOption;
-            if (teamOption === team) option.selected = true;
-            teamSelect.appendChild(option);
-        });
-        teamSelect.addEventListener("change", (event) => {
-            trackChange(event);
-        });
-        playerDiv.appendChild(teamSelect);
-
-        const valueInput = document.createElement("input");
-        valueInput.value = value;
-        valueInput.placeholder = "Value (£)";
-        valueInput.dataset.id = record.id;
-        valueInput.dataset.field = "value";
-        valueInput.addEventListener("input", trackChange);
-        playerDiv.appendChild(valueInput);
-
-        const scoreInput = document.createElement("input");
-        scoreInput.value = score;
-        scoreInput.placeholder = "Score";
-        scoreInput.dataset.id = record.id;
-        scoreInput.dataset.field = "score";
-        scoreInput.addEventListener("input", trackChange);
-        playerDiv.appendChild(scoreInput);
-
-        const container = document.getElementById(`${teamPrefix}-${positionType}`);
-        if (container) container.appendChild(playerDiv);
+        // Append to container
+        container.appendChild(playerDiv);
     });
 }
 
-// Track changes to fields
+// Track changes to player data
 function trackChange(event) {
     const input = event.target;
     const recordId = input.dataset.id;
     const field = input.dataset.field;
-    let value = input.value;
+    const value = input.value;
 
-    if (["value", "score"].includes(field)) {
-        value = parseFloat(value);
-        if (isNaN(value)) value = 0; // Default to 0 if invalid
-    }
-
-    const existingChange = unsavedChanges.find((change) => change.id === recordId);
-    if (existingChange) {
-        existingChange.fields[field] = value;
+    const change = unsavedChanges.find(change => change.id === recordId);
+    if (change) {
+        change.fields[field] = value;
     } else {
-        unsavedChanges.push({
-            id: recordId,
-            fields: { [field]: value },
-        });
+        unsavedChanges.push({ id: recordId, fields: { [field]: value } });
     }
     console.log("Unsaved changes:", unsavedChanges);
 }
@@ -127,20 +104,17 @@ function trackChange(event) {
 function toggleBenchStatus(event) {
     const circle = event.target;
     const recordId = circle.dataset.id;
-    const currentBenchStatus = circle.dataset.bench === "true";
-    const newBenchStatus = !currentBenchStatus;
+    const currentBench = circle.dataset.bench === "true";
+    const newBench = !currentBench;
 
-    circle.style.backgroundColor = newBenchStatus ? "#cccccc" : "#ffffff";
-    circle.dataset.bench = newBenchStatus;
+    circle.dataset.bench = newBench;
+    circle.style.backgroundColor = newBench ? "#cccccc" : (teamColors[circle.dataset.team] || "#ffffff");
 
-    const existingChange = unsavedChanges.find((change) => change.id === recordId);
-    if (existingChange) {
-        existingChange.fields.bench = newBenchStatus;
+    const change = unsavedChanges.find(change => change.id === recordId);
+    if (change) {
+        change.fields.bench = newBench;
     } else {
-        unsavedChanges.push({
-            id: recordId,
-            fields: { bench: newBenchStatus },
-        });
+        unsavedChanges.push({ id: recordId, fields: { bench: newBench } });
     }
     console.log("Bench toggled. Unsaved changes:", unsavedChanges);
 }
@@ -153,8 +127,7 @@ async function saveChanges() {
     }
 
     try {
-        console.log("Sending data to Airtable:", unsavedChanges);
-
+        console.log("Saving changes:", unsavedChanges);
         const response = await fetch(url, {
             method: "PATCH",
             headers: {
@@ -167,43 +140,13 @@ async function saveChanges() {
         if (!response.ok) throw new Error(`Failed to save changes: ${response.statusText}`);
 
         const data = await response.json();
-        console.log("Changes saved to Airtable:", data);
-        unsavedChanges = [];
+        console.log("Changes saved successfully:", data);
+        unsavedChanges = []; // Clear changes
     } catch (error) {
-        console.error("Error saving changes to Airtable:", error);
+        console.error("Error saving changes:", error);
     }
 }
 
-// Minimal test function
-async function testAirtableWrite() {
-    const testPayload = [
-        {
-            id: "rec1234567890", // Replace with a real Airtable record ID
-            fields: {
-                bench: true,
-            },
-        },
-    ];
-
-    try {
-        console.log("Testing Airtable write with payload:", testPayload);
-        const response = await fetch(url, {
-            method: "PATCH",
-            headers: {
-                Authorization: `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ records: testPayload }),
-        });
-
-        if (!response.ok) throw new Error(`Failed: ${response.statusText}`);
-        const data = await response.json();
-        console.log("Test successful. Airtable response:", data);
-    } catch (error) {
-        console.error("Test failed:", error);
-    }
-}
-
-// Attach event listeners
+// Load data on page load
 document.addEventListener("DOMContentLoaded", fetchData);
 document.getElementById("save-button").addEventListener("click", saveChanges);
