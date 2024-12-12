@@ -112,12 +112,18 @@ function displayPlayers(records) {
         scoreInput.placeholder = "Score";
         scoreInput.dataset.field = "score";
         scoreInput.dataset.id = record.id;
-        scoreInput.addEventListener("blur", handleInputChange);
+        scoreInput.addEventListener("blur", (event) => {
+            handleInputChange(event);
+            updateScores();
+        });
         playerDiv.appendChild(scoreInput);
 
         const container = document.getElementById(`${teamPrefix}-${positionType}`);
         if (container) container.appendChild(playerDiv);
     });
+
+    // Update the scores on initial load
+    updateScores();
 }
 
 // Toggle bench status
@@ -156,6 +162,34 @@ function handleInputChange(event) {
     });
 }
 
+// Update scores dynamically
+function updateScores() {
+    let ellScore = 0;
+    let jackScore = 0;
+
+    document.querySelectorAll(".player").forEach((player) => {
+        const score = parseFloat(player.querySelector("input[data-field='score']").value) || 0;
+
+        if (player.parentElement.id.startsWith("ells")) {
+            ellScore += score;
+        }
+
+        if (player.parentElement.id.startsWith("jacks")) {
+            jackScore += score;
+        }
+    });
+
+    document.getElementById("jacks-score").textContent = jackScore;
+    document.getElementById("ells-score").textContent = ellScore;
+
+    const winnerDisplay = document.getElementById("winner-display");
+    winnerDisplay.textContent = ellScore > jackScore
+        ? "Ell"
+        : jackScore > ellScore
+        ? "Jack"
+        : "Draw";
+}
+
 // Publish changes to Airtable
 async function publishChanges() {
     if (unsavedChanges.length === 0) {
@@ -186,34 +220,6 @@ async function publishChanges() {
     } catch (error) {
         console.error("Error publishing changes:", error);
     }
-}
-
-// Calculate winner
-function calculateWinner() {
-    let ellScore = 0;
-    let jackScore = 0;
-
-    document.querySelectorAll(".player").forEach((player) => {
-        const score = parseFloat(player.querySelector("input[data-field='score']").value) || 0;
-
-        if (player.parentElement.id.startsWith("ells")) {
-            ellScore += score;
-        }
-
-        if (player.parentElement.id.startsWith("jacks")) {
-            jackScore += score;
-        }
-    });
-
-    document.getElementById("jacks-score").textContent = jackScore;
-    document.getElementById("ells-score").textContent = ellScore;
-
-    const winnerDisplay = document.getElementById("winner-display");
-    winnerDisplay.textContent = ellScore > jackScore
-        ? "Ell"
-        : jackScore > ellScore
-        ? "Jack"
-        : "Draw";
 }
 
 // Load data on page load
