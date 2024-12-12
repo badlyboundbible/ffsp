@@ -54,10 +54,10 @@ h1 {
 .player select {
     width: 100%; /* Adjust width to fit parent container */
     margin-top: 5px;
-    font-size: 14px; /* Increase font size for better text visibility */
+    font-size: 12px;
     text-align: center;
     box-sizing: border-box;
-    padding: 8px; /* Increase padding to make text more central */
+    padding: 5px;
     border: none;
     border-radius: 15px; /* Curved edges */
     font-weight: bold;
@@ -71,8 +71,6 @@ h1 {
     background-color: #ffcccc; /* Light red for Ell */
     color: black; /* Black text for readability */
     border-radius: 15px; /* Curved edges for name field */
-    font-size: 16px; /* Larger font size for name */
-    padding: 10px; /* Add padding for better text alignment */
 }
 
 /* Team Dropdown */
@@ -80,8 +78,6 @@ h1 {
     background-color: #243f90; /* Default color (St. Johnstone's color) */
     color: white; /* White text for contrast */
     border-radius: 15px; /* Curved edges for team dropdown */
-    font-size: 14px; /* Larger font size for dropdown */
-    padding: 8px; /* Add padding for dropdown text */
 }
 
 /* Value Fields */
@@ -89,8 +85,6 @@ h1 {
     background-color: #006400; /* Dark green background for value field */
     color: white; /* White text for contrast */
     border-radius: 15px; /* Curved edges for value field */
-    font-size: 16px; /* Larger font size for value */
-    padding: 10px; /* Add padding for better alignment */
 }
 
 /* Score Fields */
@@ -98,8 +92,6 @@ h1 {
     background-color: white; /* White background for score field */
     color: black; /* Black text */
     border-radius: 15px; /* Curved edges for score field */
-    font-size: 16px; /* Larger font size for score */
-    padding: 10px; /* Add padding for better alignment */
 }
 
 /* Input Fields Hover and Focus */
@@ -109,12 +101,6 @@ h1 {
 .player select:focus {
     background-color: #e0e0e0; /* Slight gray on hover/focus */
     cursor: pointer; /* Indicate interactivity */
-}
-
-/* Team Dropdowns */
-.player select {
-    color: white; /* White text for dropdowns */
-    border-radius: 15px; /* Curved edges */
 }
 
 /* Position Circles */
@@ -207,8 +193,8 @@ h1 {
 
     .player input,
     .player select {
-        font-size: 12px; /* Reduce font size for smaller screens */
-        padding: 6px; /* Adjust padding for better fit */
+        font-size: 10px; /* Reduce font size for smaller screens */
+        padding: 4px; /* Adjust padding for better fit */
     }
 
     #final-score h2 {
