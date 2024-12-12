@@ -134,6 +134,14 @@ function displayPlayers(records) {
     updateBudgets();
 }
 
+// Update team field background color dynamically
+function updateTeamFieldColor(selectElement) {
+    const selectedTeam = selectElement.value;
+    const backgroundColor = teamColors[selectedTeam] || "#cccccc";
+    selectElement.style.backgroundColor = backgroundColor;
+    selectElement.style.color = "white"; // White text for better contrast
+}
+
 // Update budgets dynamically
 function updateBudgets() {
     ["ells", "jacks"].forEach((teamPrefix) => {
