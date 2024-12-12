@@ -69,6 +69,7 @@ h1 {
 /* Name Field (Dynamic Background Colors for Ell and Jack) */
 .player input[data-field="name"] {
     background-color: transparent;
+    width: 90%; /* Reduced width by 10% */
 }
 
 /* Value Fields */
@@ -76,6 +77,7 @@ h1 {
     background-color: #006400; /* Dark green background */
     color: white; /* White text for contrast */
     border-radius: 15px; /* Curved edges */
+    width: 50%; /* Reduced width by 50% */
 }
 
 /* Score Fields */
@@ -83,6 +85,14 @@ h1 {
     background-color: white; /* White background for scores */
     color: black; /* Black text */
     border-radius: 15px; /* Curved edges */
+    width: 50%; /* Reduced width by 50% */
+}
+
+/* Team Dropdowns */
+.player select {
+    color: white; /* White text for dropdowns */
+    border-radius: 15px; /* Curved edges */
+    width: 75%; /* Reduced width by 25% */
 }
 
 /* Input Fields Hover and Focus */
@@ -92,12 +102,6 @@ h1 {
 .player select:focus {
     background-color: #e0e0e0; /* Slight gray on hover/focus */
     cursor: pointer; /* Indicate interactivity */
-}
-
-/* Team Dropdowns */
-.player select {
-    color: white; /* White text for dropdowns */
-    border-radius: 15px; /* Curved edges */
 }
 
 /* Position Circles */
