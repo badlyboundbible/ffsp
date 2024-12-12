@@ -45,8 +45,8 @@ h1 {
     align-items: center;
     text-align: center;
     flex: 1; /* Allow fields to resize flexibly */
-    max-width: 120px; /* Ensure fields don’t exceed a certain width */
-    min-width: 100px; /* Maintain a minimum width */
+    max-width: 100px; /* Ensure fields don’t exceed a certain width */
+    min-width: 80px; /* Maintain a minimum width */
 }
 
 /* Styled Input Fields */
@@ -68,30 +68,21 @@ h1 {
 /* Specific Field Styles */
 /* Name Field (Dynamic Background Colors for Ell and Jack) */
 .player input[data-field="name"] {
-    background-color: #ffcccc; /* Light red for Ell */
-    color: black; /* Black text for readability */
-    border-radius: 15px; /* Curved edges for name field */
-}
-
-/* Team Dropdown */
-.player select {
-    background-color: #243f90; /* Default color (St. Johnstone's color) */
-    color: white; /* White text for contrast */
-    border-radius: 15px; /* Curved edges for team dropdown */
+    background-color: transparent;
 }
 
 /* Value Fields */
 .player input[data-field="value"] {
-    background-color: #006400; /* Dark green background for value field */
+    background-color: #006400; /* Dark green background */
     color: white; /* White text for contrast */
-    border-radius: 15px; /* Curved edges for value field */
+    border-radius: 15px; /* Curved edges */
 }
 
 /* Score Fields */
 .player input[data-field="score"] {
-    background-color: white; /* White background for score field */
+    background-color: white; /* White background for scores */
     color: black; /* Black text */
-    border-radius: 15px; /* Curved edges for score field */
+    border-radius: 15px; /* Curved edges */
 }
 
 /* Input Fields Hover and Focus */
@@ -101,6 +92,12 @@ h1 {
 .player select:focus {
     background-color: #e0e0e0; /* Slight gray on hover/focus */
     cursor: pointer; /* Indicate interactivity */
+}
+
+/* Team Dropdowns */
+.player select {
+    color: white; /* White text for dropdowns */
+    border-radius: 15px; /* Curved edges */
 }
 
 /* Position Circles */
@@ -155,7 +152,7 @@ h1 {
     width: 30%;
     text-align: center;
     background-color: white; /* White background for scores */
-    border-radius: 15px; /* Curved edges for scores */
+    border-radius: 15px; /* Curved edges */
     padding: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
@@ -172,7 +169,7 @@ h1 {
     background-color: #28a745;
     color: white;
     border: none;
-    border-radius: 15px; /* Curved edges for buttons */
+    border-radius: 15px; /* Curved edges */
     cursor: pointer;
     font-size: 16px;
 }
