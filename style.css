@@ -55,10 +55,21 @@ h1 {
     padding: 5px;
     border: none;
     border-radius: 15px; /* Curved edges */
-    background-color: #006400; /* Dark green background */
-    color: white; /* White text */
     font-weight: bold;
     outline: none; /* Remove focus outline */
+    color: black; /* Set text color to black */
+}
+
+/* Specific Field Styles */
+/* Name Field (Dynamic Background Colors for Ell and Jack) */
+.player input[data-field="name"] {
+    background-color: transparent;
+}
+
+/* Value and Score Fields */
+.player input[data-field="value"],
+.player input[data-field="score"] {
+    background-color: white; /* White background for value and score fields */
 }
 
 /* Input Fields Hover and Focus */
@@ -66,7 +77,7 @@ h1 {
 .player select:hover,
 .player input:focus,
 .player select:focus {
-    background-color: #004d00; /* Slightly darker green on hover/focus */
+    background-color: #e0e0e0; /* Slight gray on hover/focus */
     cursor: pointer; /* Indicate interactivity */
 }
 
@@ -121,6 +132,10 @@ h1 {
     font-weight: bold;
     width: 30%;
     text-align: center;
+    background-color: white; /* White background for scores */
+    border-radius: 8px; /* Slight rounding for aesthetics */
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
 /* Publish Changes Section */
