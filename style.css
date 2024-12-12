@@ -32,9 +32,9 @@ h1 {
 /* Position Rows */
 .position {
     display: flex;
-    flex-wrap: nowrap; /* Prevent wrapping to a new line */
-    justify-content: space-between; /* Ensure even spacing between players */
-    gap: 5px; /* Reduced gap to allow more players to fit in a row */
+    flex-wrap: nowrap; /* Prevent wrapping */
+    justify-content: center; /* Center align players */
+    gap: 10px; /* Add spacing between players */
     margin: 10px 0;
 }
 
