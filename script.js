@@ -147,14 +147,16 @@ function updateBudgets() {
     const totalBudget = 80;
 
     ["ells", "jacks"].forEach((teamPrefix) => {
-        let spent = 0;
+        let totalValue = 0;
 
+        // Calculate the sum of all player values
         document.querySelectorAll(`#${teamPrefix} .player input[data-field='value']`).forEach((valueInput) => {
             const value = parseFloat(valueInput.value.replace("£", "").trim()) || 0;
-            spent += value;
+            totalValue += value;
         });
 
-        const budgetLeft = totalBudget - spent;
+        // Remaining budget is totalBudget minus totalValue
+        const budgetLeft = totalBudget - totalValue;
         const budgetElement = document.getElementById(`${teamPrefix}-budget`);
         budgetElement.textContent = `£${budgetLeft.toFixed(1)}`;
 
