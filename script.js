@@ -126,18 +126,38 @@ async function saveChanges() {
         return;
     }
 
+    // Ensure all fields are formatted correctly before sending
+    const validatedChanges = unsavedChanges.map((change) => {
+        const validatedFields = { ...change.fields };
+
+        // Convert "bench" field to boolean
+        if (validatedFields.bench !== undefined) {
+            validatedFields.bench = !!validatedFields.bench; // Ensure true/false
+        }
+
+        return {
+            id: change.id,
+            fields: validatedFields,
+        };
+    });
+
+    console.log("Validated changes to send:", validatedChanges);
+
     try {
-        console.log("Saving changes:", unsavedChanges);
         const response = await fetch(url, {
             method: "PATCH",
             headers: {
                 Authorization: `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ records: unsavedChanges }),
+            body: JSON.stringify({ records: validatedChanges }),
         });
 
-        if (!response.ok) throw new Error(`Failed to save changes: ${response.statusText}`);
+        if (!response.ok) {
+            const errorDetails = await response.json();
+            console.error("Airtable Error Details:", errorDetails);
+            throw new Error(`Failed to save changes: ${response.statusText}`);
+        }
 
         const data = await response.json();
         console.log("Changes saved successfully:", data);
