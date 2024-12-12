@@ -134,18 +134,8 @@ function displayPlayers(records) {
     updateBudgets();
 }
 
-// Update team field background color dynamically
-function updateTeamFieldColor(selectElement) {
-    const selectedTeam = selectElement.value;
-    const backgroundColor = teamColors[selectedTeam] || "#cccccc";
-    selectElement.style.backgroundColor = backgroundColor;
-    selectElement.style.color = "white"; // White text for better contrast
-}
-
 // Update budgets dynamically
 function updateBudgets() {
-    const totalBudget = 80;
-
     ["ells", "jacks"].forEach((teamPrefix) => {
         let totalValue = 0;
 
@@ -155,19 +145,9 @@ function updateBudgets() {
             totalValue += value;
         });
 
-        // Remaining budget is totalBudget minus totalValue
-        const budgetLeft = totalBudget - totalValue;
+        // Display total budget
         const budgetElement = document.getElementById(`${teamPrefix}-budget`);
-        budgetElement.textContent = `£${budgetLeft.toFixed(1)}`;
-
-        // Set the background color based on remaining budget
-        if (budgetLeft > 0) {
-            budgetElement.style.backgroundColor = "#ccffcc"; // Light green
-        } else if (budgetLeft < 0) {
-            budgetElement.style.backgroundColor = "#ffcccc"; // Light red
-        } else {
-            budgetElement.style.backgroundColor = "white"; // White
-        }
+        budgetElement.textContent = `£${totalValue.toFixed(1)}`;
     });
 }
 
@@ -198,7 +178,7 @@ function updateScores() {
         ? "Jack"
         : "Draw";
 
-    updateBudgets(); // Ensure budgets are updated when scores change
+    updateBudgets(); // Update budgets whenever scores change
 }
 
 // Handle updates to player fields
