@@ -199,21 +199,34 @@ async function publishChanges() {
 
     try {
         const responses = await Promise.all(
-            unsavedChanges.map(change =>
-                fetch(`${url}/${change.id}`, {
-                    method: "PATCH",
-                    headers: {
-                        Authorization: `Bearer ${apiKey}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ fields: change.fields }),
-                })
-            )
+            unsavedChanges.map(async (change) => {
+                try {
+                    console.log("Publishing change:", change); // Log the change being sent
+
+                    const response = await fetch(`${url}/${change.id}`, {
+                        method: "PATCH",
+                        headers: {
+                            Authorization: `Bearer ${apiKey}`,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ fields: change.fields }),
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text(); // Read error message
+                        console.error(`Error publishing change: ${errorText}`);
+                        throw new Error(`Failed to update record ${change.id}: ${response.statusText}`);
+                    }
+
+                    return response.json();
+                } catch (error) {
+                    console.error(`Error for record ${change.id}:`, error);
+                    throw error; // Re-throw to handle in outer catch
+                }
+            })
         );
 
-        if (responses.some(response => !response.ok)) {
-            throw new Error("Some changes failed to publish.");
-        }
+        console.log("All changes published successfully:", responses);
 
         alert("All changes published successfully!");
 
@@ -224,7 +237,9 @@ async function publishChanges() {
         updateScores();
     } catch (error) {
         console.error("Error publishing changes:", error);
-        alert("An error occurred while publishing changes. Please try again.");
+        alert(
+            "An error occurred while publishing changes. Please check your internet connection or contact support."
+        );
     }
 }
 
