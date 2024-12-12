@@ -59,7 +59,7 @@ h1 {
     box-sizing: border-box;
     padding: 5px;
     border: none;
-    border-radius: 0; /* Remove rounded corners */
+    border-radius: 15px; /* Curved edges */
     font-weight: bold;
     outline: none; /* Remove focus outline */
     color: black; /* Default text color */
@@ -75,12 +75,14 @@ h1 {
 .player input[data-field="value"] {
     background-color: #006400; /* Dark green background */
     color: white; /* White text for contrast */
+    border-radius: 15px; /* Curved edges */
 }
 
 /* Score Fields */
 .player input[data-field="score"] {
     background-color: white; /* White background for scores */
     color: black; /* Black text */
+    border-radius: 15px; /* Curved edges */
 }
 
 /* Input Fields Hover and Focus */
@@ -95,6 +97,7 @@ h1 {
 /* Team Dropdowns */
 .player select {
     color: white; /* White text for dropdowns */
+    border-radius: 15px; /* Curved edges */
 }
 
 /* Position Circles */
@@ -149,7 +152,7 @@ h1 {
     width: 30%;
     text-align: center;
     background-color: white; /* White background for scores */
-    border-radius: 8px; /* Slight rounding for aesthetics */
+    border-radius: 15px; /* Curved edges */
     padding: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
@@ -166,7 +169,7 @@ h1 {
     background-color: #28a745;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 15px; /* Curved edges */
     cursor: pointer;
     font-size: 16px;
 }
