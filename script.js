@@ -129,26 +129,16 @@ function displayPlayers(records) {
         if (container) container.appendChild(playerDiv);
     });
 
-    // Update the scores and budget on initial load
+    // Update the scores on initial load
     updateScores();
-    updateBudgets();
 }
 
-// Update budgets dynamically
-function updateBudgets() {
-    ["ells", "jacks"].forEach((teamPrefix) => {
-        let totalValue = 0;
-
-        // Calculate the sum of all player values
-        document.querySelectorAll(`#${teamPrefix} .player input[data-field='value']`).forEach((valueInput) => {
-            const value = parseFloat(valueInput.value.replace("£", "").trim()) || 0;
-            totalValue += value;
-        });
-
-        // Display total budget
-        const budgetElement = document.getElementById(`${teamPrefix}-budget`);
-        budgetElement.textContent = `£${totalValue.toFixed(1)}`;
-    });
+// Update team field background color dynamically
+function updateTeamFieldColor(selectElement) {
+    const selectedTeam = selectElement.value;
+    const backgroundColor = teamColors[selectedTeam] || "#cccccc";
+    selectElement.style.backgroundColor = backgroundColor;
+    selectElement.style.color = "white"; // White text for better contrast
 }
 
 // Toggle bench status
@@ -164,6 +154,34 @@ function toggleBenchStatus(circle) {
         id: recordId,
         fields: { bench: newBenchStatus },
     });
+}
+
+// Update the circle color
+function updateCircleColor(teamSelect, positionCircle) {
+    const selectedTeam = teamSelect.value;
+    const isBench = positionCircle.dataset.bench === "true";
+    positionCircle.dataset.team = selectedTeam;
+    positionCircle.style.backgroundColor = isBench ? "#888888" : teamColors[selectedTeam] || "#cccccc";
+}
+
+// Handle updates to player fields
+function handleInputChange(event) {
+    const input = event.target;
+    const recordId = input.dataset.id;
+    const field = input.dataset.field;
+    let value = input.value;
+
+    // Convert value to a number for numeric fields like "score" and "value"
+    if (field === "score" || field === "value") {
+        value = parseFloat(value.replace("£", "").trim()) || 0; // Remove £ sign and convert to a number
+    }
+
+    unsavedChanges.push({
+        id: recordId,
+        fields: { [field]: value },
+    });
+
+    console.log("Change added to unsavedChanges:", unsavedChanges);
 }
 
 // Update scores dynamically
@@ -192,38 +210,6 @@ function updateScores() {
         : jackScore > ellScore
         ? "Jack"
         : "Draw";
-
-    updateBudgets(); // Update budgets whenever scores change
-}
-
-// Update team field background color dynamically
-function updateTeamFieldColor(selectElement) {
-    const selectedTeam = selectElement.value;
-    const backgroundColor = teamColors[selectedTeam] || "#cccccc";
-    selectElement.style.backgroundColor = backgroundColor;
-    selectElement.style.color = "white"; // White text for better contrast
-}
-
-// Handle updates to player fields
-function handleInputChange(event) {
-    const input = event.target;
-    const recordId = input.dataset.id;
-    const field = input.dataset.field;
-    let value = input.value;
-
-    // Convert value to a number for numeric fields like "score" and "value"
-    if (field === "score" || field === "value") {
-        value = parseFloat(value.replace("£", "").trim()) || 0; // Remove £ sign and convert to a number
-    }
-
-    unsavedChanges.push({
-        id: recordId,
-        fields: { [field]: value },
-    });
-
-    console.log("Change added to unsavedChanges:", unsavedChanges);
-
-    updateScores(); // Update scores and budgets dynamically
 }
 
 // Publish changes to Airtable
@@ -236,34 +222,53 @@ async function publishChanges() {
     try {
         const responses = await Promise.all(
             unsavedChanges.map(async (change) => {
-                const sanitizedFields = {};
-                Object.keys(change.fields).forEach((key) => {
-                    const value = change.fields[key];
-                    sanitizedFields[key] = key === "score" || key === "value" ? parseFloat(value) : value;
-                });
+                try {
+                    // Ensure numeric fields are sent as numbers
+                    const sanitizedFields = {};
+                    Object.keys(change.fields).forEach((key) => {
+                        const value = change.fields[key];
+                        sanitizedFields[key] = key === "score" || key === "value" ? parseFloat(value) : value;
+                    });
 
-                const response = await fetch(`${url}/${change.id}`, {
-                    method: "PATCH",
-                    headers: {
-                        Authorization: `Bearer ${apiKey}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ fields: sanitizedFields }),
-                });
+                    console.log("Publishing sanitized change:", { id: change.id, fields: sanitizedFields });
 
-                if (!response.ok) {
-                    throw new Error(`Failed to update record ${change.id}: ${response.statusText}`);
+                    const response = await fetch(`${url}/${change.id}`, {
+                        method: "PATCH",
+                        headers: {
+                            Authorization: `Bearer ${apiKey}`,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ fields: sanitizedFields }),
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text(); // Read error message
+                        console.error(`Error publishing change: ${errorText}`);
+                        throw new Error(`Failed to update record ${change.id}: ${response.statusText}`);
+                    }
+
+                    return response.json();
+                } catch (error) {
+                    console.error(`Error for record ${change.id}:`, error);
+                    throw error; // Re-throw to handle in outer catch
                 }
-
-                return response.json();
             })
         );
 
+        console.log("All changes published successfully:", responses);
+
         alert("All changes published successfully!");
+
+        // Clear the cache of unsaved changes
         unsavedChanges = [];
+
+        // Update scores after publishing changes
+        updateScores();
     } catch (error) {
         console.error("Error publishing changes:", error);
-        alert("An error occurred while publishing changes.");
+        alert(
+            "An error occurred while publishing changes. Please check your internet connection or contact support."
+        );
     }
 }
 
