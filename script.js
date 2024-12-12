@@ -121,6 +121,13 @@ function displayPlayers(records) {
 
         const container = document.getElementById(`${teamPrefix}-${positionType}`);
         if (container) container.appendChild(playerDiv);
+
+        // Update team container background color
+        const teamContainer = document.getElementById(`${teamPrefix}-${positionType}`).parentElement;
+        if (teamContainer && teamColors[team]) {
+            teamContainer.style.backgroundColor = teamColors[team];
+            teamContainer.style.color = "white"; // White text for team containers
+        }
     });
 
     // Update the scores on initial load
