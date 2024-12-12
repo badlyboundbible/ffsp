@@ -216,9 +216,15 @@ async function publishChanges() {
         }
 
         alert("All changes published successfully!");
+
+        // Clear the cache of unsaved changes
         unsavedChanges = [];
+
+        // Update scores after publishing changes
+        updateScores();
     } catch (error) {
         console.error("Error publishing changes:", error);
+        alert("An error occurred while publishing changes. Please try again.");
     }
 }
 
