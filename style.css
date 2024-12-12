@@ -92,23 +92,18 @@ h1 {
     margin: 10px 0;
 }
 
-.score {
+.score-label {
     font-size: 18px;
     font-weight: bold;
-    width: 45%;
+    width: 30%;
     text-align: center;
 }
 
-.score ul {
-    list-style: none;
-    padding: 0;
-    font-size: 14px;
-}
-
-#final-score p {
-    margin: 10px 0;
-    font-size: 18px;
+.score-value {
+    font-size: 24px;
     font-weight: bold;
+    width: 30%;
+    text-align: center;
 }
 
 #final-score button {
