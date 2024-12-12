@@ -42,6 +42,7 @@ async function fetchData() {
 
 // Display players on the pitch
 function displayPlayers(records) {
+    // Clear existing data
     ["ells", "jacks"].forEach((team) => {
         ["gk", "def", "mid", "fwd"].forEach((position) => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
@@ -200,6 +201,27 @@ async function saveChanges() {
     } catch (error) {
         console.error("Error saving changes:", error);
     }
+}
+
+// Calculate the winner
+function calculateWinner() {
+    let ellScore = 0;
+    let jackScore = 0;
+
+    document.querySelectorAll(".player").forEach((player) => {
+        const score = parseFloat(player.querySelector("input[data-field='score']").value) || 0;
+        if (player.parentElement.id.startsWith("ells")) ellScore += score;
+        if (player.parentElement.id.startsWith("jacks")) jackScore += score;
+    });
+
+    document.getElementById("jacks-score").textContent = `Jack's Score: ${jackScore}`;
+    document.getElementById("ells-score").textContent = `Ell's Score: ${ellScore}`;
+    document.getElementById("winner-display").textContent =
+        ellScore > jackScore
+            ? "Winner: Ell's Allstars"
+            : jackScore > ellScore
+            ? "Winner: Jack's Team"
+            : "Winner: Draw";
 }
 
 // Event listeners
