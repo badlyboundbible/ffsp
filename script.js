@@ -42,7 +42,6 @@ async function fetchData() {
 
 // Display players on the pitch
 function displayPlayers(records) {
-    // Clear existing data
     ["ells", "jacks"].forEach((team) => {
         ["gk", "def", "mid", "fwd"].forEach((position) => {
             document.getElementById(`${team}-${position}`).innerHTML = "";
@@ -148,16 +147,16 @@ function toggleBenchStatus(event) {
 
     // Update the circle's visual appearance
     circle.style.backgroundColor = newBenchStatus ? "#cccccc" : (teamColors[circle.dataset.team] || "#cccccc");
-    circle.dataset.bench = newBenchStatus.toString(); // Ensure this is stored as a string
+    circle.dataset.bench = newBenchStatus.toString();
 
     // Track the bench status change
     const existingChange = unsavedChanges.find((change) => change.id === recordId);
     if (existingChange) {
-        existingChange.fields["bench"] = newBenchStatus; // Save as boolean
+        existingChange.fields["bench"] = newBenchStatus;
     } else {
         unsavedChanges.push({
             id: recordId,
-            fields: { bench: newBenchStatus }, // Save as boolean
+            fields: { bench: newBenchStatus },
         });
     }
     console.log("Unsaved changes:", unsavedChanges);
@@ -183,7 +182,7 @@ async function saveChanges() {
             fields: change.fields,
         }));
 
-        console.log("Sending data to Airtable:", updates); // Debug log
+        console.log("Sending data to Airtable:", updates);
         const response = await fetch(url, {
             method: "PATCH",
             headers: {
@@ -201,27 +200,6 @@ async function saveChanges() {
     } catch (error) {
         console.error("Error saving changes:", error);
     }
-}
-
-// Calculate the winner
-function calculateWinner() {
-    let ellScore = 0;
-    let jackScore = 0;
-
-    document.querySelectorAll(".player").forEach((player) => {
-        const score = parseFloat(player.querySelector("input[data-field='score']").value) || 0;
-        if (player.parentElement.id.startsWith("ells")) ellScore += score;
-        if (player.parentElement.id.startsWith("jacks")) jackScore += score;
-    });
-
-    document.getElementById("jacks-score").textContent = `Jack's Score: ${jackScore}`;
-    document.getElementById("ells-score").textContent = `Ell's Score: ${ellScore}`;
-    document.getElementById("winner-display").textContent =
-        ellScore > jackScore
-            ? "Winner: Ell's Allstars"
-            : jackScore > ellScore
-            ? "Winner: Jack's Team"
-            : "Winner: Draw";
 }
 
 // Event listeners
