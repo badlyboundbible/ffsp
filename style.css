@@ -26,6 +26,7 @@ h1 {
     margin: 10px 0;
     font-size: 20px;
     font-weight: bold;
+    color: white; /* Team header text is white for readability */
 }
 
 /* Position Rows */
@@ -57,7 +58,7 @@ h1 {
     border-radius: 15px; /* Curved edges */
     font-weight: bold;
     outline: none; /* Remove focus outline */
-    color: black; /* Set text color to black */
+    color: black; /* Default text color */
 }
 
 /* Specific Field Styles */
@@ -66,10 +67,16 @@ h1 {
     background-color: transparent;
 }
 
-/* Value and Score Fields */
-.player input[data-field="value"],
+/* Value Fields */
+.player input[data-field="value"] {
+    background-color: #006400; /* Dark green background */
+    color: white; /* White text for contrast */
+}
+
+/* Score Fields */
 .player input[data-field="score"] {
-    background-color: white; /* White background for value and score fields */
+    background-color: white; /* White background for scores */
+    color: black; /* Black text */
 }
 
 /* Input Fields Hover and Focus */
@@ -79,6 +86,11 @@ h1 {
 .player select:focus {
     background-color: #e0e0e0; /* Slight gray on hover/focus */
     cursor: pointer; /* Indicate interactivity */
+}
+
+/* Team Dropdowns */
+.player select {
+    color: white; /* White text for dropdowns */
 }
 
 /* Position Circles */
