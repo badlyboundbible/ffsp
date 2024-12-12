@@ -11,6 +11,27 @@ h1 {
     margin-top: 20px;
 }
 
+/* Publish Changes Section */
+#publish-section {
+    margin: 10px auto 20px; /* Adjust spacing above and below */
+    width: 90%;
+    text-align: center;
+}
+
+#publish-section button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 15px; /* Curved edges */
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#publish-section button:hover {
+    background-color: #218838;
+}
+
 /* Teams Section */
 .team {
     margin: 20px auto;
@@ -189,52 +210,4 @@ h1 {
     border-radius: 15px; /* Curved edges */
     padding: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-/* Publish Changes Section */
-#publish-section {
-    margin: 20px auto;
-    width: 90%;
-    text-align: center;
-}
-
-#publish-section button {
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 15px; /* Curved edges */
-    cursor: pointer;
-    font-size: 16px;
-}
-
-#publish-section button:hover {
-    background-color: #218838;
-}
-
-/* Responsive Design Adjustments */
-@media (max-width: 600px) {
-    .position {
-        flex-wrap: nowrap; /* Ensure players stay in a single row */
-        gap: 2px; /* Reduce gaps further for smaller screens */
-    }
-
-    .player {
-        max-width: 70px; /* Further reduce max width for smaller screens */
-        min-width: 60px; /* Adjust minimum width */
-    }
-
-    .player input,
-    .player select {
-        font-size: 10px; /* Reduce font size for smaller screens */
-        padding: 4px; /* Adjust padding for better fit */
-    }
-
-    #final-score h2 {
-        font-size: 20px; /* Adjust font size of headings */
-    }
-
-    .score-value {
-        font-size: 20px; /* Reduce font size of scores */
-    }
 }
