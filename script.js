@@ -154,12 +154,19 @@ function handleInputChange(event) {
     const input = event.target;
     const recordId = input.dataset.id;
     const field = input.dataset.field;
-    const value = input.dataset.field === "value" ? parseFloat(input.value.replace("£", "")) : input.value;
+    let value = input.value;
+
+    // Convert value to a number for numeric fields like "score" and "value"
+    if (field === "score" || field === "value") {
+        value = parseFloat(value.replace("£", "").trim()) || 0; // Remove £ sign and convert to a number
+    }
 
     unsavedChanges.push({
         id: recordId,
         fields: { [field]: value },
     });
+
+    console.log("Change added to unsavedChanges:", unsavedChanges);
 }
 
 // Update scores dynamically
@@ -201,7 +208,14 @@ async function publishChanges() {
         const responses = await Promise.all(
             unsavedChanges.map(async (change) => {
                 try {
-                    console.log("Publishing change:", change); // Log the change being sent
+                    // Ensure numeric fields are sent as numbers
+                    const sanitizedFields = {};
+                    Object.keys(change.fields).forEach((key) => {
+                        const value = change.fields[key];
+                        sanitizedFields[key] = key === "score" || key === "value" ? parseFloat(value) : value;
+                    });
+
+                    console.log("Publishing sanitized change:", { id: change.id, fields: sanitizedFields });
 
                     const response = await fetch(`${url}/${change.id}`, {
                         method: "PATCH",
@@ -209,7 +223,7 @@ async function publishChanges() {
                             Authorization: `Bearer ${apiKey}`,
                             "Content-Type": "application/json",
                         },
-                        body: JSON.stringify({ fields: change.fields }),
+                        body: JSON.stringify({ fields: sanitizedFields }),
                     });
 
                     if (!response.ok) {
