@@ -148,16 +148,16 @@ function toggleBenchStatus(event) {
 
     // Update the circle's visual appearance
     circle.style.backgroundColor = newBenchStatus ? "#cccccc" : (teamColors[circle.dataset.team] || "#cccccc");
-    circle.dataset.bench = newBenchStatus;
+    circle.dataset.bench = newBenchStatus.toString(); // Ensure this is stored as a string
 
     // Track the bench status change
     const existingChange = unsavedChanges.find((change) => change.id === recordId);
     if (existingChange) {
-        existingChange.fields["bench"] = newBenchStatus;
+        existingChange.fields["bench"] = newBenchStatus; // Save as boolean
     } else {
         unsavedChanges.push({
             id: recordId,
-            fields: { bench: newBenchStatus },
+            fields: { bench: newBenchStatus }, // Save as boolean
         });
     }
     console.log("Unsaved changes:", unsavedChanges);
@@ -183,6 +183,7 @@ async function saveChanges() {
             fields: change.fields,
         }));
 
+        console.log("Sending data to Airtable:", updates); // Debug log
         const response = await fetch(url, {
             method: "PATCH",
             headers: {
@@ -195,7 +196,7 @@ async function saveChanges() {
         if (!response.ok) throw new Error(`Failed to save changes: ${response.statusText}`);
 
         const data = await response.json();
-        console.log("Changes saved:", data);
+        console.log("Changes saved successfully:", data);
         unsavedChanges = [];
     } catch (error) {
         console.error("Error saving changes:", error);
