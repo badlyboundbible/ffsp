@@ -32,6 +32,7 @@ h1 {
 /* Position Rows */
 .position {
     display: flex;
+    flex-wrap: wrap; /* Ensure fields wrap to new lines on small screens */
     justify-content: center;
     gap: 10px;
     margin: 10px 0;
@@ -43,19 +44,22 @@ h1 {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    flex: 1; /* Allow fields to resize flexibly */
+    max-width: 100px; /* Ensure fields don’t exceed a certain width */
+    min-width: 80px; /* Maintain a minimum width */
 }
 
 /* Styled Input Fields */
 .player input,
 .player select {
-    width: 100px;
+    width: 100%; /* Adjust width to fit parent container */
     margin-top: 5px;
     font-size: 12px;
     text-align: center;
     box-sizing: border-box;
     padding: 5px;
     border: none;
-    border-radius: 15px; /* Curved edges */
+    border-radius: 0; /* Remove rounded corners */
     font-weight: bold;
     outline: none; /* Remove focus outline */
     color: black; /* Default text color */
@@ -169,4 +173,29 @@ h1 {
 
 #publish-section button:hover {
     background-color: #218838;
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 600px) {
+    .position {
+        gap: 5px; /* Reduce gaps between fields on smaller screens */
+    }
+
+    .player {
+        max-width: 80px; /* Reduce maximum width for smaller screens */
+    }
+
+    .player input,
+    .player select {
+        font-size: 10px; /* Reduce font size for smaller screens */
+        padding: 4px; /* Adjust padding for better fit */
+    }
+
+    #final-score h2 {
+        font-size: 20px; /* Adjust font size of headings */
+    }
+
+    .score-value {
+        font-size: 20px; /* Reduce font size of scores */
+    }
 }
