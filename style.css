@@ -1,3 +1,4 @@
+/* General Body Styling */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
@@ -10,6 +11,7 @@ h1 {
     margin-top: 20px;
 }
 
+/* Teams Section */
 .team {
     margin: 20px auto;
     width: 90%;
@@ -26,6 +28,7 @@ h1 {
     font-weight: bold;
 }
 
+/* Position Rows */
 .position {
     display: flex;
     justify-content: center;
@@ -33,6 +36,7 @@ h1 {
     margin: 10px 0;
 }
 
+/* Player Cards */
 .player {
     display: flex;
     flex-direction: column;
@@ -49,6 +53,7 @@ h1 {
     box-sizing: border-box;
 }
 
+/* Position Circles */
 .position-circle {
     width: 40px;
     height: 40px;
@@ -63,6 +68,7 @@ h1 {
     background-color: #ccc;
 }
 
+/* Final Score Section */
 #final-score {
     margin: 20px auto;
     width: 90%;
@@ -93,8 +99,34 @@ h1 {
     text-align: center;
 }
 
-#save-button {
-    margin-top: 10px;
+#final-score p {
+    margin: 10px 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#final-score button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#final-score button:hover {
+    background-color: #0056b3;
+}
+
+/* Publish Changes Section */
+#publish-section {
+    margin: 20px auto;
+    width: 90%;
+    text-align: center;
+}
+
+#publish-section button {
     padding: 10px 20px;
     background-color: #28a745;
     color: white;
@@ -104,6 +136,6 @@ h1 {
     font-size: 16px;
 }
 
-#save-button:hover {
+#publish-section button:hover {
     background-color: #218838;
 }
