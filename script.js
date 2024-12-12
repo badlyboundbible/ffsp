@@ -110,6 +110,7 @@ function displayPlayers(records) {
         valueInput.placeholder = "Value (£)";
         valueInput.dataset.field = "value";
         valueInput.dataset.id = record.id;
+        valueInput.style.backgroundColor = isEll ? "#ffcccc" : "#cceeff"; // Light red for Ell, light blue for Jack
         valueInput.addEventListener("blur", handleInputChange);
         playerDiv.appendChild(valueInput);
 
