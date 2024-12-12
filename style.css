@@ -99,6 +99,12 @@ h1 {
     text-align: center;
 }
 
+.score ul {
+    list-style: none;
+    padding: 0;
+    font-size: 14px;
+}
+
 #final-score p {
     margin: 10px 0;
     font-size: 18px;
