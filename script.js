@@ -159,71 +159,73 @@ class PlayerComponent {
     createRoleContainer() {
         const container = document.createElement("div");
         container.className = "role-container";
-    
+        
         let role = PLAYER_ROLES.NONE;
-        if (this.record.fields.C) {
+        if (this.record.fields.TC) {
+            role = PLAYER_ROLES.TRIPLE_CAPTAIN;
+        } else if (this.record.fields.C) {
             role = PLAYER_ROLES.CAPTAIN;
         } else if (this.record.fields.VC) {
             role = PLAYER_ROLES.VICE_CAPTAIN;
-        } else if (this.record.fields.TC) {
-            role = PLAYER_ROLES.TRIPLE_CAPTAIN;
         }
-    
+        
         const roleButton = document.createElement("button");
         roleButton.className = "role-button";
         roleButton.textContent = this.getRoleDisplay(role);
         roleButton.dataset.role = role;
         roleButton.addEventListener("click", () => this.cycleRole(roleButton));
-    
+        
         container.appendChild(roleButton);
         return container;
-    }
-
-    getRoleDisplay(role) {
-    switch(role) {
-        case PLAYER_ROLES.CAPTAIN:
-            return "C";
-        case PLAYER_ROLES.VICE_CAPTAIN:
-            return "VC";
-        case PLAYER_ROLES.TRIPLE_CAPTAIN:
-            return "TC";
-        default:
-            return "";
     }
         
 }
     cycleRole(button) {
-    const currentRole = button.dataset.role;
-    
-    let nextRole;
-    switch(currentRole) {
-        case PLAYER_ROLES.NONE:
-            nextRole = PLAYER_ROLES.CAPTAIN;
-            break;
-        case PLAYER_ROLES.CAPTAIN:
-            nextRole = PLAYER_ROLES.VICE_CAPTAIN;
-            break;
-        case PLAYER_ROLES.VICE_CAPTAIN:
-            nextRole = PLAYER_ROLES.TRIPLE_CAPTAIN;
-            break;
-        default:
-            nextRole = PLAYER_ROLES.NONE;
-    }
-
-    button.dataset.role = nextRole;
-    button.textContent = this.getRoleDisplay(nextRole);
-    
-    this.state.addChange({
-        id: this.record.id,
-        fields: {
-            'C': nextRole === PLAYER_ROLES.CAPTAIN,
-            'VC': nextRole === PLAYER_ROLES.VICE_CAPTAIN,
-            'TC': nextRole === PLAYER_ROLES.TRIPLE_CAPTAIN
+        const currentRole = button.dataset.role;
+        
+        let nextRole;
+        switch(currentRole) {
+            case PLAYER_ROLES.NONE:
+                nextRole = PLAYER_ROLES.CAPTAIN;
+                break;
+            case PLAYER_ROLES.CAPTAIN:
+                nextRole = PLAYER_ROLES.VICE_CAPTAIN;
+                break;
+            case PLAYER_ROLES.VICE_CAPTAIN:
+                nextRole = PLAYER_ROLES.TRIPLE_CAPTAIN;
+                break;
+            case PLAYER_ROLES.TRIPLE_CAPTAIN:
+            default:
+                nextRole = PLAYER_ROLES.NONE;
         }
-    });
 
-    this.onUpdate();
-}
+        button.dataset.role = nextRole;
+        button.textContent = this.getRoleDisplay(nextRole);
+
+         getRoleDisplay(role) {
+        switch(role) {
+            case PLAYER_ROLES.CAPTAIN:
+                return "C";
+            case PLAYER_ROLES.VICE_CAPTAIN:
+                return "VC";
+            case PLAYER_ROLES.TRIPLE_CAPTAIN:
+                return "TC";
+            default:
+                return "";
+        }
+    }
+        
+        this.state.addChange({
+            id: this.record.id,
+            fields: {
+                'C': nextRole === PLAYER_ROLES.CAPTAIN,
+                'VC': nextRole === PLAYER_ROLES.VICE_CAPTAIN,
+                'TC': nextRole === PLAYER_ROLES.TRIPLE_CAPTAIN
+            }
+        });
+
+        this.onUpdate();
+    }
 
     createPositionCircle() {
         const circle = document.createElement("div");
