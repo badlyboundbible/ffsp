@@ -93,11 +93,16 @@ h1 {
     background: white;
     border: 1px solid #ccc;
     cursor: pointer;
+    font-size: 12px;
     padding: 0;
     width: 24px;
     height: 24px;
     border-radius: 50%;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
 }
 
 .role-button:hover {
@@ -108,11 +113,19 @@ h1 {
 .role-button[data-role="captain"] {
     background-color: gold;
     border-color: #b8860b;
+    color: black;
 }
 
 .role-button[data-role="vice_captain"] {
     background-color: silver;
     border-color: #a9a9a9;
+    color: black;
+}
+
+.role-button[data-role="triple_captain"] {
+    background-color: #FF69B4; /* Hot pink */
+    border-color: #FF1493;
+    color: white;
 }
 
 /* Styled Input Fields */
