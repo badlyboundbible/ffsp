@@ -156,6 +156,9 @@ class PlayerComponent {
         return playerDiv;
     }
 
+    class PlayerComponent {
+    // ... other methods ...
+
     createRoleContainer() {
         const container = document.createElement("div");
         container.className = "role-container";
@@ -178,8 +181,7 @@ class PlayerComponent {
         container.appendChild(roleButton);
         return container;
     }
-        
-}
+
     cycleRole(button) {
         const currentRole = button.dataset.role;
         
@@ -201,8 +203,20 @@ class PlayerComponent {
 
         button.dataset.role = nextRole;
         button.textContent = this.getRoleDisplay(nextRole);
+        
+        this.state.addChange({
+            id: this.record.id,
+            fields: {
+                'C': nextRole === PLAYER_ROLES.CAPTAIN,
+                'VC': nextRole === PLAYER_ROLES.VICE_CAPTAIN,
+                'TC': nextRole === PLAYER_ROLES.TRIPLE_CAPTAIN
+            }
+        });
 
-         getRoleDisplay(role) {
+        this.onUpdate();
+    }
+
+    getRoleDisplay(role) {
         switch(role) {
             case PLAYER_ROLES.CAPTAIN:
                 return "C";
@@ -214,6 +228,7 @@ class PlayerComponent {
                 return "";
         }
     }
+}
         
         this.state.addChange({
             id: this.record.id,
