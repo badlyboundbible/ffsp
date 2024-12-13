@@ -26,7 +26,6 @@ const ROLE_MULTIPLIERS = {
     [PLAYER_ROLES.VICE_CAPTAIN]: 1.5
 };
 
-// Rest of the JavaScript code remains exactly the same until the getRoleDisplay method in PlayerComponent class
 class FantasyState {
     constructor() {
         this.unsavedChanges = [];
@@ -50,7 +49,7 @@ class AirtableService {
     constructor() {
         this.apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489";
         this.baseId = "appoF7fRSS4nuF9u2";
-        this.tableName = "Table%201";  // URL encoded space
+        this.tableName = "Table%201";
         this.url = `https://api.airtable.com/v0/${this.baseId}/${this.tableName}`;
     }
 
@@ -133,8 +132,6 @@ class PlayerComponent {
         return playerDiv;
     }
 
-    // In the PlayerComponent class, update these two methods:
-
     createRoleContainer() {
         const container = document.createElement("div");
         container.className = "role-container";
@@ -148,20 +145,12 @@ class PlayerComponent {
         
         const roleButton = document.createElement("button");
         roleButton.className = "role-button";
-        roleButton.textContent = ""; // Empty
+        roleButton.textContent = '';
         roleButton.dataset.role = role;
         roleButton.addEventListener("click", () => this.cycleRole(roleButton));
         
         container.appendChild(roleButton);
         return container;
-    }
-
-    getRoleDisplay(role) {
-        return ""; // Return empty string instead of a dot
-    }
-
-    getRoleDisplay(role) {
-        return "●";
     }
 
     cycleRole(button) {
@@ -190,7 +179,7 @@ class PlayerComponent {
 
             if (existingRoleHolder) {
                 existingRoleHolder.dataset.role = PLAYER_ROLES.NONE;
-                existingRoleHolder.textContent = this.getRoleDisplay(PLAYER_ROLES.NONE);
+                existingRoleHolder.textContent = '';
                 
                 this.state.addChange({
                     id: existingRoleHolder.closest('.player').querySelector('input').dataset.id,
@@ -200,7 +189,7 @@ class PlayerComponent {
         }
 
         button.dataset.role = nextRole;
-        button.textContent = this.getRoleDisplay(nextRole);
+        button.textContent = '';
         
         this.state.addChange({
             id: this.record.id,
@@ -213,7 +202,6 @@ class PlayerComponent {
         this.onUpdate();
     }
 
-    // Rest of the PlayerComponent methods remain exactly the same
     createPositionCircle() {
         const circle = document.createElement("div");
         const { fields } = this.record;
@@ -324,7 +312,6 @@ class PlayerComponent {
     }
 }
 
-// FantasyFootballApp class remains exactly the same
 class FantasyFootballApp {
     constructor() {
         this.state = new FantasyState();
