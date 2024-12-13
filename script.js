@@ -155,7 +155,6 @@ class PlayerComponent {
 
     cycleRole(button) {
         const currentRole = button.dataset.role;
-        const teamPrefix = this.record.fields.player_id.startsWith("ell") ? "ells" : "jacks";
         
         let nextRole;
         switch(currentRole) {
@@ -169,27 +168,7 @@ class PlayerComponent {
                 nextRole = PLAYER_ROLES.NONE;
         }
 
-        if (nextRole !== PLAYER_ROLES.NONE) {
-            const existingRoleHolder = document.querySelector(
-                `#${teamPrefix}-gk .role-button[data-role="${nextRole}"], ` +
-                `#${teamPrefix}-def .role-button[data-role="${nextRole}"], ` +
-                `#${teamPrefix}-mid .role-button[data-role="${nextRole}"], ` +
-                `#${teamPrefix}-fwd .role-button[data-role="${nextRole}"]`
-            );
-
-            if (existingRoleHolder) {
-                existingRoleHolder.dataset.role = PLAYER_ROLES.NONE;
-                existingRoleHolder.textContent = '';
-                
-                this.state.addChange({
-                    id: existingRoleHolder.closest('.player').querySelector('input').dataset.id,
-                    fields: { 'C': false, 'VC': false }
-                });
-            }
-        }
-
         button.dataset.role = nextRole;
-        button.textContent = '';
         
         this.state.addChange({
             id: this.record.id,
