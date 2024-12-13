@@ -50,9 +50,8 @@ h1 {
     font-weight: bold;
     color: white;
     text-align: center;
-    display: block;
-    width: 100%;
-    text-align: center;
+    position: relative;
+    display: inline-block;
 }
 
 /* Position Rows */
@@ -144,7 +143,7 @@ h1 {
 /* Specific Field Styles */
 .player input[data-field="name"] {
     background-color: transparent;
-    width: 95%;
+    width: 100%;
 }
 
 .player input[data-field="value"] {
@@ -257,8 +256,8 @@ h1 {
 .value-total {
     font-size: 18px;
     font-weight: bold;
-    width: calc(35%);
-    min-width: calc(35%);
+    width: calc(50%);
+    min-width: calc(50%);
     text-align: center;
     background-color: #f5f5f5;
     border-radius: 15px;
