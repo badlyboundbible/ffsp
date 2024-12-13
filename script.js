@@ -14,6 +14,18 @@ const TEAM_COLORS = {
     ROS: "#040957"
 };
 
+const PLAYER_ROLES = {
+    NONE: 'none',
+    CAPTAIN: 'captain',
+    VICE_CAPTAIN: 'vice_captain'
+};
+
+const ROLE_MULTIPLIERS = {
+    [PLAYER_ROLES.NONE]: 1,
+    [PLAYER_ROLES.CAPTAIN]: 2,
+    [PLAYER_ROLES.VICE_CAPTAIN]: 1.5
+};
+
 class FantasyState {
     constructor() {
         this.unsavedChanges = [];
@@ -109,6 +121,7 @@ class PlayerComponent {
         playerDiv.className = "player";
 
         const elements = {
+            roleContainer: this.createRoleContainer(),
             circle: this.createPositionCircle(),
             name: this.createInput("name", fields.name),
             team: this.createTeamSelect(),
@@ -118,6 +131,84 @@ class PlayerComponent {
 
         Object.values(elements).forEach(element => playerDiv.appendChild(element));
         return playerDiv;
+    }
+
+    createRoleContainer() {
+        const container = document.createElement("div");
+        container.className = "role-container";
+        
+        const role = this.record.fields.role || PLAYER_ROLES.NONE;
+        
+        // Create role button
+        const roleButton = document.createElement("button");
+        roleButton.className = "role-button";
+        roleButton.textContent = this.getRoleDisplay(role);
+        roleButton.dataset.role = role;
+        roleButton.addEventListener("click", () => this.cycleRole(roleButton));
+        
+        container.appendChild(roleButton);
+        return container;
+    }
+
+    getRoleDisplay(role) {
+        switch(role) {
+            case PLAYER_ROLES.CAPTAIN:
+                return "©";
+            case PLAYER_ROLES.VICE_CAPTAIN:
+                return "ⓥ";
+            default:
+                return "☆";
+        }
+    }
+
+    cycleRole(button) {
+        const currentRole = button.dataset.role;
+        const teamPrefix = this.record.fields.player_id.startsWith("ell") ? "ells" : "jacks";
+        
+        // Determine next role
+        let nextRole;
+        switch(currentRole) {
+            case PLAYER_ROLES.NONE:
+                nextRole = PLAYER_ROLES.CAPTAIN;
+                break;
+            case PLAYER_ROLES.CAPTAIN:
+                nextRole = PLAYER_ROLES.VICE_CAPTAIN;
+                break;
+            default:
+                nextRole = PLAYER_ROLES.NONE;
+        }
+
+        // Check if the role is already assigned to another player
+        if (nextRole !== PLAYER_ROLES.NONE) {
+            const existingRoleHolder = document.querySelector(
+                `#${teamPrefix}-gk .role-button[data-role="${nextRole}"], ` +
+                `#${teamPrefix}-def .role-button[data-role="${nextRole}"], ` +
+                `#${teamPrefix}-mid .role-button[data-role="${nextRole}"], ` +
+                `#${teamPrefix}-fwd .role-button[data-role="${nextRole}"]`
+            );
+
+            if (existingRoleHolder) {
+                existingRoleHolder.dataset.role = PLAYER_ROLES.NONE;
+                existingRoleHolder.textContent = this.getRoleDisplay(PLAYER_ROLES.NONE);
+                
+                // Update Airtable record for the previous role holder
+                this.state.addChange({
+                    id: existingRoleHolder.closest('.player').querySelector('input').dataset.id,
+                    fields: { role: PLAYER_ROLES.NONE }
+                });
+            }
+        }
+
+        // Update button and save change
+        button.dataset.role = nextRole;
+        button.textContent = this.getRoleDisplay(nextRole);
+        
+        this.state.addChange({
+            id: this.record.id,
+            fields: { role: nextRole }
+        });
+
+        this.onUpdate();
     }
 
     createPositionCircle() {
@@ -285,29 +376,33 @@ class FantasyFootballApp {
         };
 
         document.querySelectorAll(".player").forEach(player => {
-            // Calculate scores
+            // Calculate scores with role multiplier
             const scoreInput = player.querySelector("input[data-field='score']");
             const scoreValue = scoreInput.value.trim();
-            const score = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
+            const baseScore = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
             
-            // Calculate values
+            const roleButton = player.querySelector('.role-button');
+            const role = roleButton ? roleButton.dataset.role : PLAYER_ROLES.NONE;
+            const multiplier = ROLE_MULTIPLIERS[role] || 1;
+            const finalScore = baseScore * multiplier;
+            
+            // Calculate values (unchanged)
             const valueInput = player.querySelector("input[data-field='value']");
             const valueText = valueInput.value.trim().replace('£', '');
             const value = valueText === '' ? 0 : (parseFloat(valueText) || 0);
             
             const team = player.parentElement.id.startsWith("ells") ? "ell" : "jack";
-            scores[team] += score;
+            scores[team] += finalScore;
             values[team] += value;
         });
 
-        // Update scores
+        // Update scores and values
         document.getElementById("jacks-score").textContent = scores.jack;
         document.getElementById("ells-score").textContent = scores.ell;
         document.getElementById("winner-display").textContent = 
             scores.ell > scores.jack ? "Ell" : 
             scores.jack > scores.ell ? "Jack" : "Draw";
 
-        // Update values
         document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
         document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
     }
