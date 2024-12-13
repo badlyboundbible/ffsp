@@ -1,4 +1,4 @@
-// Constants and configuration
+// script.js
 const CONFIG = {
     API: {
         key: "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489",
@@ -24,7 +24,6 @@ const CONFIG = {
     }
 };
 
-// State management
 class FantasyState {
     constructor() {
         this.unsavedChanges = [];
@@ -44,7 +43,6 @@ class FantasyState {
     }
 }
 
-// API service
 class AirtableService {
     constructor(config) {
         this.config = config;
@@ -92,13 +90,14 @@ class AirtableService {
         return Object.fromEntries(
             Object.entries(fields).map(([key, value]) => [
                 key,
-                key === "score" || key === "value" ? parseFloat(value) : value
+                key === "score" || key === "value" ? 
+                    (value === '' ? '' : parseFloat(value)) : 
+                    value
             ])
         );
     }
 }
 
-// UI Components
 class PlayerComponent {
     constructor(record, state, onUpdate) {
         this.record = record;
@@ -115,33 +114,41 @@ class PlayerComponent {
             circle: this.createPositionCircle(),
             name: this.createInput("name", fields.name),
             team: this.createTeamSelect(),
-            value: this.createInput("value", `£${parseFloat(fields.value).toFixed(1)}`),
-            score: this.createInput("score", fields.score)
+            value: this.createInput("value", this.formatValue(fields.value)),
+            score: this.createScoreInput(fields.score)
         };
 
         Object.values(elements).forEach(element => playerDiv.appendChild(element));
         return playerDiv;
     }
 
-    createPositionCircle() {
-        const { fields } = this.record;
-        const circle = document.createElement("div");
-        circle.className = "position-circle";
-        circle.textContent = fields.player_id.split("-")[1].toUpperCase();
-        circle.style.backgroundColor = fields.bench ? "#888888" : CONFIG.TEAMS[fields.team];
-        circle.dataset.id = this.record.id;
-        circle.dataset.bench = fields.bench;
-        circle.dataset.team = fields.team;
-        circle.addEventListener("click", () => this.toggleBench(circle));
-        return circle;
+    formatValue(value) {
+        if (value === undefined || value === null || value === '') {
+            return '';
+        }
+        return `£${parseFloat(value).toFixed(1)}`;
+    }
+
+    createScoreInput(score) {
+        const input = document.createElement("input");
+        input.value = score || '';
+        input.dataset.field = "score";
+        input.dataset.id = this.record.id;
+        input.style.backgroundColor = "white";
+        input.addEventListener("blur", (e) => this.handleChange(e));
+        return input;
     }
 
     createInput(field, value) {
         const input = document.createElement("input");
-        input.value = value;
+        input.value = value || '';
         input.dataset.field = field;
         input.dataset.id = this.record.id;
-        input.style.backgroundColor = this.record.fields.player_id.startsWith("ell") ? "#ffcccc" : "#cceeff";
+        
+        if (field !== "score") {
+            input.style.backgroundColor = this.record.fields.player_id.startsWith("ell") ? "#ffcccc" : "#cceeff";
+        }
+        
         input.addEventListener("blur", (e) => this.handleChange(e));
         return input;
     }
@@ -181,10 +188,14 @@ class PlayerComponent {
 
     handleChange(event) {
         const input = event.target;
-        let value = input.value;
+        let value = input.value.trim();
         
-        if (input.dataset.field === "score" || input.dataset.field === "value") {
-            value = parseFloat(value.replace("£", "")) || 0;
+        if (value === '') {
+            value = '';
+        } else if (input.dataset.field === "score" || input.dataset.field === "value") {
+            value = input.dataset.field === "value" ? 
+                parseFloat(value.replace('£', '')) || 0 :
+                parseFloat(value) || 0;
         }
 
         this.state.addChange({
@@ -204,7 +215,6 @@ class PlayerComponent {
     }
 }
 
-// Main Application
 class FantasyFootballApp {
     constructor() {
         this.state = new FantasyState();
@@ -219,76 +229,3 @@ class FantasyFootballApp {
     async loadData() {
         try {
             const records = await this.api.fetchData();
-            this.state.setRecords(records);
-            this.displayPlayers(records);
-        } catch (error) {
-            console.error("Failed to load data:", error);
-        }
-    }
-
-    displayPlayers(records) {
-        ["ells", "jacks"].forEach(team => {
-            ["gk", "def", "mid", "fwd"].forEach(position => {
-                document.getElementById(`${team}-${position}`).innerHTML = "";
-            });
-        });
-
-        records.forEach(record => {
-            if (!record.fields?.player_id) return;
-
-            const component = new PlayerComponent(record, this.state, () => this.updateScores());
-            const playerElement = component.createElements();
-            
-            const { player_id } = record.fields;
-            const teamPrefix = player_id.startsWith("ell") ? "ells" : "jacks";
-            const positionType = player_id.split("-")[1];
-            
-            document.getElementById(`${teamPrefix}-${positionType}`)?.appendChild(playerElement);
-        });
-
-        this.updateScores();
-    }
-
-    updateScores() {
-        const scores = {
-            ell: 0,
-            jack: 0
-        };
-
-        document.querySelectorAll(".player").forEach(player => {
-            const score = parseFloat(player.querySelector("input[data-field='score']").value) || 0;
-            const team = player.parentElement.id.startsWith("ells") ? "ell" : "jack";
-            scores[team] += score;
-        });
-
-        document.getElementById("jacks-score").textContent = scores.jack;
-        document.getElementById("ells-score").textContent = scores.ell;
-        document.getElementById("winner-display").textContent = 
-            scores.ell > scores.jack ? "Ell" : 
-            scores.jack > scores.ell ? "Jack" : "Draw";
-    }
-
-    async publishChanges() {
-        if (this.state.unsavedChanges.length === 0) {
-            alert("No changes to publish.");
-            return;
-        }
-
-        try {
-            const results = await Promise.all(
-                this.state.unsavedChanges.map(change => this.api.publishChange(change))
-            );
-            
-            console.log("Changes published:", results);
-            alert("All changes published successfully!");
-            this.state.clearChanges();
-            this.updateScores();
-        } catch (error) {
-            console.error("Failed to publish changes:", error);
-            alert("Error publishing changes. Please check your connection or contact support.");
-        }
-    }
-}
-
-// Initialize application
-const app = new FantasyFootballApp();
