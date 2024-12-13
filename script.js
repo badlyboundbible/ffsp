@@ -156,31 +156,6 @@ class PlayerComponent {
         return playerDiv;
     }
 
-    class PlayerComponent {
-    constructor(record, state, onUpdate) {
-        this.record = record;
-        this.state = state;
-        this.onUpdate = onUpdate;
-    }
-
-    createElements() {
-        const { fields } = this.record;
-        const playerDiv = document.createElement("div");
-        playerDiv.className = "player";
-
-        const elements = {
-            roleContainer: this.createRoleContainer(),
-            circle: this.createPositionCircle(),
-            name: this.createInput("name", fields.name),
-            team: this.createTeamSelect(),
-            value: this.createInput("value", this.formatValue(fields.value)),
-            score: this.createScoreInput(fields.score)
-        };
-
-        Object.values(elements).forEach(element => playerDiv.appendChild(element));
-        return playerDiv;
-    }
-
     createRoleContainer() {
         const container = document.createElement("div");
         container.className = "role-container";
@@ -377,6 +352,7 @@ class FantasyFootballApp {
             const records = await this.api.fetchData();
             this.state.setRecords(records);
             this.displayPlayers(records);
+            this.initializePowerups(); // Add initialization of powerups
         } catch (error) {
             console.error("Failed to load data:", error);
         }
@@ -444,26 +420,24 @@ class FantasyFootballApp {
         document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
     }
 
-        // Add these to your FantasyFootballApp class:
+    initializePowerups() {
+        document.querySelectorAll('.powerup-button').forEach(button => {
+            // Set initial state from Airtable data
+            const team = button.dataset.team;
+            const powerup = button.dataset.powerup;
+            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
+            const record = this.state.records.find(r => 
+                r.fields.player_id === `${playerPrefix}-powerups`
+            );
+            
+            if (record && record.fields[powerup]) {
+                button.classList.add('active');
+            }
 
-initializePowerups() {
-    document.querySelectorAll('.powerup-button').forEach(button => {
-        // Set initial state from Airtable data
-        const team = button.dataset.team;
-        const powerup = button.dataset.powerup;
-        const playerPrefix = team === 'ells' ? 'ell' : 'jack';
-        const record = this.state.records.find(r => 
-            r.fields.player_id === `${playerPrefix}-powerups`
-        );
-        
-        if (record && record.fields[powerup]) {
-            button.classList.add('active');
-        }
-
-        // Add click handler
-        button.addEventListener('click', () => this.togglePowerup(button, record.id));
-    });
-}
+            // Add click handler
+            button.addEventListener('click', () => this.togglePowerup(button, record.id));
+        });
+    }
 
 async togglePowerup(button, recordId) {
     const powerup = button.dataset.powerup;
