@@ -26,6 +26,7 @@ const ROLE_MULTIPLIERS = {
     [PLAYER_ROLES.VICE_CAPTAIN]: 1.5
 };
 
+// Rest of the JavaScript code remains exactly the same until the getRoleDisplay method in PlayerComponent class
 class FantasyState {
     constructor() {
         this.unsavedChanges = [];
@@ -76,7 +77,6 @@ class AirtableService {
 
     async publishChange(change) {
         try {
-            // Ensure numeric fields are sent as numbers or empty strings
             const sanitizedFields = {};
             Object.keys(change.fields).forEach(key => {
                 let value = change.fields[key];
@@ -137,7 +137,6 @@ class PlayerComponent {
         const container = document.createElement("div");
         container.className = "role-container";
         
-        // Determine role based on checkbox fields
         let role = PLAYER_ROLES.NONE;
         if (this.record.fields.C) {
             role = PLAYER_ROLES.CAPTAIN;
@@ -145,10 +144,9 @@ class PlayerComponent {
             role = PLAYER_ROLES.VICE_CAPTAIN;
         }
         
-        // Create role button
         const roleButton = document.createElement("button");
         roleButton.className = "role-button";
-        roleButton.textContent = this.getRoleDisplay(role);
+        roleButton.textContent = "●";
         roleButton.dataset.role = role;
         roleButton.addEventListener("click", () => this.cycleRole(roleButton));
         
@@ -157,21 +155,13 @@ class PlayerComponent {
     }
 
     getRoleDisplay(role) {
-        switch(role) {
-            case PLAYER_ROLES.CAPTAIN:
-                return "©";
-            case PLAYER_ROLES.VICE_CAPTAIN:
-                return "ⓥ";
-            default:
-                return "○";
-        }
+        return "●";
     }
 
     cycleRole(button) {
         const currentRole = button.dataset.role;
         const teamPrefix = this.record.fields.player_id.startsWith("ell") ? "ells" : "jacks";
         
-        // Determine next role
         let nextRole;
         switch(currentRole) {
             case PLAYER_ROLES.NONE:
@@ -184,7 +174,6 @@ class PlayerComponent {
                 nextRole = PLAYER_ROLES.NONE;
         }
 
-        // Check if the role is already assigned to another player
         if (nextRole !== PLAYER_ROLES.NONE) {
             const existingRoleHolder = document.querySelector(
                 `#${teamPrefix}-gk .role-button[data-role="${nextRole}"], ` +
@@ -197,36 +186,28 @@ class PlayerComponent {
                 existingRoleHolder.dataset.role = PLAYER_ROLES.NONE;
                 existingRoleHolder.textContent = this.getRoleDisplay(PLAYER_ROLES.NONE);
                 
-                // Update Airtable record for the previous role holder
-                const fields = {
-                    'C': false,
-                    'VC': false
-                };
                 this.state.addChange({
                     id: existingRoleHolder.closest('.player').querySelector('input').dataset.id,
-                    fields: fields
+                    fields: { 'C': false, 'VC': false }
                 });
             }
         }
 
-        // Update button and save change
         button.dataset.role = nextRole;
         button.textContent = this.getRoleDisplay(nextRole);
         
-        // Set the appropriate checkbox fields
-        const fields = {
-            'C': nextRole === PLAYER_ROLES.CAPTAIN,
-            'VC': nextRole === PLAYER_ROLES.VICE_CAPTAIN
-        };
-        
         this.state.addChange({
             id: this.record.id,
-            fields: fields
+            fields: {
+                'C': nextRole === PLAYER_ROLES.CAPTAIN,
+                'VC': nextRole === PLAYER_ROLES.VICE_CAPTAIN
+            }
         });
 
         this.onUpdate();
     }
 
+    // Rest of the PlayerComponent methods remain exactly the same
     createPositionCircle() {
         const circle = document.createElement("div");
         const { fields } = this.record;
@@ -337,6 +318,7 @@ class PlayerComponent {
     }
 }
 
+// FantasyFootballApp class remains exactly the same
 class FantasyFootballApp {
     constructor() {
         this.state = new FantasyState();
@@ -392,7 +374,6 @@ class FantasyFootballApp {
         };
 
         document.querySelectorAll(".player").forEach(player => {
-            // Calculate scores with role multiplier
             const scoreInput = player.querySelector("input[data-field='score']");
             const scoreValue = scoreInput.value.trim();
             const baseScore = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
@@ -402,7 +383,6 @@ class FantasyFootballApp {
             const multiplier = ROLE_MULTIPLIERS[role] || 1;
             const finalScore = baseScore * multiplier;
             
-            // Calculate values (unchanged)
             const valueInput = player.querySelector("input[data-field='value']");
             const valueText = valueInput.value.trim().replace('£', '');
             const value = valueText === '' ? 0 : (parseFloat(valueText) || 0);
@@ -412,7 +392,6 @@ class FantasyFootballApp {
             values[team] += value;
         });
 
-        // Update scores and values
         document.getElementById("jacks-score").textContent = scores.jack;
         document.getElementById("ells-score").textContent = scores.ell;
         document.getElementById("winner-display").textContent = 
