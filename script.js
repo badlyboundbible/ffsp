@@ -137,7 +137,13 @@ class PlayerComponent {
         const container = document.createElement("div");
         container.className = "role-container";
         
-        const role = this.record.fields.role || PLAYER_ROLES.NONE;
+        // Determine role based on checkbox fields
+        let role = PLAYER_ROLES.NONE;
+        if (this.record.fields.C) {
+            role = PLAYER_ROLES.CAPTAIN;
+        } else if (this.record.fields.VC) {
+            role = PLAYER_ROLES.VICE_CAPTAIN;
+        }
         
         // Create role button
         const roleButton = document.createElement("button");
@@ -157,7 +163,7 @@ class PlayerComponent {
             case PLAYER_ROLES.VICE_CAPTAIN:
                 return "ⓥ";
             default:
-                return "☆";
+                return "○";
         }
     }
 
@@ -192,9 +198,13 @@ class PlayerComponent {
                 existingRoleHolder.textContent = this.getRoleDisplay(PLAYER_ROLES.NONE);
                 
                 // Update Airtable record for the previous role holder
+                const fields = {
+                    'C': false,
+                    'VC': false
+                };
                 this.state.addChange({
                     id: existingRoleHolder.closest('.player').querySelector('input').dataset.id,
-                    fields: { role: PLAYER_ROLES.NONE }
+                    fields: fields
                 });
             }
         }
@@ -203,9 +213,15 @@ class PlayerComponent {
         button.dataset.role = nextRole;
         button.textContent = this.getRoleDisplay(nextRole);
         
+        // Set the appropriate checkbox fields
+        const fields = {
+            'C': nextRole === PLAYER_ROLES.CAPTAIN,
+            'VC': nextRole === PLAYER_ROLES.VICE_CAPTAIN
+        };
+        
         this.state.addChange({
             id: this.record.id,
-            fields: { role: nextRole }
+            fields: fields
         });
 
         this.onUpdate();
