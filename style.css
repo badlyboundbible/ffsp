@@ -284,10 +284,17 @@ h1 {
 
 .team-powerups {
     display: flex;
+    flex-direction: column;
     gap: 8px;
-    width: 30%; /* Match the width of score and value containers */
-    justify-content: center; /* Center the buttons */
+    width: 30%;
+    justify-content: center;
     align-items: center;
+}
+
+.powerup-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
 }
 
 .powerups-label {
