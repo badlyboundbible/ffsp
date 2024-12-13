@@ -169,25 +169,36 @@ h1 {
     width: 50%;
 }
 
-/* Team Dropdowns */
+/* Team Dropdowns - Updated Styling for Centered Text */
 .player select {
+    width: 75%;
+    margin: 0 auto;
+    display: block;
     color: white;
     border-radius: 15px;
-    width: 75%;
     background-color: transparent;
     text-align: center;
     text-align-last: center;
-    text-align: center;
-    margin: 0 auto;
-    display: block;
+    direction: rtl;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    padding: 5px;
     position: relative;
-    padding-right: 20px;
-    background-image: none;
     text-indent: 0.01px;
     text-overflow: '';
+}
+
+.player select option {
+    text-align: center;
+    direction: ltr;
+    background-color: #333; /* Optional: for better visibility */
+}
+
+/* Ensures the selected option is also centered */
+.player select:focus {
+    text-align: center;
+    text-align-last: center;
 }
 
 /* Input Fields Hover and Focus */
