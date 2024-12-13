@@ -26,6 +26,10 @@ const ROLE_MULTIPLIERS = {
     [PLAYER_ROLES.VICE_CAPTAIN]: 1.5
 };
 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 class FantasyState {
     constructor() {
         this.unsavedChanges = [];
@@ -51,59 +55,77 @@ class AirtableService {
         this.baseId = "appoF7fRSS4nuF9u2";
         this.tableName = "Table%201";
         this.url = `https://api.airtable.com/v0/${this.baseId}/${this.tableName}`;
+        this.requestQueue = Promise.resolve();
+    }
+
+    async queueRequest(fn) {
+        this.requestQueue = this.requestQueue
+            .then(() => delay(200))
+            .then(fn)
+            .catch(error => {
+                if (error.message.includes('RATE_LIMIT_REACHED')) {
+                    return delay(1000).then(fn);
+                }
+                throw error;
+            });
+        return this.requestQueue;
     }
 
     async fetchData() {
-        try {
-            const response = await fetch(this.url, {
-                headers: { 
-                    'Authorization': `Bearer ${this.apiKey}`,
-                    'Content-Type': 'application/json'
+        return this.queueRequest(async () => {
+            try {
+                const response = await fetch(this.url, {
+                    headers: { 
+                        'Authorization': `Bearer ${this.apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch: ${response.statusText}`);
                 }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Failed to fetch: ${response.statusText}`);
+                
+                const data = await response.json();
+                return data.records;
+            } catch (error) {
+                console.error("Fetch error:", error);
+                throw error;
             }
-            
-            const data = await response.json();
-            return data.records;
-        } catch (error) {
-            console.error("Fetch error:", error);
-            throw error;
-        }
+        });
     }
 
     async publishChange(change) {
-        try {
-            const sanitizedFields = {};
-            Object.keys(change.fields).forEach(key => {
-                let value = change.fields[key];
-                if (key === "score" || key === "value") {
-                    value = value === '' ? '' : parseFloat(value);
-                }
-                sanitizedFields[key] = value;
-            });
+        return this.queueRequest(async () => {
+            try {
+                const sanitizedFields = {};
+                Object.keys(change.fields).forEach(key => {
+                    let value = change.fields[key];
+                    if (key === "score" || key === "value") {
+                        value = value === '' ? '' : parseFloat(value);
+                    }
+                    sanitizedFields[key] = value;
+                });
 
-            const response = await fetch(`${this.url}/${change.id}`, {
-                method: "PATCH",
-                headers: {
-                    'Authorization': `Bearer ${this.apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ fields: sanitizedFields })
-            });
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Update failed for ${change.id}: ${errorText}`);
+                const response = await fetch(`${this.url}/${change.id}`, {
+                    method: "PATCH",
+                    headers: {
+                        'Authorization': `Bearer ${this.apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ fields: sanitizedFields })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Update failed for ${change.id}: ${errorText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error(`Error updating ${change.id}:`, error);
+                throw error;
             }
-            
-            return await response.json();
-        } catch (error) {
-            console.error(`Error updating ${change.id}:`, error);
-            throw error;
-        }
+        });
     }
 }
 
@@ -381,10 +403,26 @@ class FantasyFootballApp {
         }
 
         try {
-            const results = await Promise.all(
-                this.state.unsavedChanges.map(change => this.api.publishChange(change))
-            );
+            const loadingMsg = document.createElement('div');
+            loadingMsg.style.position = 'fixed';
+            loadingMsg.style.top = '50%';
+            loadingMsg.style.left = '50%';
+            loadingMsg.style.transform = 'translate(-50%, -50%)';
+            loadingMsg.style.padding = '20px';
+            loadingMsg.style.backgroundColor = 'white';
+            loadingMsg.style.border = '1px solid #ccc';
+            loadingMsg.style.borderRadius = '5px';
+            loadingMsg.style.zIndex = '1000';
+            loadingMsg.textContent = 'Publishing changes...';
+            document.body.appendChild(loadingMsg);
+
+            const results = [];
+            for (const change of this.state.unsavedChanges) {
+                const result = await this.api.publishChange(change);
+                results.push(result);
+            }
             
+            document.body.removeChild(loadingMsg);
             console.log("Changes published:", results);
             alert("All changes published successfully!");
             this.state.clearChanges();
