@@ -84,7 +84,6 @@ h1 {
     gap: 0;
 }
 
-/* Role Container and Button */
 .role-container {
     margin-bottom: 2px;
     height: 20px;
@@ -94,15 +93,11 @@ h1 {
     background: white;
     border: 1px solid #ccc;
     cursor: pointer;
-    font-size: 16px;
     padding: 0;
-    width: 24px;
-    height: 24px;
+    width: 16px;  /* Made slightly smaller */
+    height: 16px; /* Made slightly smaller */
     border-radius: 50%;
     transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .role-button:hover {
