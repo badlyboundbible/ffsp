@@ -146,7 +146,7 @@ class PlayerComponent {
         
         const roleButton = document.createElement("button");
         roleButton.className = "role-button";
-        roleButton.textContent = "●";
+        roleButton.textContent = ""; // Remove the dot
         roleButton.dataset.role = role;
         roleButton.addEventListener("click", () => this.cycleRole(roleButton));
         
