@@ -267,6 +267,23 @@ h1 {
     width: 30%;
 }
 
+.powerups {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+}
+
+.team-powerups {
+    display: flex;
+    gap: 8px;
+    width: 30%; /* Match the width of score and value containers */
+    justify-content: center; /* Center the buttons */
+    align-items: center;
+}
+
 .powerups-label {
     font-size: 18px;
     font-weight: bold;
@@ -283,6 +300,7 @@ h1 {
     font-size: 14px;
     font-weight: bold;
     transition: all 0.2s;
+    min-width: 45px; /* Ensure consistent button width */
 }
 
 .powerup-button:hover {
