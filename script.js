@@ -396,6 +396,50 @@ class FantasyFootballApp {
         document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
     }
 
+        // Add these to your FantasyFootballApp class:
+
+initializePowerups() {
+    document.querySelectorAll('.powerup-button').forEach(button => {
+        // Set initial state from Airtable data
+        const team = button.dataset.team;
+        const powerup = button.dataset.powerup;
+        const playerPrefix = team === 'ells' ? 'ell' : 'jack';
+        const record = this.state.records.find(r => 
+            r.fields.player_id === `${playerPrefix}-powerups`
+        );
+        
+        if (record && record.fields[powerup]) {
+            button.classList.add('active');
+        }
+
+        // Add click handler
+        button.addEventListener('click', () => this.togglePowerup(button, record.id));
+    });
+}
+
+async togglePowerup(button, recordId) {
+    const powerup = button.dataset.powerup;
+    const isActive = button.classList.toggle('active');
+    
+    this.state.addChange({
+        id: recordId,
+        fields: {
+            [powerup]: isActive
+        }
+    });
+}
+
+async loadData() {
+    try {
+        const records = await this.api.fetchData();
+        this.state.setRecords(records);
+        this.displayPlayers(records);
+        this.initializePowerups(); // Add this line
+    } catch (error) {
+        console.error("Failed to load data:", error);
+    }
+}
+    
     async publishChanges() {
         if (this.state.unsavedChanges.length === 0) {
             alert("No changes to publish.");
