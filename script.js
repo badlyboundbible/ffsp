@@ -218,7 +218,7 @@ class PlayerComponent {
             fields: { [input.dataset.field]: value }
         });
 
-        if (input.dataset.field === "score") {
+        if (input.dataset.field === "score" || input.dataset.field === "value") {
             this.onUpdate();
         }
     }
@@ -279,20 +279,37 @@ class FantasyFootballApp {
             ell: 0,
             jack: 0
         };
+        const values = {
+            ell: 0,
+            jack: 0
+        };
 
         document.querySelectorAll(".player").forEach(player => {
+            // Calculate scores
             const scoreInput = player.querySelector("input[data-field='score']");
             const scoreValue = scoreInput.value.trim();
             const score = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
+            
+            // Calculate values
+            const valueInput = player.querySelector("input[data-field='value']");
+            const valueText = valueInput.value.trim().replace('£', '');
+            const value = valueText === '' ? 0 : (parseFloat(valueText) || 0);
+            
             const team = player.parentElement.id.startsWith("ells") ? "ell" : "jack";
             scores[team] += score;
+            values[team] += value;
         });
 
+        // Update scores
         document.getElementById("jacks-score").textContent = scores.jack;
         document.getElementById("ells-score").textContent = scores.ell;
         document.getElementById("winner-display").textContent = 
             scores.ell > scores.jack ? "Ell" : 
             scores.jack > scores.ell ? "Jack" : "Draw";
+
+        // Update values
+        document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
+        document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
     }
 
     async publishChanges() {
