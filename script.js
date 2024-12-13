@@ -133,6 +133,8 @@ class PlayerComponent {
         return playerDiv;
     }
 
+    // In the PlayerComponent class, update these two methods:
+
     createRoleContainer() {
         const container = document.createElement("div");
         container.className = "role-container";
@@ -146,12 +148,16 @@ class PlayerComponent {
         
         const roleButton = document.createElement("button");
         roleButton.className = "role-button";
-        roleButton.textContent = ""; // Remove the dot
+        roleButton.textContent = ""; // Empty
         roleButton.dataset.role = role;
         roleButton.addEventListener("click", () => this.cycleRole(roleButton));
         
         container.appendChild(roleButton);
         return container;
+    }
+
+    getRoleDisplay(role) {
+        return ""; // Return empty string instead of a dot
     }
 
     getRoleDisplay(role) {
