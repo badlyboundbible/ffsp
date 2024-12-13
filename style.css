@@ -91,8 +91,8 @@ h1 {
 }
 
 .role-button {
-    background: none;
-    border: none;
+    background: white;
+    border: 1px solid #ccc;
     cursor: pointer;
     font-size: 16px;
     padding: 0;
@@ -100,22 +100,24 @@ h1 {
     height: 24px;
     border-radius: 50%;
     transition: all 0.2s;
-    color: black;  /* Default color black */
-    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .role-button:hover {
     background-color: #f0f0f0;
+    border-color: #999;
 }
 
 .role-button[data-role="captain"] {
-    color: gold;
-    font-weight: bold;
+    background-color: gold;
+    border-color: #b8860b;
 }
 
 .role-button[data-role="vice_captain"] {
-    color: silver;
-    font-weight: bold;
+    background-color: silver;
+    border-color: #a9a9a9;
 }
 
 /* Styled Input Fields */
