@@ -86,7 +86,7 @@ h1 {
 
 .role-container {
     margin-bottom: 2px;
-    height: 20px;
+    height: 24px;
 }
 
 .role-button {
@@ -94,8 +94,8 @@ h1 {
     border: 1px solid #ccc;
     cursor: pointer;
     padding: 0;
-    width: 16px;  /* Made slightly smaller */
-    height: 16px; /* Made slightly smaller */
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     transition: all 0.2s;
 }
