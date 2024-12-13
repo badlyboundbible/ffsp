@@ -157,7 +157,29 @@ class PlayerComponent {
     }
 
     class PlayerComponent {
-    // ... other methods ...
+    constructor(record, state, onUpdate) {
+        this.record = record;
+        this.state = state;
+        this.onUpdate = onUpdate;
+    }
+
+    createElements() {
+        const { fields } = this.record;
+        const playerDiv = document.createElement("div");
+        playerDiv.className = "player";
+
+        const elements = {
+            roleContainer: this.createRoleContainer(),
+            circle: this.createPositionCircle(),
+            name: this.createInput("name", fields.name),
+            team: this.createTeamSelect(),
+            value: this.createInput("value", this.formatValue(fields.value)),
+            score: this.createScoreInput(fields.score)
+        };
+
+        Object.values(elements).forEach(element => playerDiv.appendChild(element));
+        return playerDiv;
+    }
 
     createRoleContainer() {
         const container = document.createElement("div");
@@ -182,6 +204,19 @@ class PlayerComponent {
         return container;
     }
 
+    getRoleDisplay(role) {
+        switch(role) {
+            case PLAYER_ROLES.CAPTAIN:
+                return "C";
+            case PLAYER_ROLES.VICE_CAPTAIN:
+                return "VC";
+            case PLAYER_ROLES.TRIPLE_CAPTAIN:
+                return "TC";
+            default:
+                return "";
+        }
+    }
+
     cycleRole(button) {
         const currentRole = button.dataset.role;
         
@@ -203,32 +238,6 @@ class PlayerComponent {
 
         button.dataset.role = nextRole;
         button.textContent = this.getRoleDisplay(nextRole);
-        
-        this.state.addChange({
-            id: this.record.id,
-            fields: {
-                'C': nextRole === PLAYER_ROLES.CAPTAIN,
-                'VC': nextRole === PLAYER_ROLES.VICE_CAPTAIN,
-                'TC': nextRole === PLAYER_ROLES.TRIPLE_CAPTAIN
-            }
-        });
-
-        this.onUpdate();
-    }
-
-    getRoleDisplay(role) {
-        switch(role) {
-            case PLAYER_ROLES.CAPTAIN:
-                return "C";
-            case PLAYER_ROLES.VICE_CAPTAIN:
-                return "VC";
-            case PLAYER_ROLES.TRIPLE_CAPTAIN:
-                return "TC";
-            default:
-                return "";
-        }
-    }
-}
         
         this.state.addChange({
             id: this.record.id,
