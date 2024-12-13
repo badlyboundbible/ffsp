@@ -37,7 +37,7 @@ class AirtableService {
     constructor() {
         this.apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489";
         this.baseId = "appoF7fRSS4nuF9u2";
-        this.tableName = "Table 1";
+        this.tableName = "Table%201";  // URL encoded space
         this.url = `https://api.airtable.com/v0/${this.baseId}/${this.tableName}`;
     }
 
@@ -118,6 +118,23 @@ class PlayerComponent {
 
         Object.values(elements).forEach(element => playerDiv.appendChild(element));
         return playerDiv;
+    }
+
+    createPositionCircle() {
+        const circle = document.createElement("div");
+        const { fields } = this.record;
+        const positionType = fields.player_id.split("-")[1];
+        
+        circle.className = "position-circle";
+        circle.textContent = positionType.toUpperCase();
+        circle.style.backgroundColor = fields.bench ? "#888888" : TEAM_COLORS[fields.team] || "#cccccc";
+        circle.dataset.id = this.record.id;
+        circle.dataset.bench = fields.bench || false;
+        circle.dataset.team = fields.team;
+        
+        circle.addEventListener("click", () => this.toggleBench(circle));
+        
+        return circle;
     }
 
     formatValue(value) {
