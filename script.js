@@ -382,43 +382,45 @@ class FantasyFootballApp {
     }
 
     updateScores() {
-        const scores = {
-            ell: 0,
-            jack: 0
-        };
-        const values = {
-            ell: 0,
-            jack: 0
-        };
+    const scores = {
+        ell: 0,
+        jack: 0
+    };
+    const values = {
+        ell: 0,
+        jack: 0
+    };
 
-        document.querySelectorAll(".player").forEach(player => {
-            const scoreInput = player.querySelector("input[data-field='score']");
-            const scoreValue = scoreInput.value.trim();
-            const baseScore = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
-            
-            const roleButton = player.querySelector('.role-button');
-            const role = roleButton ? roleButton.dataset.role : PLAYER_ROLES.NONE;
-            const multiplier = ROLE_MULTIPLIERS[role] || 1;
-            const finalScore = baseScore * multiplier;
-            
-            const valueInput = player.querySelector("input[data-field='value']");
-            const valueText = valueInput.value.trim().replace('£', '');
-            const value = valueText === '' ? 0 : (parseFloat(valueText) || 0);
-            
-            const team = player.parentElement.id.startsWith("ells") ? "ell" : "jack";
-            scores[team] += finalScore;
-            values[team] += value;
-        });
+    document.querySelectorAll(".player").forEach(player => {
+        const scoreInput = player.querySelector("input[data-field='score']");
+        const scoreValue = scoreInput.value.trim();
+        const baseScore = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
+        
+        const roleButton = player.querySelector('.role-button');
+        const role = roleButton ? roleButton.dataset.role : PLAYER_ROLES.NONE;
+        const multiplier = ROLE_MULTIPLIERS[role] || 1;
+        const finalScore = baseScore * multiplier;
+        
+        const valueInput = player.querySelector("input[data-field='value']");
+        const valueText = valueInput.value.trim().replace('£', '');
+        const value = valueText === '' ? 0 : (parseFloat(valueText) || 0);
+        
+        const team = player.parentElement.id.startsWith("ells") ? "ell" : "jack";
+        scores[team] += finalScore;
+        values[team] += value;
+    });
 
-        document.getElementById("jacks-score").textContent = scores.jack;
-        document.getElementById("ells-score").textContent = scores.ell;
-        document.getElementById("winner-display").textContent = 
-            scores.ell > scores.jack ? "Ell" : 
-            scores.jack > scores.ell ? "Jack" : "Draw";
+    // Round scores to nearest whole number
+    document.getElementById("jacks-score").textContent = Math.round(scores.jack);
+    document.getElementById("ells-score").textContent = Math.round(scores.ell);
+    
+    document.getElementById("winner-display").textContent = 
+        scores.ell > scores.jack ? "Ell" : 
+        scores.jack > scores.ell ? "Jack" : "Draw";
 
-        document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
-        document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
-    }
+    document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
+    document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
+}
 
     initializePowerups() {
         document.querySelectorAll('.powerup-button').forEach(button => {
