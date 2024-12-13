@@ -252,3 +252,46 @@ h1 {
     padding: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* Add to your existing CSS file */
+.powerups {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    align-items: center;
+}
+
+.team-powerups {
+    display: flex;
+    gap: 8px;
+    width: 30%;
+}
+
+.powerups-label {
+    font-size: 18px;
+    font-weight: bold;
+    width: 30%;
+    text-align: center;
+}
+
+.powerup-button {
+    background: white;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.powerup-button:hover {
+    background-color: #f0f0f0;
+    border-color: #999;
+}
+
+.powerup-button.active {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #45a049;
+}
