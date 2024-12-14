@@ -656,38 +656,41 @@ async openLeagueTable() {
 async updateLeagueTableCell(recordId, event) {
     const input = event.target;
     const field = input.dataset.field;
-    const value = input.value.trim();
-    
+    let value = input.value.trim();
+
     try {
-        // Use the same API key and base ID from the main AirtableService
+        // Attempt to parse the input as a number
+        const numericValue = parseFloat(value);
+
+        // Update the field with the parsed numeric value or null if empty
         const response = await fetch(`https://api.airtable.com/v0/appoF7fRSS4nuF9u2/Table%202/${recordId}`, {
             method: "PATCH",
             headers: {
                 'Authorization': `Bearer patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
-                fields: { 
-                    [field]: value === '' ? null : value 
-                } 
+            body: JSON.stringify({
+                fields: {
+                    [field]: isNaN(numericValue) ? null : numericValue
+                }
             })
         });
-        
+
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Detailed error:', errorText);
             throw new Error(`Update failed: ${errorText}`);
         }
-        
-        // Optional: Provide feedback to user
-        input.style.backgroundColor = '#90EE90';  // Light green to indicate success
+
+        // Provide success feedback
+        input.style.backgroundColor = '#90EE90';
         setTimeout(() => {
             input.style.backgroundColor = 'transparent';
         }, 1000);
     } catch (error) {
         console.error('Error updating league table:', error);
         alert(`Failed to update league table: ${error.message}`);
-        
+
         // Revert the input to its previous value
         input.value = input.defaultValue;
     }
