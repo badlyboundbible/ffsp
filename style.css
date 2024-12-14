@@ -338,6 +338,11 @@ h1 {
     position: relative; /* Add this */
 }
 
+.team {
+    position: relative; /* Keep this */
+    min-height: 100px; /* Add this to ensure minimum height */
+}
+
 .reset-button {
     position: absolute;
     right: 20px;
@@ -348,6 +353,7 @@ h1 {
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 10; /* Add this to ensure button stays on top */
 }
 
 .reset-button:hover {
@@ -358,9 +364,13 @@ h1 {
 /* Position for Ell's team (top) */
 div.team:first-of-type .reset-button {
     bottom: 20px;
+    position: fixed; /* Change to fixed */
+    margin-bottom: 20px; /* Add some margin */
 }
 
 /* Position for Jack's team (bottom) */
 div.team:last-of-type .reset-button {
     top: 20px;
+    position: fixed; /* Change to fixed */
+    margin-top: 20px; /* Add some margin */
 }
