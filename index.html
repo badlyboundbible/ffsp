@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scottish Premiership Fantasy Football</title>
+    <link rel="stylesheet" href="/ffsp/style.css">
+    <script defer src="/ffsp/script.js"></script>
+</head>
+<body>
+    <h1>Scottish Premiership Fantasy Football</h1>
+    
+    <!-- Publish Changes Button -->
+    <div id="publish-section">
+        <button onclick="app.publishChanges()">Publish Changes</button>
+    </div>
+
+    <!-- Ell's Team -->
+    <div class="team">
+        <div class="reset-button" onclick="app.resetTeamScores('ells')"></div>
+        <h2>Ell's Allstars</h2>
+        <div id="ells-gk" class="position"></div>
+        <div id="ells-def" class="position"></div>
+        <div id="ells-mid" class="position"></div>
+        <div id="ells-fwd" class="position"></div>
+        
+    </div>
+
+    <!-- Final Score Section -->
+    <div id="final-score">
+        <h2>Final Score</h2>
+        <div class="scores">
+            <div class="score-label">Jack</div>
+            <div class="score-label">Winner</div>
+            <div class="score-label">Ell</div>
+        </div>
+        <div class="scores">
+            <div id="jacks-score" class="score-value">0</div>
+            <div id="winner-display" class="score-value">-</div>
+            <div id="ells-score" class="score-value">0</div>
+        </div>
+        <div class="scores">
+            <div id="jacks-value" class="value-total">£0.0</div>
+            <div class="value-total">Team Value</div>
+            <div id="ells-value" class="value-total">£0.0</div>
+        </div>
+        <div class="powerups">
+            <div class="team-powerups">
+                <div class="powerup-row">
+                    <button class="powerup-button" data-team="jacks" data-powerup="WC1">WC1</button>
+                    <button class="powerup-button" data-team="jacks" data-powerup="WC2">WC2</button>
+                </div>
+                <div class="powerup-row">
+                    <button class="powerup-button" data-team="jacks" data-powerup="BB">BB</button>
+                    <button class="powerup-button" data-team="jacks" data-powerup="TC">TC</button>
+                </div>
+            </div>
+            <div class="powerups-label">Power Ups</div>
+            <div class="team-powerups">
+                <div class="powerup-row">
+                    <button class="powerup-button" data-team="ells" data-powerup="WC1">WC1</button>
+                    <button class="powerup-button" data-team="ells" data-powerup="WC2">WC2</button>
+                </div>
+                <div class="powerup-row">
+                    <button class="powerup-button" data-team="ells" data-powerup="BB">BB</button>
+                    <button class="powerup-button" data-team="ells" data-powerup="TC">TC</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jack's Team -->
+    <div class="team">
+        <div class="reset-button" onclick="app.resetTeamScores('jacks')"></div>
+        <div id="jacks-fwd" class="position"></div>
+        <div id="jacks-mid" class="position"></div>
+        <div id="jacks-def" class="position"></div>
+        <div id="jacks-gk" class="position"></div>
+        <h2>Lord Frostly's XI</h2>
+    </div>
+</body>
+</html>
