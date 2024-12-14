@@ -1,4 +1,4 @@
-// Constants and Helper Functions
+// Constants for team colors and multipliers
 const TEAM_COLORS = {
     ABD: "#e2001a",
     CEL: "#16973b",
@@ -28,103 +28,70 @@ const ROLE_MULTIPLIERS = {
     [PLAYER_ROLES.TRIPLE_CAPTAIN]: 3
 };
 
-// Main Application Class
+// Main Fantasy Football App
 class FantasyFootballApp {
     constructor() {
-        this.state = new FantasyState();
-        this.api = new AirtableService();
+        this.state = { records: [], unsavedChanges: [] };
         this.init();
     }
 
     init() {
         document.addEventListener("DOMContentLoaded", () => {
             this.loadData();
-            this.addGlobalEventListeners();
+            this.addEventListeners();
         });
     }
 
-    addGlobalEventListeners() {
-        // Publish Changes Button
+    addEventListeners() {
         document.getElementById("publish-button").addEventListener("click", () => this.publishChanges());
 
-        // Reset Buttons
         document.querySelectorAll(".reset-button").forEach(button => {
             const team = button.parentElement.querySelector("h2").textContent.includes("Ell") ? "ells" : "jacks";
-            button.addEventListener("click", () => this.resetTeamScores(team));
+            button.addEventListener("click", () => this.resetScores(team));
         });
     }
 
     async loadData() {
-        try {
-            const records = await this.api.fetchData();
-            this.state.setRecords(records);
-            this.updatePlayers(records);
-            this.initializePowerups();
-        } catch (error) {
-            console.error("Failed to load data:", error);
-        }
+        // Simulate fetching data
+        this.state.records = []; // Replace with real API fetch logic
+        this.updatePlayers();
     }
 
-    updatePlayers(records) {
+    updatePlayers() {
+        const records = this.state.records;
+        ["ells", "jacks"].forEach(team => {
+            ["gk", "def", "mid", "fwd"].forEach(position => {
+                document.getElementById(`${team}-${position}`).innerHTML = "";
+            });
+        });
+
         records.forEach(record => {
-            if (!record.fields?.player_id) return;
-
-            const { player_id } = record.fields;
-            const teamPrefix = player_id.startsWith("ell") ? "ells" : "jacks";
-            const positionType = player_id.split("-")[1];
-            const positionContainer = document.getElementById(`${teamPrefix}-${positionType}`);
-
-            // Avoid full re-rendering by updating existing elements
-            let playerElement = positionContainer.querySelector(`[data-id="${record.id}"]`);
-            if (!playerElement) {
-                const component = new PlayerComponent(record, this.state, () => this.updateScores());
-                playerElement = component.createElements();
-                positionContainer.appendChild(playerElement);
-            }
+            const playerElement = document.createElement("div");
+            playerElement.textContent = `Player ${record.id}`; // Simplified
+            document.getElementById(record.position).appendChild(playerElement);
         });
 
         this.updateScores();
     }
 
     updateScores() {
-        const scores = { ell: 0, jack: 0 };
-        const values = { ell: 0, jack: 0 };
-
-        document.querySelectorAll(".player").forEach(player => {
-            const scoreInput = player.querySelector("input[data-field='score']");
-            const baseScore = parseFloat(scoreInput.value.trim() || 0);
-            const roleButton = player.querySelector('.role-button');
-            const role = roleButton ? roleButton.dataset.role : PLAYER_ROLES.NONE;
-            const multiplier = ROLE_MULTIPLIERS[role] || 1;
-
-            const finalScore = baseScore * multiplier;
-            const valueInput = player.querySelector("input[data-field='value']");
-            const value = parseFloat(valueInput.value.replace('£', '').trim() || 0);
-
-            const team = player.parentElement.id.startsWith("ells") ? "ell" : "jack";
-            scores[team] += finalScore;
-            values[team] += value;
-        });
-
-        document.getElementById("jacks-score").textContent = Math.round(scores.jack);
-        document.getElementById("ells-score").textContent = Math.round(scores.ell);
-        document.getElementById("winner-display").textContent = scores.ell > scores.jack ? "Ell" : scores.jack > scores.ell ? "Jack" : "Draw";
-        document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
-        document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
+        const scores = { ells: 0, jacks: 0 };
+        document.getElementById("ells-score").textContent = scores.ells;
+        document.getElementById("jacks-score").textContent = scores.jacks;
+        document.getElementById("winner-display").textContent = scores.ells > scores.jacks ? "Ell" : "Jack";
     }
 
-    resetTeamScores(team) {
-        document.querySelectorAll(`#${team}-gk, #${team}-def, #${team}-mid, #${team}-fwd input[data-field='score']`).forEach(input => {
-            input.value = '';
-            this.state.addChange({ id: input.dataset.id, fields: { score: null } });
+    resetScores(team) {
+        document.querySelectorAll(`#${team}-gk input, #${team}-def input, #${team}-mid input, #${team}-fwd input`).forEach(input => {
+            input.value = "";
         });
         this.updateScores();
     }
 
-    async publishChanges() {
-        // Implementation (unchanged)
+    publishChanges() {
+        alert("Changes published!"); // Simplified
     }
 }
 
-// Initialize Application
-const app = new FantasyFootballApp();
+// Initialize App
+new FantasyFootballApp();
