@@ -356,17 +356,13 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Ell's team - position relative to forwards */
-#ells-fwd {
-    position: relative;
-}
-
+/* Ell's team reset button */
 div.team:first-of-type .reset-button {
-    top: 50%;  /* Position it near the forwards row */
-    transform: translateY(-50%);
+    bottom: 65px;  /* Adjust this value to position from bottom */
+    top: auto;     /* Remove top positioning */
 }
 
-/* Jack's team - keep as is */
+/* Jack's team reset button */
 div.team:last-of-type .reset-button {
     top: 20px;
 }
