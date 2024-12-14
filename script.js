@@ -504,80 +504,7 @@ class FantasyFootballApp {
     }
 }
 
-// Round scores to nearest whole number
-        document.getElementById("jacks-score").textContent = Math.round(scores.jack);
-        document.getElementById("ells-score").textContent = Math.round(scores.ell);
-        
-        document.getElementById("winner-display").textContent = 
-            scores.ell > scores.jack ? "Ell" : 
-            scores.jack > scores.ell ? "Jack" : "Draw";
-
-        document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
-        document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
-    }
-
-    initializePowerups() {
-        document.querySelectorAll('.powerup-button').forEach(button => {
-            const team = button.dataset.team;
-            const powerup = button.dataset.powerup;
-            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
-            const record = this.state.records.find(r => 
-                r.fields.player_id === `${playerPrefix}-powerups`
-            );
-            
-            if (record && record.fields[powerup]) {
-                button.classList.add('active');
-            }
-
-            button.addEventListener('click', () => this.togglePowerup(button, record.id));
-        });
-
-        this.initializePenaltyDropdowns();
-    }
-
-    initializePenaltyDropdowns() {
-        document.querySelectorAll('.penalty-dropdown').forEach(dropdown => {
-            const team = dropdown.dataset.team;
-            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
-            const record = this.state.records.find(r => 
-                r.fields.player_id === `${playerPrefix}-powerups`
-            );
-            
-            if (record && record.fields.PEN) {
-                dropdown.value = record.fields.PEN;
-            }
-
-            dropdown.addEventListener('change', () => this.updatePenalty(dropdown, record.id));
-        });
-    }
-
-    async togglePowerup(button, recordId) {
-        const powerup = button.dataset.powerup;
-        const isActive = button.classList.toggle('active');
-        
-        this.state.addChange({
-            id: recordId,
-            fields: {
-                [powerup]: isActive
-            }
-        });
-    }
-
-    async updatePenalty(dropdown, recordId) {
-        const penalty = parseInt(dropdown.value);
-        
-        this.state.addChange({
-            id: recordId,
-            fields: {
-                PEN: penalty
-            }
-        });
-
-        // Immediately update scores
-        this.updateScores();
-    }
-
-    async publishScores() {
+async publishScores() {
         try {
             // Get the current scores from the main interface
             const jackScore = parseFloat(document.getElementById("jacks-score").textContent);
@@ -671,6 +598,22 @@ class FantasyFootballApp {
     }
 
     resetTeamScores(team) {
+        document.querySelectorAll(`#${team}-gk, #${team}-def, #${team}-mid, #${team}-fwd`)
+            .forEach(position => {
+                position.querySelectorAll('input[data-field="score"]').forEach(input => {
+                    input.value = '';
+                    
+                    this.state.addChange({
+                        id: input.dataset.id,
+                        fields: { score: null }
+                    });
+                });
+            });
+        
+        this.updateScores();
+    }
+
+resetTeamScores(team) {
         document.querySelectorAll(`#${team}-gk, #${team}-def, #${team}-mid, #${team}-fwd`)
             .forEach(position => {
                 position.querySelectorAll('input[data-field="score"]').forEach(input => {
