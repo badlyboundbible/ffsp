@@ -335,10 +335,7 @@ h1 {
 }
 
 .team {
-    position: relative;  /* Keep this */
-    min-height: 300px;  /* Add this to ensure enough space */
-    display: flex;      /* Add this */
-    flex-direction: column; /* Add this */
+    position: relative;
 }
 
 .reset-button {
@@ -359,23 +356,17 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Position for Ell's team (top team) */
+/* Ell's team - ensure button is at bottom right */
+div.team:first-of-type {
+    padding-bottom: 40px; /* Add space for the button */
+}
+
 div.team:first-of-type .reset-button {
-    position: absolute;
-    right: 20px;
-    bottom: 20px !important;  /* Force bottom positioning */
-    top: auto;  /* Remove any top positioning */
+    bottom: 20px;  /* Position from bottom */
+    top: unset;    /* Remove any top positioning */
 }
 
-/* Position for Jack's team (bottom team) */
+/* Jack's team - leave as is since it's working */
 div.team:last-of-type .reset-button {
-    position: absolute;
-    right: 20px;
     top: 20px;
-    bottom: auto;  /* Remove any bottom positioning */
-}
-
-/* Make sure position divs take up space in flex container */
-.position {
-    flex: 1;
 }
