@@ -808,7 +808,7 @@ async openLeagueTable() {
         alert("Scores published successfully!");
     } catch (error) {
         console.error("Error publishing scores:", error);
-        alert("Failed to publish scores. Please try again later.");
+        alert(`Failed to publish scores: ${error.message}`);
     }
 }
 
