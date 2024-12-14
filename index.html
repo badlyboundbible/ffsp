@@ -10,14 +10,14 @@
 <body>
     <h1>Scottish Premiership Fantasy Football</h1>
     
-    <!-- Publish Changes Button -->
+    <!-- Publish Changes Section -->
     <div id="publish-section">
         <button id="publish-button" aria-label="Publish Changes">Publish Changes</button>
     </div>
 
-    <!-- Ell's Team -->
-    <div class="team" aria-labelledby="ells-team-heading">
-        <h2 id="ells-team-heading">Ell's Allstars</h2>
+    <!-- Teams Section -->
+    <div class="team" id="ells-team">
+        <h2>Ell's Allstars</h2>
         <button class="reset-button" aria-label="Reset scores for Ell's team"></button>
         <div id="ells-gk" class="position" aria-label="Goalkeeper"></div>
         <div id="ells-def" class="position" aria-label="Defenders"></div>
@@ -25,34 +25,28 @@
         <div id="ells-fwd" class="position" aria-label="Forwards"></div>
     </div>
 
-    <!-- Final Score Section -->
-    <div id="final-score" aria-labelledby="final-score-heading">
-        <h2 id="final-score-heading">Final Score</h2>
-        <div class="scores">
-            <div class="score-label" aria-label="Score for Jack">Jack</div>
-            <div class="score-label" aria-label="Winner">Winner</div>
-            <div class="score-label" aria-label="Score for Ell">Ell</div>
-        </div>
-        <div class="scores">
-            <div id="jacks-score" class="score-value" aria-live="polite">0</div>
-            <div id="winner-display" class="score-value" aria-live="polite">-</div>
-            <div id="ells-score" class="score-value" aria-live="polite">0</div>
-        </div>
-        <div class="scores">
-            <div id="jacks-value" class="value-total" aria-live="polite">£0.0</div>
-            <div class="value-total">Team Value</div>
-            <div id="ells-value" class="value-total" aria-live="polite">£0.0</div>
-        </div>
-    </div>
-
-    <!-- Jack's Team -->
-    <div class="team" aria-labelledby="jacks-team-heading">
-        <h2 id="jacks-team-heading">Lord Frostly's XI</h2>
+    <div class="team" id="jacks-team">
+        <h2>Lord Frostly's XI</h2>
         <button class="reset-button" aria-label="Reset scores for Jack's team"></button>
         <div id="jacks-gk" class="position" aria-label="Goalkeeper"></div>
         <div id="jacks-def" class="position" aria-label="Defenders"></div>
         <div id="jacks-mid" class="position" aria-label="Midfielders"></div>
         <div id="jacks-fwd" class="position" aria-label="Forwards"></div>
+    </div>
+
+    <!-- Final Score Section -->
+    <div id="final-score">
+        <h2>Final Score</h2>
+        <div class="scores">
+            <div class="score-label">Ell</div>
+            <div class="score-label">Winner</div>
+            <div class="score-label">Jack</div>
+        </div>
+        <div class="scores">
+            <div id="ells-score" class="score-value">0</div>
+            <div id="winner-display" class="score-value">-</div>
+            <div id="jacks-score" class="score-value">0</div>
+        </div>
     </div>
 </body>
 </html>
