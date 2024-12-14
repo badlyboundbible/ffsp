@@ -335,11 +335,12 @@ h1 {
 }
 
 .team {
-    position: relative;  /* Keep this to establish positioning context */
+    position: relative;
+    padding-bottom: 20px; /* Add this to ensure space at bottom */
 }
 
 .reset-button {
-    position: absolute;  /* This positions relative to the team div */
+    position: absolute;
     right: 20px;
     width: 30px;
     height: 30px;
@@ -358,10 +359,12 @@ h1 {
 
 /* Position for Ell's team (top team) */
 div.team:first-of-type .reset-button {
-    bottom: 20px;  /* Position from bottom of the green pitch */
+    bottom: 20px; /* Keep this */
+    right: 20px; /* Ensure it's properly positioned from right */
 }
 
 /* Position for Jack's team (bottom team) */
 div.team:last-of-type .reset-button {
-    top: 20px;  /* Position from top of the green pitch */
+    top: 20px;
+    right: 20px;
 }
