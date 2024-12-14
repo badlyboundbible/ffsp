@@ -310,14 +310,14 @@ class PlayerComponent {
     handleChange(event) {
         const input = event.target;
         let value = input.value.trim();
-        
+    
         if (value === '') {
-            value = '';
-        } else if (input.dataset.field === "score" || input.dataset.field === "value") {
+            value = null;  // Changed from '' to null
+    }     else if (input.dataset.field === "score" || input.dataset.field === "value") {
             value = input.dataset.field === "value" ? 
                 parseFloat(value.replace('£', '')) || 0 :
                 parseFloat(value) || 0;
-        }
+    }
 
         this.state.addChange({
             id: input.dataset.id,
@@ -325,7 +325,7 @@ class PlayerComponent {
         });
 
         if (input.dataset.field === "score" || input.dataset.field === "value") {
-            this.onUpdate();
+        this.onUpdate();
         }
     }
 
@@ -507,17 +507,17 @@ async loadData() {
             position.querySelectorAll('input[data-field="score"]').forEach(input => {
                 input.value = '';
                 
-                // Add to unsaved changes
+                // Add to unsaved changes - using null instead of empty string
                 this.state.addChange({
                     id: input.dataset.id,
-                    fields: { score: '' }
+                    fields: { score: null }  // Changed from '' to null
                 });
             });
         });
     
     // Update the display
     this.updateScores();
-    }
+}
 }
 
 // Initialize application
