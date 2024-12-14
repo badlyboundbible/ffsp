@@ -1,4 +1,4 @@
-// script.js
+// Constants
 const TEAM_COLORS = {
     ABD: "#e2001a",
     CEL: "#16973b",
@@ -28,10 +28,12 @@ const ROLE_MULTIPLIERS = {
     [PLAYER_ROLES.TRIPLE_CAPTAIN]: 3
 };
 
+// Utility function
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Class declarations
 class FantasyState {
     constructor() {
         this.unsavedChanges = [];
@@ -97,37 +99,38 @@ class AirtableService {
     }
 
     async publishChange(change) {
-    return this.queueRequest(async () => {
-        try {
-            const sanitizedFields = {};
-            Object.keys(change.fields).forEach(key => {
-                let value = change.fields[key];
-                if (key === "score" || key === "value" || key === "PEN") {  // Added PEN here
-                    value = value === '' ? '' : parseFloat(value);
-                }
-                sanitizedFields[key] = value;
-            });
+        return this.queueRequest(async () => {
+            try {
+                const sanitizedFields = {};
+                Object.keys(change.fields).forEach(key => {
+                    let value = change.fields[key];
+                    if (key === "score" || key === "value" || key === "PEN") {
+                        value = value === '' ? '' : parseFloat(value);
+                    }
+                    sanitizedFields[key] = value;
+                });
 
-            const response = await fetch(`${this.url}/${change.id}`, {
-                method: "PATCH",
-                headers: {
-                    'Authorization': `Bearer ${this.apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ fields: sanitizedFields })
-            });
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Update failed for ${change.id}: ${errorText}`);
+                const response = await fetch(`${this.url}/${change.id}`, {
+                    method: "PATCH",
+                    headers: {
+                        'Authorization': `Bearer ${this.apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ fields: sanitizedFields })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Update failed for ${change.id}: ${errorText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error(`Error updating ${change.id}:`, error);
+                throw error;
             }
-            
-            return await response.json();
-        } catch (error) {
-            console.error(`Error updating ${change.id}:`, error);
-            throw error;
-        }
-    });
+        });
+    }
 }
 
 class PlayerComponent {
@@ -137,202 +140,8 @@ class PlayerComponent {
         this.onUpdate = onUpdate;
     }
 
-    createElements() {
-        const { fields } = this.record;
-        const playerDiv = document.createElement("div");
-        playerDiv.className = "player";
-
-        const elements = {
-            roleContainer: this.createRoleContainer(),
-            circle: this.createPositionCircle(),
-            name: this.createInput("name", fields.name),
-            team: this.createTeamSelect(),
-            value: this.createInput("value", this.formatValue(fields.value)),
-            score: this.createScoreInput(fields.score)
-        };
-
-        Object.values(elements).forEach(element => playerDiv.appendChild(element));
-        return playerDiv;
-    }
-
-    createRoleContainer() {
-        const container = document.createElement("div");
-        container.className = "role-container";
-        
-        let role = PLAYER_ROLES.NONE;
-        if (this.record.fields.TC) {
-            role = PLAYER_ROLES.TRIPLE_CAPTAIN;
-        } else if (this.record.fields.C) {
-            role = PLAYER_ROLES.CAPTAIN;
-        } else if (this.record.fields.VC) {
-            role = PLAYER_ROLES.VICE_CAPTAIN;
-        }
-        
-        const roleButton = document.createElement("button");
-        roleButton.className = "role-button";
-        roleButton.textContent = this.getRoleDisplay(role);
-        roleButton.dataset.role = role;
-        roleButton.addEventListener("click", () => this.cycleRole(roleButton));
-        
-        container.appendChild(roleButton);
-        return container;
-    }
-
-    getRoleDisplay(role) {
-        switch(role) {
-            case PLAYER_ROLES.CAPTAIN:
-                return "C";
-            case PLAYER_ROLES.VICE_CAPTAIN:
-                return "VC";
-            case PLAYER_ROLES.TRIPLE_CAPTAIN:
-                return "TC";
-            default:
-                return "";
-        }
-    }
-
-    cycleRole(button) {
-        const currentRole = button.dataset.role;
-        
-        let nextRole;
-        switch(currentRole) {
-            case PLAYER_ROLES.NONE:
-                nextRole = PLAYER_ROLES.CAPTAIN;
-                break;
-            case PLAYER_ROLES.CAPTAIN:
-                nextRole = PLAYER_ROLES.VICE_CAPTAIN;
-                break;
-            case PLAYER_ROLES.VICE_CAPTAIN:
-                nextRole = PLAYER_ROLES.TRIPLE_CAPTAIN;
-                break;
-            case PLAYER_ROLES.TRIPLE_CAPTAIN:
-            default:
-                nextRole = PLAYER_ROLES.NONE;
-        }
-
-        button.dataset.role = nextRole;
-        button.textContent = this.getRoleDisplay(nextRole);
-        
-        this.state.addChange({
-            id: this.record.id,
-            fields: {
-                'C': nextRole === PLAYER_ROLES.CAPTAIN,
-                'VC': nextRole === PLAYER_ROLES.VICE_CAPTAIN,
-                'TC': nextRole === PLAYER_ROLES.TRIPLE_CAPTAIN
-            }
-        });
-
-        this.onUpdate();
-    }
-
-    createPositionCircle() {
-        const circle = document.createElement("div");
-        const { fields } = this.record;
-        const positionType = fields.player_id.split("-")[1];
-        
-        circle.className = "position-circle";
-        circle.textContent = positionType.toUpperCase();
-        circle.style.backgroundColor = fields.bench ? "#888888" : TEAM_COLORS[fields.team] || "#cccccc";
-        circle.dataset.id = this.record.id;
-        circle.dataset.bench = fields.bench || false;
-        circle.dataset.team = fields.team;
-        
-        circle.addEventListener("click", () => this.toggleBench(circle));
-        
-        return circle;
-    }
-
-    formatValue(value) {
-        if (value === undefined || value === null || value === '') {
-            return '';
-        }
-        return `£${parseFloat(value).toFixed(1)}`;
-    }
-
-    createScoreInput(score) {
-        const input = document.createElement("input");
-        input.value = score || '';
-        input.dataset.field = "score";
-        input.dataset.id = this.record.id;
-        input.style.backgroundColor = "white";
-        input.addEventListener("blur", (e) => this.handleChange(e));
-        return input;
-    }
-
-    createInput(field, value) {
-        const input = document.createElement("input");
-        input.value = value || '';
-        input.dataset.field = field;
-        input.dataset.id = this.record.id;
-        
-        if (field !== "score") {
-            input.style.backgroundColor = this.record.fields.player_id.startsWith("ell") ? "#ffcccc" : "#cceeff";
-        }
-        
-        input.addEventListener("blur", (e) => this.handleChange(e));
-        return input;
-    }
-
-    createTeamSelect() {
-        const select = document.createElement("select");
-        select.dataset.field = "team";
-        select.dataset.id = this.record.id;
-        
-        Object.keys(TEAM_COLORS).forEach(team => {
-            const option = document.createElement("option");
-            option.value = team;
-            option.textContent = team;
-            option.selected = team === this.record.fields.team;
-            select.appendChild(option);
-        });
-
-        select.addEventListener("change", (e) => {
-            this.handleChange(e);
-            this.updateTeamColors(select);
-        });
-        
-        this.updateTeamColors(select);
-        return select;
-    }
-
-    toggleBench(circle) {
-        const newBenchStatus = circle.dataset.bench !== "true";
-        circle.dataset.bench = newBenchStatus;
-        circle.style.backgroundColor = newBenchStatus ? "#888888" : TEAM_COLORS[circle.dataset.team];
-        
-        this.state.addChange({
-            id: circle.dataset.id,
-            fields: { bench: newBenchStatus }
-        });
-    }
-
-    handleChange(event) {
-        const input = event.target;
-        let value = input.value.trim();
-    
-        if (value === '') {
-            value = null;  // Changed from '' to null
-    }     else if (input.dataset.field === "score" || input.dataset.field === "value") {
-            value = input.dataset.field === "value" ? 
-                parseFloat(value.replace('£', '')) || 0 :
-                parseFloat(value) || 0;
-    }
-
-        this.state.addChange({
-            id: input.dataset.id,
-            fields: { [input.dataset.field]: value }
-        });
-
-        if (input.dataset.field === "score" || input.dataset.field === "value") {
-        this.onUpdate();
-        }
-    }
-
-    updateTeamColors(select) {
-        const selectedTeam = select.value;
-        select.style.backgroundColor = TEAM_COLORS[selectedTeam];
-        select.style.color = "white";
-    }
+    // ... rest of PlayerComponent methods ...
+    // [Keep all your existing PlayerComponent methods here]
 }
 
 class FantasyFootballApp {
@@ -342,216 +151,12 @@ class FantasyFootballApp {
         this.init();
     }
 
-    async init() {
-        document.addEventListener("DOMContentLoaded", () => this.loadData());
-    }
-
-    async loadData() {
-        try {
-            const records = await this.api.fetchData();
-            this.state.setRecords(records);
-            this.displayPlayers(records);
-            this.initializePowerups(); // Add initialization of powerups
-        } catch (error) {
-            console.error("Failed to load data:", error);
-        }
-    }
-
-    displayPlayers(records) {
-        ["ells", "jacks"].forEach(team => {
-            ["gk", "def", "mid", "fwd"].forEach(position => {
-                document.getElementById(`${team}-${position}`).innerHTML = "";
-            });
-        });
-
-        records.forEach(record => {
-            if (!record.fields?.player_id) return;
-
-            const component = new PlayerComponent(record, this.state, () => this.updateScores());
-            const playerElement = component.createElements();
-            
-            const { player_id } = record.fields;
-            const teamPrefix = player_id.startsWith("ell") ? "ells" : "jacks";
-            const positionType = player_id.split("-")[1];
-            
-            document.getElementById(`${teamPrefix}-${positionType}`)?.appendChild(playerElement);
-        });
-
-        this.updateScores();
-    }
-
-    updateScores() {
-    const scores = {
-        ell: 0,
-        jack: 0
-    };
-    const values = {
-        ell: 0,
-        jack: 0
-    };
-
-    document.querySelectorAll(".player").forEach(player => {
-        const scoreInput = player.querySelector("input[data-field='score']");
-        const scoreValue = scoreInput.value.trim();
-        const baseScore = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
-        
-        const roleButton = player.querySelector('.role-button');
-        const role = roleButton ? roleButton.dataset.role : PLAYER_ROLES.NONE;
-        const multiplier = ROLE_MULTIPLIERS[role] || 1;
-        const finalScore = baseScore * multiplier;
-        
-        const valueInput = player.querySelector("input[data-field='value']");
-        const valueText = valueInput.value.trim().replace('£', '');
-        const value = valueText === '' ? 0 : (parseFloat(valueText) || 0);
-        
-        const team = player.parentElement.id.startsWith("ells") ? "ell" : "jack";
-        scores[team] += finalScore;
-        values[team] += value;
-    });
-
-    // Apply penalties
-    const jacksPenalty = parseInt(document.querySelector('.penalty-select[data-team="jacks"]').value) || 0;
-    const ellsPenalty = parseInt(document.querySelector('.penalty-select[data-team="ells"]').value) || 0;
-    
-    scores.jack += jacksPenalty;
-    scores.ell += ellsPenalty;
-
-    // Round scores to nearest whole number
-    document.getElementById("jacks-score").textContent = Math.round(scores.jack);
-    document.getElementById("ells-score").textContent = Math.round(scores.ell);
-    
-    document.getElementById("winner-display").textContent = 
-        scores.ell > scores.jack ? "Ell" : 
-        scores.jack > scores.ell ? "Jack" : "Draw";
-
-    document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
-    document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
-}
-
-    initializePowerups() {
-    // Existing powerup initialization
-    document.querySelectorAll('.powerup-button').forEach(button => {
-        const team = button.dataset.team;
-        const powerup = button.dataset.powerup;
-        const playerPrefix = team === 'ells' ? 'ell' : 'jack';
-        const record = this.state.records.find(r => 
-            r.fields.player_id === `${playerPrefix}-powerups`
-        );
-        
-        if (record && record.fields[powerup]) {
-            button.classList.add('active');
-        }
-
-        button.addEventListener('click', () => this.togglePowerup(button, record.id));
-    });
-
-    // New penalty initialization
-    document.querySelectorAll('.penalty-select').forEach(select => {
-        const team = select.dataset.team;
-        const playerPrefix = team === 'ells' ? 'ell' : 'jack';
-        const record = this.state.records.find(r => 
-            r.fields.player_id === `${playerPrefix}-powerups`
-        );
-        
-        if (record && record.fields.PEN !== undefined) {
-            select.value = record.fields.PEN;
-        }
-
-        select.addEventListener('change', (e) => {
-            if (record) {
-                this.state.addChange({
-                    id: record.id,
-                    fields: { PEN: parseInt(e.target.value) }
-                });
-            }
-            this.updateScores();
-        });
-    });
-}
-
-async togglePowerup(button, recordId) {
-    const powerup = button.dataset.powerup;
-    const isActive = button.classList.toggle('active');
-    
-    this.state.addChange({
-        id: recordId,
-        fields: {
-            [powerup]: isActive
-        }
-    });
-}
-
-async loadData() {
-    try {
-        const records = await this.api.fetchData();
-        this.state.setRecords(records);
-        this.displayPlayers(records);
-        this.initializePowerups(); // Add this line
-    } catch (error) {
-        console.error("Failed to load data:", error);
-    }
-}
-    
-    async publishChanges() {
-        if (this.state.unsavedChanges.length === 0) {
-            alert("No changes to publish.");
-            return;
-        }
-
-        try {
-            const loadingMsg = document.createElement('div');
-            loadingMsg.style.position = 'fixed';
-            loadingMsg.style.top = '50%';
-            loadingMsg.style.left = '50%';
-            loadingMsg.style.transform = 'translate(-50%, -50%)';
-            loadingMsg.style.padding = '20px';
-            loadingMsg.style.backgroundColor = 'white';
-            loadingMsg.style.border = '1px solid #ccc';
-            loadingMsg.style.borderRadius = '5px';
-            loadingMsg.style.zIndex = '1000';
-            loadingMsg.textContent = 'Publishing changes...';
-            document.body.appendChild(loadingMsg);
-
-            const results = [];
-            for (const change of this.state.unsavedChanges) {
-                const result = await this.api.publishChange(change);
-                results.push(result);
-            }
-            
-            document.body.removeChild(loadingMsg);
-            console.log("Changes published:", results);
-            alert("All changes published successfully!");
-            this.state.clearChanges();
-            this.updateScores();
-        } catch (error) {
-            console.error("Failed to publish changes:", error);
-            alert("Error publishing changes. Please check your connection or contact support.");
-        }
-    }
-    resetTeamScores(team) {
-    // Get all score inputs for the specified team
-    document.querySelectorAll(`#${team}-gk, #${team}-def, #${team}-mid, #${team}-fwd`)
-        .forEach(position => {
-            position.querySelectorAll('input[data-field="score"]').forEach(input => {
-                input.value = '';
-                
-                // Add to unsaved changes - using null instead of empty string
-                this.state.addChange({
-                    id: input.dataset.id,
-                    fields: { score: null }  // Changed from '' to null
-                });
-            });
-        });
-    
-    // Update the display
-    this.updateScores();
-}
+    // ... rest of FantasyFootballApp methods ...
+    // [Keep all your existing FantasyFootballApp methods here]
 }
 
 // Initialize application
 let app;
-
-// Wait for DOM to load before initializing
 document.addEventListener('DOMContentLoaded', () => {
     app = new FantasyFootballApp();
     
