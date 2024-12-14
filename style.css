@@ -375,3 +375,40 @@ div.team:last-of-type .reset-button {
     background-color: #e0e0e0;
     cursor: pointer;
 }
+
+.penalties {
+    margin-top: 15px;
+}
+
+.penalties-label {
+    font-size: 18px;
+    font-weight: bold;
+    width: 30%;
+    text-align: center;
+    color: #333;
+}
+
+.penalty-container {
+    width: 30%;
+}
+
+.penalty-select {
+    width: 100%;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: white;
+    cursor: pointer;
+    text-align: center;
+    text-align-last: center;
+}
+
+.penalty-select:hover {
+    background-color: #f0f0f0;
+}
+
+.penalty-select option {
+    text-align: center;
+}
