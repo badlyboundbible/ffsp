@@ -151,23 +151,194 @@ class FantasyFootballApp {
         this.init();
     }
 
-    // ... rest of FantasyFootballApp methods ...
-    // [Keep all your existing FantasyFootballApp methods here]
-}
+    async init() {
+        document.addEventListener("DOMContentLoaded", () => this.loadData());
+    }
 
-// Initialize application
-let app;
-document.addEventListener('DOMContentLoaded', () => {
-    app = new FantasyFootballApp();
-    
-    // Add click handlers
-    document.getElementById('publish-button').addEventListener('click', () => {
-        app.publishChanges();
-    });
+    async loadData() {
+        try {
+            const records = await this.api.fetchData();
+            this.state.setRecords(records);
+            this.displayPlayers(records);
+            this.initializePowerups();
+        } catch (error) {
+            console.error("Failed to load data:", error);
+        }
+    }
 
-    document.querySelectorAll('.reset-button').forEach(button => {
-        button.addEventListener('click', () => {
-            app.resetTeamScores(button.dataset.team);
+    displayPlayers(records) {
+        ["ells", "jacks"].forEach(team => {
+            ["gk", "def", "mid", "fwd"].forEach(position => {
+                document.getElementById(`${team}-${position}`).innerHTML = "";
+            });
         });
-    });
-});
+
+        records.forEach(record => {
+            if (!record.fields?.player_id) return;
+
+            const component = new PlayerComponent(record, this.state, () => this.updateScores());
+            const playerElement = component.createElements();
+            
+            const { player_id } = record.fields;
+            const teamPrefix = player_id.startsWith("ell") ? "ells" : "jacks";
+            const positionType = player_id.split("-")[1];
+            
+            document.getElementById(`${teamPrefix}-${positionType}`)?.appendChild(playerElement);
+        });
+
+        this.updateScores();
+    }
+
+    updateScores() {
+        const scores = {
+            ell: 0,
+            jack: 0
+        };
+        const values = {
+            ell: 0,
+            jack: 0
+        };
+
+        document.querySelectorAll(".player").forEach(player => {
+            const scoreInput = player.querySelector("input[data-field='score']");
+            const scoreValue = scoreInput.value.trim();
+            const baseScore = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
+            
+            const roleButton = player.querySelector('.role-button');
+            const role = roleButton ? roleButton.dataset.role : PLAYER_ROLES.NONE;
+            const multiplier = ROLE_MULTIPLIERS[role] || 1;
+            const finalScore = baseScore * multiplier;
+            
+            const valueInput = player.querySelector("input[data-field='value']");
+            const valueText = valueInput.value.trim().replace('£', '');
+            const value = valueText === '' ? 0 : (parseFloat(valueText) || 0);
+            
+            const team = player.parentElement.id.startsWith("ells") ? "ell" : "jack";
+            scores[team] += finalScore;
+            values[team] += value;
+        });
+
+        // Apply penalties
+        const jacksPenalty = parseInt(document.querySelector('.penalty-select[data-team="jacks"]').value) || 0;
+        const ellsPenalty = parseInt(document.querySelector('.penalty-select[data-team="ells"]').value) || 0;
+        
+        scores.jack += jacksPenalty;
+        scores.ell += ellsPenalty;
+
+        // Round scores to nearest whole number
+        document.getElementById("jacks-score").textContent = Math.round(scores.jack);
+        document.getElementById("ells-score").textContent = Math.round(scores.ell);
+        
+        document.getElementById("winner-display").textContent = 
+            scores.ell > scores.jack ? "Ell" : 
+            scores.jack > scores.ell ? "Jack" : "Draw";
+
+        document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
+        document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
+    }
+
+    initializePowerups() {
+        document.querySelectorAll('.powerup-button').forEach(button => {
+            const team = button.dataset.team;
+            const powerup = button.dataset.powerup;
+            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
+            const record = this.state.records.find(r => 
+                r.fields.player_id === `${playerPrefix}-powerups`
+            );
+            
+            if (record && record.fields[powerup]) {
+                button.classList.add('active');
+            }
+
+            button.addEventListener('click', () => this.togglePowerup(button, record.id));
+        });
+
+        // Initialize penalty dropdowns
+        document.querySelectorAll('.penalty-select').forEach(select => {
+            const team = select.dataset.team;
+            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
+            const record = this.state.records.find(r => 
+                r.fields.player_id === `${playerPrefix}-powerups`
+            );
+            
+            if (record && record.fields.PEN !== undefined) {
+                select.value = record.fields.PEN;
+            }
+
+            select.addEventListener('change', (e) => {
+                if (record) {
+                    this.state.addChange({
+                        id: record.id,
+                        fields: { PEN: parseInt(e.target.value) }
+                    });
+                }
+                this.updateScores();
+            });
+        });
+    }
+
+    async togglePowerup(button, recordId) {
+        const powerup = button.dataset.powerup;
+        const isActive = button.classList.toggle('active');
+        
+        this.state.addChange({
+            id: recordId,
+            fields: {
+                [powerup]: isActive
+            }
+        });
+    }
+
+    async publishChanges() {
+        if (this.state.unsavedChanges.length === 0) {
+            alert("No changes to publish.");
+            return;
+        }
+
+        try {
+            const loadingMsg = document.createElement('div');
+            loadingMsg.style.position = 'fixed';
+            loadingMsg.style.top = '50%';
+            loadingMsg.style.left = '50%';
+            loadingMsg.style.transform = 'translate(-50%, -50%)';
+            loadingMsg.style.padding = '20px';
+            loadingMsg.style.backgroundColor = 'white';
+            loadingMsg.style.border = '1px solid #ccc';
+            loadingMsg.style.borderRadius = '5px';
+            loadingMsg.style.zIndex = '1000';
+            loadingMsg.textContent = 'Publishing changes...';
+            document.body.appendChild(loadingMsg);
+
+            const results = [];
+            for (const change of this.state.unsavedChanges) {
+                const result = await this.api.publishChange(change);
+                results.push(result);
+            }
+            
+            document.body.removeChild(loadingMsg);
+            console.log("Changes published:", results);
+            alert("All changes published successfully!");
+            this.state.clearChanges();
+            this.updateScores();
+        } catch (error) {
+            console.error("Failed to publish changes:", error);
+            alert("Error publishing changes. Please check your connection or contact support.");
+        }
+    }
+
+    resetTeamScores(team) {
+        document.querySelectorAll(`#${team}-gk, #${team}-def, #${team}-mid, #${team}-fwd`)
+            .forEach(position => {
+                position.querySelectorAll('input[data-field="score"]').forEach(input => {
+                    input.value = '';
+                    
+                    this.state.addChange({
+                        id: input.dataset.id,
+                        fields: { score: null }
+                    });
+                });
+            });
+        
+        this.updateScores();
+    }
+}
