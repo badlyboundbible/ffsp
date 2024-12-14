@@ -347,12 +347,43 @@ h1 {
     z-index: 10;
 }
 
-/* Ell's team reset button */
-div.team:first-of-type .reset-button {
-    bottom: 20px;  /* Position from bottom */
+.team {
+    position: relative;  /* Create positioning context */
+    padding: 20px;      /* Add some padding */
 }
 
-/* Jack's team reset button */
+.reset-button {
+    position: absolute;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    background-color: #ff0000;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 1;  /* Lower z-index so it doesn't float above everything */
+}
+
+.reset-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* For Ell's team (first team) */
+div.team:first-of-type {
+    margin-bottom: 20px;
+}
+
+div.team:first-of-type .reset-button {
+    position: absolute;
+    bottom: 20px;  /* Position from bottom */
+    top: auto;     /* Remove top positioning */
+}
+
+/* For Jack's team (second team) */
 div.team:last-of-type .reset-button {
-    top: 20px;    /* Position from top */
+    position: absolute;
+    top: 20px;     /* Keep top positioning */
+    bottom: auto;  /* Remove bottom positioning */
 }
