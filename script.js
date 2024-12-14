@@ -97,38 +97,37 @@ class AirtableService {
     }
 
     async publishChange(change) {
-        return this.queueRequest(async () => {
-            try {
-                const sanitizedFields = {};
-                Object.keys(change.fields).forEach(key => {
-                    let value = change.fields[key];
-                    if (key === "score" || key === "value") {
-                        value = value === '' ? '' : parseFloat(value);
-                    }
-                    sanitizedFields[key] = value;
-                });
-
-                const response = await fetch(`${this.url}/${change.id}`, {
-                    method: "PATCH",
-                    headers: {
-                        'Authorization': `Bearer ${this.apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ fields: sanitizedFields })
-                });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Update failed for ${change.id}: ${errorText}`);
+    return this.queueRequest(async () => {
+        try {
+            const sanitizedFields = {};
+            Object.keys(change.fields).forEach(key => {
+                let value = change.fields[key];
+                if (key === "score" || key === "value" || key === "PEN") {  // Added PEN here
+                    value = value === '' ? '' : parseFloat(value);
                 }
-                
-                return await response.json();
-            } catch (error) {
-                console.error(`Error updating ${change.id}:`, error);
-                throw error;
+                sanitizedFields[key] = value;
+            });
+
+            const response = await fetch(`${this.url}/${change.id}`, {
+                method: "PATCH",
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ fields: sanitizedFields })
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Update failed for ${change.id}: ${errorText}`);
             }
-        });
-    }
+            
+            return await response.json();
+        } catch (error) {
+            console.error(`Error updating ${change.id}:`, error);
+            throw error;
+        }
+    });
 }
 
 class PlayerComponent {
