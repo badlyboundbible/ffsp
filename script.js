@@ -659,15 +659,11 @@ async updateLeagueTableCell(recordId, event) {
     const value = input.value.trim();
     
     try {
-        // Use existing Airtable service with modified URL
-        const baseId = "appoF7fRSS4nuF9u2";
-        const tableName = "Table%202";
-        const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}/${recordId}`;
-        
-        const response = await fetch(url, {
+        // Use the same API key and base ID from the main AirtableService
+        const response = await fetch(`https://api.airtable.com/v0/appoF7fRSS4nuF9u2/Table%202/${recordId}`, {
             method: "PATCH",
             headers: {
-                'Authorization': `Bearer ${this.api.apiKey}`,
+                'Authorization': `Bearer patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ 
@@ -679,11 +675,117 @@ async updateLeagueTableCell(recordId, event) {
         
         if (!response.ok) {
             const errorText = await response.text();
+            console.error('Detailed error:', errorText);
             throw new Error(`Update failed: ${errorText}`);
         }
+        
+        // Optional: Provide feedback to user
+        input.style.backgroundColor = '#90EE90';  // Light green to indicate success
+        setTimeout(() => {
+            input.style.backgroundColor = 'transparent';
+        }, 1000);
     } catch (error) {
         console.error('Error updating league table:', error);
-        alert('Failed to update league table');
+        alert(`Failed to update league table: ${error.message}`);
+        
+        // Revert the input to its previous value
+        input.value = input.defaultValue;
+    }
+}
+
+// Modified openLeagueTable method to include totals
+async openLeagueTable() {
+    const modal = document.getElementById('league-table-modal');
+    const tableBody = document.getElementById('league-table-body');
+    
+    try {
+        // Fetch league table data
+        const records = await this.fetchLeagueTableData();
+        
+        // Clear existing rows
+        tableBody.innerHTML = '';
+        
+        // Calculate totals
+        let jackTotal = 0;
+        let ellTotal = 0;
+        
+        // Populate table
+        records.forEach(record => {
+            const row = document.createElement('tr');
+            row.dataset.recordId = record.id;
+            
+            // Week column
+            const weekCell = document.createElement('td');
+            weekCell.textContent = record.fields.Week;
+            row.appendChild(weekCell);
+            
+            // Jack's score column
+            const jackCell = document.createElement('td');
+            const jackInput = document.createElement('input');
+            jackInput.type = 'text';
+            const jackValue = record.fields.Jack || '';
+            jackInput.value = jackValue;
+            jackInput.defaultValue = jackValue;  // Store original value
+            jackInput.dataset.field = 'Jack';
+            jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+            jackCell.appendChild(jackInput);
+            row.appendChild(jackCell);
+            
+            // Ell's score column
+            const ellCell = document.createElement('td');
+            const ellInput = document.createElement('input');
+            ellInput.type = 'text';
+            const ellValue = record.fields.Ell || '';
+            ellInput.value = ellValue;
+            ellInput.defaultValue = ellValue;  // Store original value
+            ellInput.dataset.field = 'Ell';
+            ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+            ellCell.appendChild(ellInput);
+            row.appendChild(ellCell);
+            
+            tableBody.appendChild(row);
+            
+            // Calculate totals
+            jackTotal += parseFloat(jackValue) || 0;
+            ellTotal += parseFloat(ellValue) || 0;
+        });
+        
+        // Add totals row
+        const totalsRow = document.createElement('tr');
+        totalsRow.style.fontWeight = 'bold';
+        
+        const totalsLabelCell = document.createElement('td');
+        totalsLabelCell.textContent = 'Totals';
+        totalsRow.appendChild(totalsLabelCell);
+        
+        const jackTotalCell = document.createElement('td');
+        jackTotalCell.textContent = jackTotal.toFixed(1);
+        totalsRow.appendChild(jackTotalCell);
+        
+        const ellTotalCell = document.createElement('td');
+        ellTotalCell.textContent = ellTotal.toFixed(1);
+        totalsRow.appendChild(ellTotalCell);
+        
+        tableBody.appendChild(totalsRow);
+        
+        // Show modal
+        modal.style.display = 'block';
+        
+        // Close button functionality
+        const closeButton = document.querySelector('.close-button');
+        closeButton.onclick = () => {
+            modal.style.display = 'none';
+        };
+        
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
+    } catch (error) {
+        alert('Failed to load league table');
+        console.error(error);
     }
 }
 }
