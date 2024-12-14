@@ -559,6 +559,133 @@ class FantasyFootballApp {
         
         this.updateScores();
     }
+    // Add these methods to the FantasyFootballApp class in script.js
+
+// New Airtable service for Table 2
+async fetchLeagueTableData() {
+    const baseId = "appoF7fRSS4nuF9u2";
+    const tableName = "Table%202";
+    const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}`;
+
+    try {
+        const response = await fetch(url, {
+            headers: { 
+                'Authorization': `Bearer ${this.api.apiKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        return data.records.sort((a, b) => a.fields.Week - b.fields.Week);
+    } catch (error) {
+        console.error("Fetch league table error:", error);
+        throw error;
+    }
+}
+
+// Method to open league table modal
+async openLeagueTable() {
+    const modal = document.getElementById('league-table-modal');
+    const tableBody = document.getElementById('league-table-body');
+    
+    try {
+        // Fetch league table data
+        const records = await this.fetchLeagueTableData();
+        
+        // Clear existing rows
+        tableBody.innerHTML = '';
+        
+        // Populate table
+        records.forEach(record => {
+            const row = document.createElement('tr');
+            row.dataset.recordId = record.id;
+            
+            // Week column
+            const weekCell = document.createElement('td');
+            weekCell.textContent = record.fields.Week;
+            row.appendChild(weekCell);
+            
+            // Jack's score column
+            const jackCell = document.createElement('td');
+            const jackInput = document.createElement('input');
+            jackInput.type = 'text';
+            jackInput.value = record.fields.Jack || '';
+            jackInput.dataset.field = 'Jack';
+            jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+            jackCell.appendChild(jackInput);
+            row.appendChild(jackCell);
+            
+            // Ell's score column
+            const ellCell = document.createElement('td');
+            const ellInput = document.createElement('input');
+            ellInput.type = 'text';
+            ellInput.value = record.fields.Ell || '';
+            ellInput.dataset.field = 'Ell';
+            ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+            ellCell.appendChild(ellInput);
+            row.appendChild(ellCell);
+            
+            tableBody.appendChild(row);
+        });
+        
+        // Show modal
+        modal.style.display = 'block';
+        
+        // Close button functionality
+        const closeButton = document.querySelector('.close-button');
+        closeButton.onclick = () => {
+            modal.style.display = 'none';
+        };
+        
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
+    } catch (error) {
+        alert('Failed to load league table');
+    }
+}
+
+// Method to update a cell in the league table
+async updateLeagueTableCell(recordId, event) {
+    const input = event.target;
+    const field = input.dataset.field;
+    const value = input.value.trim();
+    
+    try {
+        // Use existing Airtable service with modified URL
+        const baseId = "appoF7fRSS4nuF9u2";
+        const tableName = "Table%202";
+        const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}/${recordId}`;
+        
+        const response = await fetch(url, {
+            method: "PATCH",
+            headers: {
+                'Authorization': `Bearer ${this.api.apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                fields: { 
+                    [field]: value === '' ? null : value 
+                } 
+            })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Update failed: ${errorText}`);
+        }
+    } catch (error) {
+        console.error('Error updating league table:', error);
+        alert('Failed to update league table');
+    }
+}
 }
 
 // Initialize application
