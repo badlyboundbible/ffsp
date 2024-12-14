@@ -410,6 +410,13 @@ class FantasyFootballApp {
         values[team] += value;
     });
 
+    // Apply penalties
+    const jacksPenalty = parseInt(document.querySelector('.penalty-select[data-team="jacks"]').value) || 0;
+    const ellsPenalty = parseInt(document.querySelector('.penalty-select[data-team="ells"]').value) || 0;
+    
+    scores.jack += jacksPenalty;
+    scores.ell += ellsPenalty;
+
     // Round scores to nearest whole number
     document.getElementById("jacks-score").textContent = Math.round(scores.jack);
     document.getElementById("ells-score").textContent = Math.round(scores.ell);
@@ -423,23 +430,45 @@ class FantasyFootballApp {
 }
 
     initializePowerups() {
-        document.querySelectorAll('.powerup-button').forEach(button => {
-            // Set initial state from Airtable data
-            const team = button.dataset.team;
-            const powerup = button.dataset.powerup;
-            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
-            const record = this.state.records.find(r => 
-                r.fields.player_id === `${playerPrefix}-powerups`
-            );
-            
-            if (record && record.fields[powerup]) {
-                button.classList.add('active');
-            }
+    // Existing powerup initialization
+    document.querySelectorAll('.powerup-button').forEach(button => {
+        const team = button.dataset.team;
+        const powerup = button.dataset.powerup;
+        const playerPrefix = team === 'ells' ? 'ell' : 'jack';
+        const record = this.state.records.find(r => 
+            r.fields.player_id === `${playerPrefix}-powerups`
+        );
+        
+        if (record && record.fields[powerup]) {
+            button.classList.add('active');
+        }
 
-            // Add click handler
-            button.addEventListener('click', () => this.togglePowerup(button, record.id));
+        button.addEventListener('click', () => this.togglePowerup(button, record.id));
+    });
+
+    // New penalty initialization
+    document.querySelectorAll('.penalty-select').forEach(select => {
+        const team = select.dataset.team;
+        const playerPrefix = team === 'ells' ? 'ell' : 'jack';
+        const record = this.state.records.find(r => 
+            r.fields.player_id === `${playerPrefix}-powerups`
+        );
+        
+        if (record && record.fields.PEN !== undefined) {
+            select.value = record.fields.PEN;
+        }
+
+        select.addEventListener('change', (e) => {
+            if (record) {
+                this.state.addChange({
+                    id: record.id,
+                    fields: { PEN: parseInt(e.target.value) }
+                });
+            }
+            this.updateScores();
         });
-    }
+    });
+}
 
 async togglePowerup(button, recordId) {
     const powerup = button.dataset.powerup;
