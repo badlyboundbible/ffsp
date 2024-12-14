@@ -423,3 +423,11 @@ div.team:last-of-type .reset-button {
 .penalty-dropdown option {
     text-align: center;
 }
+
+/* Additional styles for new T1 and T2 toggles (add to existing style.css) */
+.powerup-button[data-powerup="T1"].active,
+.powerup-button[data-powerup="T2"].active {
+    background-color: #FF6B6B;  /* A different color to distinguish from other toggles */
+    color: white;
+    border-color: #FF4136;
+}
