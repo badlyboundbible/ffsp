@@ -109,6 +109,7 @@ h1 {
 
 #league-table th {
     background-color: #f2f2f2;
+    font-size: 16px;
 }
 
 #league-table td input {
@@ -116,6 +117,8 @@ h1 {
     border: none;
     text-align: center;
     background-color: transparent;
+    font-size: 20px;  /* Increased font size for the values */
+    font-weight: 500;  /* Added medium font weight for better readability */
 }
 
 /* Teams Section */
