@@ -334,10 +334,6 @@ h1 {
     border-color: #45a049;
 }
 
-.team {
-    position: relative;
-}
-
 .reset-button {
     position: absolute;
     right: 20px;
@@ -351,18 +347,12 @@ h1 {
     z-index: 10;
 }
 
-.reset-button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
 /* Ell's team reset button */
 div.team:first-of-type .reset-button {
-    bottom: 65px;  /* Adjust this value to position from bottom */
-    top: auto;     /* Remove top positioning */
+    bottom: 20px;  /* Position from bottom */
 }
 
 /* Jack's team reset button */
 div.team:last-of-type .reset-button {
-    top: 20px;
+    top: 20px;    /* Position from top */
 }
