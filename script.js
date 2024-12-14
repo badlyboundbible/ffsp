@@ -818,6 +818,10 @@ async updateLeagueTableRow(week, jackScore, ellScore) {
         const records = await this.fetchLeagueTableData();
         const record = records.find(r => r.fields.Week === week);
 
+        if (!record) {
+            throw new Error(`No record found for week ${week}`);
+        }
+
         // Update the record with the new scores
         const response = await fetch(`https://api.airtable.com/v0/appoF7fRSS4nuF9u2/Table%202/${record.id}`, {
             method: "PATCH",
@@ -841,7 +845,6 @@ async updateLeagueTableRow(week, jackScore, ellScore) {
         console.error("Error updating league table row:", error);
         throw error;
     }
-}
 }
 
 // Initialize application
