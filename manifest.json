@@ -1,0 +1,21 @@
+{
+    "name": "SPFL Fantasy",
+    "short_name": "SPFL Fantasy",
+    "start_url": "/ffsp/index.html",
+    "display": "standalone",
+    "background_color": "#f0f0f0",
+    "theme_color": "#a3d977",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/ffsp/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/ffsp/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
