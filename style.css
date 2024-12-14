@@ -361,12 +361,18 @@ h1 {
 
 /* Position for Ell's team (top team) */
 div.team:first-of-type .reset-button {
-    bottom: 20px;  /* This should now work with the flex container */
+    position: absolute;
+    right: 20px;
+    bottom: 20px !important;  /* Force bottom positioning */
+    top: auto;  /* Remove any top positioning */
 }
 
 /* Position for Jack's team (bottom team) */
 div.team:last-of-type .reset-button {
+    position: absolute;
+    right: 20px;
     top: 20px;
+    bottom: auto;  /* Remove any bottom positioning */
 }
 
 /* Make sure position divs take up space in flex container */
