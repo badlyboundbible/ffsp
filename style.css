@@ -407,3 +407,19 @@ div.team:last-of-type .reset-button {
     width: 30%;
     text-align: center;
 }
+
+/* Penalty Dropdown Styles */
+.penalty-dropdown {
+    width: 30%;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 15px;
+    text-align: center;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.penalty-dropdown option {
+    text-align: center;
+}
