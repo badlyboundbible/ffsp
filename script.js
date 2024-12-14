@@ -549,4 +549,20 @@ async loadData() {
 }
 
 // Initialize application
-const app = new FantasyFootballApp();
+let app;
+
+// Wait for DOM to load before initializing
+document.addEventListener('DOMContentLoaded', () => {
+    app = new FantasyFootballApp();
+    
+    // Add click handlers
+    document.getElementById('publish-button').addEventListener('click', () => {
+        app.publishChanges();
+    });
+
+    document.querySelectorAll('.reset-button').forEach(button => {
+        button.addEventListener('click', () => {
+            app.resetTeamScores(button.dataset.team);
+        });
+    });
+});
