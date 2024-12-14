@@ -1,4 +1,4 @@
-// script.js
+// script.js - Part 1: Constants and Utility Functions
 const TEAM_COLORS = {
     ABD: "#e2001a",
     CEL: "#16973b",
@@ -32,6 +32,7 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// script.js - Part 2: FantasyState and AirtableService Classes
 class FantasyState {
     constructor() {
         this.unsavedChanges = [];
@@ -102,7 +103,7 @@ class AirtableService {
                 const sanitizedFields = {};
                 Object.keys(change.fields).forEach(key => {
                     let value = change.fields[key];
-                    if (key === "score" || key === "value") {
+                    if (key === "score" || key === "value" || key === "PEN") {
                         value = value === '' ? '' : parseFloat(value);
                     }
                     sanitizedFields[key] = value;
@@ -131,6 +132,7 @@ class AirtableService {
     }
 }
 
+// script.js - Part 3: PlayerComponent Class
 class PlayerComponent {
     constructor(record, state, onUpdate) {
         this.record = record;
@@ -312,12 +314,12 @@ class PlayerComponent {
         let value = input.value.trim();
     
         if (value === '') {
-            value = null;  // Changed from '' to null
-    }     else if (input.dataset.field === "score" || input.dataset.field === "value") {
+            value = null;
+        } else if (input.dataset.field === "score" || input.dataset.field === "value") {
             value = input.dataset.field === "value" ? 
                 parseFloat(value.replace('£', '')) || 0 :
                 parseFloat(value) || 0;
-    }
+        }
 
         this.state.addChange({
             id: input.dataset.id,
@@ -325,7 +327,7 @@ class PlayerComponent {
         });
 
         if (input.dataset.field === "score" || input.dataset.field === "value") {
-        this.onUpdate();
+            this.onUpdate();
         }
     }
 
@@ -336,6 +338,7 @@ class PlayerComponent {
     }
 }
 
+// script.js - Part 4: FantasyFootballApp Class
 class FantasyFootballApp {
     constructor() {
         this.state = new FantasyState();
@@ -352,7 +355,7 @@ class FantasyFootballApp {
             const records = await this.api.fetchData();
             this.state.setRecords(records);
             this.displayPlayers(records);
-            this.initializePowerups(); // Add initialization of powerups
+            this.initializePowerups();
         } catch (error) {
             console.error("Failed to load data:", error);
         }
@@ -382,49 +385,68 @@ class FantasyFootballApp {
     }
 
     updateScores() {
-    const scores = {
-        ell: 0,
-        jack: 0
-    };
-    const values = {
-        ell: 0,
-        jack: 0
-    };
+        const scores = {
+            ell: 0,
+            jack: 0
+        };
+        const values = {
+            ell: 0,
+            jack: 0
+        };
+        const penalties = {
+            ell: 0,
+            jack: 0
+        };
 
-    document.querySelectorAll(".player").forEach(player => {
-        const scoreInput = player.querySelector("input[data-field='score']");
-        const scoreValue = scoreInput.value.trim();
-        const baseScore = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
-        
-        const roleButton = player.querySelector('.role-button');
-        const role = roleButton ? roleButton.dataset.role : PLAYER_ROLES.NONE;
-        const multiplier = ROLE_MULTIPLIERS[role] || 1;
-        const finalScore = baseScore * multiplier;
-        
-        const valueInput = player.querySelector("input[data-field='value']");
-        const valueText = valueInput.value.trim().replace('£', '');
-        const value = valueText === '' ? 0 : (parseFloat(valueText) || 0);
-        
-        const team = player.parentElement.id.startsWith("ells") ? "ell" : "jack";
-        scores[team] += finalScore;
-        values[team] += value;
-    });
+        // Find penalty records for each team
+        const ellPenaltyRecord = this.state.records.find(r => r.fields.player_id === 'ell-powerups');
+        const jackPenaltyRecord = this.state.records.find(r => r.fields.player_id === 'jack-powerups');
 
-    // Round scores to nearest whole number
-    document.getElementById("jacks-score").textContent = Math.round(scores.jack);
-    document.getElementById("ells-score").textContent = Math.round(scores.ell);
-    
-    document.getElementById("winner-display").textContent = 
-        scores.ell > scores.jack ? "Ell" : 
-        scores.jack > scores.ell ? "Jack" : "Draw";
+        // Determine penalties from records
+        if (ellPenaltyRecord && ellPenaltyRecord.fields.PEN) {
+            penalties.ell = ellPenaltyRecord.fields.PEN;
+        }
+        if (jackPenaltyRecord && jackPenaltyRecord.fields.PEN) {
+            penalties.jack = jackPenaltyRecord.fields.PEN;
+        }
 
-    document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
-    document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
-}
+        document.querySelectorAll(".player").forEach(player => {
+            const scoreInput = player.querySelector("input[data-field='score']");
+            const scoreValue = scoreInput.value.trim();
+            const baseScore = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
+            
+            const roleButton = player.querySelector('.role-button');
+            const role = roleButton ? roleButton.dataset.role : PLAYER_ROLES.NONE;
+            const multiplier = ROLE_MULTIPLIERS[role] || 1;
+            const finalScore = baseScore * multiplier;
+            
+            const valueInput = player.querySelector("input[data-field='value']");
+            const valueText = valueInput.value.trim().replace('£', '');
+            const value = valueText === '' ? 0 : (parseFloat(valueText) || 0);
+            
+            const team = player.parentElement.id.startsWith("ells") ? "ell" : "jack";
+            scores[team] += finalScore;
+            values[team] += value;
+        });
+
+        // Apply penalties
+        scores.ell -= penalties.ell || 0;
+        scores.jack -= penalties.jack || 0;
+
+        // Round scores to nearest whole number
+        document.getElementById("jacks-score").textContent = Math.round(scores.jack);
+        document.getElementById("ells-score").textContent = Math.round(scores.ell);
+        
+        document.getElementById("winner-display").textContent = 
+            scores.ell > scores.jack ? "Ell" : 
+            scores.jack > scores.ell ? "Jack" : "Draw";
+
+        document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
+        document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
+    }
 
     initializePowerups() {
         document.querySelectorAll('.powerup-button').forEach(button => {
-            // Set initial state from Airtable data
             const team = button.dataset.team;
             const powerup = button.dataset.powerup;
             const playerPrefix = team === 'ells' ? 'ell' : 'jack';
@@ -436,34 +458,55 @@ class FantasyFootballApp {
                 button.classList.add('active');
             }
 
-            // Add click handler
             button.addEventListener('click', () => this.togglePowerup(button, record.id));
+        });
+
+        // Initialize penalty dropdowns
+        this.initializePenaltyDropdowns();
+    }
+
+    initializePenaltyDropdowns() {
+        document.querySelectorAll('.penalty-dropdown').forEach(dropdown => {
+            const team = dropdown.dataset.team;
+            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
+            const record = this.state.records.find(r => 
+                r.fields.player_id === `${playerPrefix}-powerups`
+            );
+            
+            if (record && record.fields.PEN) {
+                dropdown.value = record.fields.PEN;
+            }
+
+            dropdown.addEventListener('change', () => this.updatePenalty(dropdown, record.id));
         });
     }
 
-async togglePowerup(button, recordId) {
-    const powerup = button.dataset.powerup;
-    const isActive = button.classList.toggle('active');
-    
-    this.state.addChange({
-        id: recordId,
-        fields: {
-            [powerup]: isActive
-        }
-    });
-}
-
-async loadData() {
-    try {
-        const records = await this.api.fetchData();
-        this.state.setRecords(records);
-        this.displayPlayers(records);
-        this.initializePowerups(); // Add this line
-    } catch (error) {
-        console.error("Failed to load data:", error);
+    async togglePowerup(button, recordId) {
+        const powerup = button.dataset.powerup;
+        const isActive = button.classList.toggle('active');
+        
+        this.state.addChange({
+            id: recordId,
+            fields: {
+                [powerup]: isActive
+            }
+        });
     }
-}
-    
+
+    async updatePenalty(dropdown, recordId) {
+        const penalty = parseInt(dropdown.value);
+        
+        this.state.addChange({
+            id: recordId,
+            fields: {
+                PEN: penalty
+            }
+        });
+
+        // Immediately update scores
+        this.updateScores();
+    }
+
     async publishChanges() {
         if (this.state.unsavedChanges.length === 0) {
             alert("No changes to publish.");
@@ -500,24 +543,22 @@ async loadData() {
             alert("Error publishing changes. Please check your connection or contact support.");
         }
     }
+
     resetTeamScores(team) {
-    // Get all score inputs for the specified team
-    document.querySelectorAll(`#${team}-gk, #${team}-def, #${team}-mid, #${team}-fwd`)
-        .forEach(position => {
-            position.querySelectorAll('input[data-field="score"]').forEach(input => {
-                input.value = '';
-                
-                // Add to unsaved changes - using null instead of empty string
-                this.state.addChange({
-                    id: input.dataset.id,
-                    fields: { score: null }  // Changed from '' to null
+        document.querySelectorAll(`#${team}-gk, #${team}-def, #${team}-mid, #${team}-fwd`)
+            .forEach(position => {
+                position.querySelectorAll('input[data-field="score"]').forEach(input => {
+                    input.value = '';
+                    
+                    this.state.addChange({
+                        id: input.dataset.id,
+                        fields: { score: null }
+                    });
                 });
             });
-        });
-    
-    // Update the display
-    this.updateScores();
-}
+        
+        this.updateScores();
+    }
 }
 
 // Initialize application
