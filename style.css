@@ -39,9 +39,10 @@ h1 {
     width: 90%;
     background-color: #a3d977;
     border: 2px solid #333;
-    padding: 10px;
+    padding: 20px 10px;
     border-radius: 8px;
     text-align: center;
+    position: relative;
 }
 
 .team h2 {
@@ -339,7 +340,7 @@ h1 {
 /* Reset Button */
 .reset-button {
     position: absolute;
-    right: 20px;
+    right: 10px;
     width: 30px;
     height: 30px;
     background-color: #ff0000;
@@ -358,11 +359,11 @@ h1 {
 /* Reset Button Positioning */
 div.team:first-of-type .reset-button {
     top: auto;
-    bottom: 20px;
+    bottom: 10px;
 }
 
 div.team:last-of-type .reset-button {
-    top: 20px;
+    top: 10px;
     bottom: auto;
 }
 
