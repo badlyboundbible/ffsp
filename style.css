@@ -356,10 +356,14 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Ell's team - moved up by adjusting bottom value */
+/* Ell's team - position relative to forwards */
+#ells-fwd {
+    position: relative;
+}
+
 div.team:first-of-type .reset-button {
-    bottom: 40px;  /* Changed from 20px to 40px to raise it */
-    top: unset;
+    top: 50%;  /* Position it near the forwards row */
+    transform: translateY(-50%);
 }
 
 /* Jack's team - keep as is */
