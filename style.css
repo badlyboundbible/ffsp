@@ -348,8 +348,8 @@ h1 {
 }
 
 .team {
-    position: relative;  /* Create positioning context */
-    padding: 20px;      /* Add some padding */
+    position: relative;  /* Keep positioning context */
+    padding: 20px;      
 }
 
 .reset-button {
@@ -362,7 +362,7 @@ h1 {
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s, box-shadow 0.2s;
-    z-index: 1;  /* Lower z-index so it doesn't float above everything */
+    z-index: 1;
 }
 
 .reset-button:hover {
@@ -370,20 +370,14 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* For Ell's team (first team) */
-div.team:first-of-type {
-    margin-bottom: 20px;
-}
-
+/* For Ell's team (first team) - explicitly position at bottom right */
 div.team:first-of-type .reset-button {
-    position: absolute;
-    bottom: 20px;  /* Position from bottom */
-    top: auto;     /* Remove top positioning */
+    top: auto;      /* Remove top positioning */
+    bottom: 20px;   /* Position from bottom of pitch */
 }
 
-/* For Jack's team (second team) */
+/* For Jack's team (second team) - keep as is */
 div.team:last-of-type .reset-button {
-    position: absolute;
-    top: 20px;     /* Keep top positioning */
-    bottom: auto;  /* Remove bottom positioning */
+    top: 20px;
+    bottom: auto;
 }
