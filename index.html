@@ -6,8 +6,127 @@
     <title>Scottish Premiership Fantasy Football</title>
     <link rel="stylesheet" href="/ffsp/style.css">
     <script defer src="/ffsp/script.js"></script>
+    <style>
+        /* League Table Icon */
+        #table-icon-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        #league-table-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            padding: 5px;
+            transition: transform 0.2s;
+        }
+
+        #league-table-button:hover {
+            transform: scale(1.1);
+        }
+
+        #league-table-button svg {
+            width: 100%;
+            height: 100%;
+            stroke: #333;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            color: black;
+        }
+
+        #league-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #league-table th, #league-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        #league-table th {
+            background-color: #f2f2f2;
+        }
+
+        #league-table td input {
+            width: 100%;
+            border: none;
+            text-align: center;
+            background-color: transparent;
+        }
+    </style>
 </head>
 <body>
+    <!-- Table Icon Button -->
+    <div id="table-icon-container">
+        <button id="league-table-button" onclick="app.openLeagueTable()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="3" y1="15" x2="21" y2="15"></line>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+                <line x1="15" y1="3" x2="15" y2="21"></line>
+            </svg>
+        </button>
+    </div>
+
+    <!-- League Table Modal -->
+    <div id="league-table-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>League Table</h2>
+            <table id="league-table">
+                <thead>
+                    <tr>
+                        <th>Week</th>
+                        <th>Jack</th>
+                        <th>Ell</th>
+                    </tr>
+                </thead>
+                <tbody id="league-table-body">
+                    <!-- Table rows will be dynamically populated -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <h1>Scottish Premiership Fantasy Football</h1>
     
     <!-- Publish Changes Button -->
