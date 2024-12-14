@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scottish Premiership Fantasy Football</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:,">
     <script defer src="script.js"></script>
 </head>
 <body>
@@ -12,12 +13,12 @@
     
     <!-- Publish Changes Button -->
     <div id="publish-section">
-        <button onclick="app.publishChanges()">Publish Changes</button>
+        <button id="publish-button">Publish Changes</button>
     </div>
 
     <!-- Ell's Team -->
     <div class="team">
-        <div class="reset-button" onclick="app.resetTeamScores('ells')"></div>
+        <div class="reset-button" data-team="ells"></div>
         <h2>Ell's Allstars</h2>
         <div id="ells-gk" class="position"></div>
         <div id="ells-def" class="position"></div>
@@ -25,78 +26,79 @@
         <div id="ells-fwd" class="position"></div>
     </div>
 
-<div id="final-score">
-    <h2>Final Score</h2>
-    <div class="scores">
-        <div class="score-label">Jack</div>
-        <div class="score-label">Winner</div>
-        <div class="score-label">Ell</div>
-    </div>
-    <div class="scores">
-        <div id="jacks-score" class="score-value">0</div>
-        <div id="winner-display" class="score-value">-</div>
-        <div id="ells-score" class="score-value">0</div>
-    </div>
-    <div class="scores">
-        <div id="jacks-value" class="value-total">£0.0</div>
-        <div class="value-total">Team Value</div>
-        <div id="ells-value" class="value-total">£0.0</div>
-    </div>
-    <div class="scores penalties">
-        <div class="penalty-container">
-            <select class="penalty-select" data-team="jacks">
-                <option value="0">No Penalty</option>
-                <option value="-4">-4 Points</option>
-                <option value="-8">-8 Points</option>
-                <option value="-16">-16 Points</option>
-            </select>
+    <!-- Final Score Section -->
+    <div id="final-score">
+        <h2>Final Score</h2>
+        <div class="scores">
+            <div class="score-label">Jack</div>
+            <div class="score-label">Winner</div>
+            <div class="score-label">Ell</div>
         </div>
-        <div class="penalties-label">Penalties</div>
-        <div class="penalty-container">
-            <select class="penalty-select" data-team="ells">
-                <option value="0">No Penalty</option>
-                <option value="-4">-4 Points</option>
-                <option value="-8">-8 Points</option>
-                <option value="-16">-16 Points</option>
-            </select>
+        <div class="scores">
+            <div id="jacks-score" class="score-value">0</div>
+            <div id="winner-display" class="score-value">-</div>
+            <div id="ells-score" class="score-value">0</div>
         </div>
-    </div>
-    <div class="powerups">
-        <div class="team-powerups">
-            <div class="powerup-row">
-                <button class="powerup-button" data-team="jacks" data-powerup="WC1">WC1</button>
-                <button class="powerup-button" data-team="jacks" data-powerup="WC2">WC2</button>
+        <div class="scores">
+            <div id="jacks-value" class="value-total">£0.0</div>
+            <div class="value-total">Team Value</div>
+            <div id="ells-value" class="value-total">£0.0</div>
+        </div>
+        <div class="scores penalties">
+            <div class="penalty-container">
+                <select class="penalty-select" data-team="jacks">
+                    <option value="0">No Penalty</option>
+                    <option value="-4">-4 Points</option>
+                    <option value="-8">-8 Points</option>
+                    <option value="-16">-16 Points</option>
+                </select>
             </div>
-            <div class="powerup-row">
-                <button class="powerup-button" data-team="jacks" data-powerup="BB">BB</button>
-                <button class="powerup-button" data-team="jacks" data-powerup="TC">TC</button>
-            </div>
-            <div class="powerup-row">
-                <button class="powerup-button" data-team="jacks" data-powerup="T1">T1</button>
-                <button class="powerup-button" data-team="jacks" data-powerup="T2">T2</button>
+            <div class="penalties-label">Penalties</div>
+            <div class="penalty-container">
+                <select class="penalty-select" data-team="ells">
+                    <option value="0">No Penalty</option>
+                    <option value="-4">-4 Points</option>
+                    <option value="-8">-8 Points</option>
+                    <option value="-16">-16 Points</option>
+                </select>
             </div>
         </div>
-        <div class="powerups-label">Power Ups</div>
-        <div class="team-powerups">
-            <div class="powerup-row">
-                <button class="powerup-button" data-team="ells" data-powerup="WC1">WC1</button>
-                <button class="powerup-button" data-team="ells" data-powerup="WC2">WC2</button>
+        <div class="powerups">
+            <div class="team-powerups">
+                <div class="powerup-row">
+                    <button class="powerup-button" data-team="jacks" data-powerup="WC1">WC1</button>
+                    <button class="powerup-button" data-team="jacks" data-powerup="WC2">WC2</button>
+                </div>
+                <div class="powerup-row">
+                    <button class="powerup-button" data-team="jacks" data-powerup="BB">BB</button>
+                    <button class="powerup-button" data-team="jacks" data-powerup="TC">TC</button>
+                </div>
+                <div class="powerup-row">
+                    <button class="powerup-button" data-team="jacks" data-powerup="T1">T1</button>
+                    <button class="powerup-button" data-team="jacks" data-powerup="T2">T2</button>
+                </div>
             </div>
-            <div class="powerup-row">
-                <button class="powerup-button" data-team="ells" data-powerup="BB">BB</button>
-                <button class="powerup-button" data-team="ells" data-powerup="TC">TC</button>
-            </div>
-            <div class="powerup-row">
-                <button class="powerup-button" data-team="ells" data-powerup="T1">T1</button>
-                <button class="powerup-button" data-team="ells" data-powerup="T2">T2</button>
+            <div class="powerups-label">Power Ups</div>
+            <div class="team-powerups">
+                <div class="powerup-row">
+                    <button class="powerup-button" data-team="ells" data-powerup="WC1">WC1</button>
+                    <button class="powerup-button" data-team="ells" data-powerup="WC2">WC2</button>
+                </div>
+                <div class="powerup-row">
+                    <button class="powerup-button" data-team="ells" data-powerup="BB">BB</button>
+                    <button class="powerup-button" data-team="ells" data-powerup="TC">TC</button>
+                </div>
+                <div class="powerup-row">
+                    <button class="powerup-button" data-team="ells" data-powerup="T1">T1</button>
+                    <button class="powerup-button" data-team="ells" data-powerup="T2">T2</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <!-- Jack's Team -->
     <div class="team">
-        <div class="reset-button" onclick="app.resetTeamScores('jacks')"></div>
+        <div class="reset-button" data-team="jacks"></div>
         <div id="jacks-fwd" class="position"></div>
         <div id="jacks-mid" class="position"></div>
         <div id="jacks-def" class="position"></div>
