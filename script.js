@@ -1,117 +1,3 @@
-// script.js
-const TEAM_COLORS = {
-    ABD: "#e2001a",
-    CEL: "#16973b",
-    HEA: "#800910",
-    HIB: "#005000",
-    KIL: "#0e00f7",
-    MOT: "#ffbe00",
-    RAN: "#1b458f",
-    SMN: "#000000",
-    SJN: "#243f90",
-    DUN: "#1a315a",
-    DDU: "#f29400",
-    ROS: "#040957"
-};
-
-const PLAYER_ROLES = {
-    NONE: 'none',
-    CAPTAIN: 'captain',
-    VICE_CAPTAIN: 'vice_captain',
-    TRIPLE_CAPTAIN: 'triple_captain'
-};
-
-const ROLE_MULTIPLIERS = {
-    [PLAYER_ROLES.NONE]: 1,
-    [PLAYER_ROLES.CAPTAIN]: 2,
-    [PLAYER_ROLES.VICE_CAPTAIN]: 1.5,
-    [PLAYER_ROLES.TRIPLE_CAPTAIN]: 3
-};
-
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-class FantasyState {
-    constructor() {
-        this.unsavedChanges = [];
-        this.records = [];
-    }
-
-    addChange(change) {
-        this.unsavedChanges.push(change);
-    }
-
-    clearChanges() {
-        this.unsavedChanges = [];
-    }
-
-    setRecords(records) {
-        this.records = records;
-    }
-}
-
-class AirtableService {
-    constructor() {
-        this.apiKey = "YOUR_API_KEY";
-        this.baseId = "YOUR_BASE_ID";
-        this.tableName = "Table%201";
-        this.url = `https://api.airtable.com/v0/${this.baseId}/${this.tableName}`;
-        this.requestQueue = Promise.resolve();
-    }
-
-    async queueRequest(fn) {
-        this.requestQueue = this.requestQueue
-            .then(() => delay(200))
-            .then(fn)
-            .catch(error => {
-                if (error.message.includes('RATE_LIMIT_REACHED')) {
-                    return delay(1000).then(fn);
-                }
-                throw error;
-            });
-        return this.requestQueue;
-    }
-
-    async fetchData() {
-        return this.queueRequest(async () => {
-            const response = await fetch(this.url, {
-                headers: { 
-                    'Authorization': `Bearer ${this.apiKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Failed to fetch: ${response.statusText}`);
-            }
-            const data = await response.json();
-            return data.records;
-        });
-    }
-
-    async publishChange(change) {
-        return this.queueRequest(async () => {
-            const sanitizedFields = {};
-            Object.keys(change.fields).forEach(key => {
-                sanitizedFields[key] = change.fields[key];
-            });
-            const response = await fetch(`${this.url}/${change.id}`, {
-                method: "PATCH",
-                headers: {
-                    'Authorization': `Bearer ${this.apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ fields: sanitizedFields })
-            });
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Update failed for ${change.id}: ${errorText}`);
-            }
-            return await response.json();
-        });
-    }
-}
-
 class FantasyFootballApp {
     constructor() {
         this.state = new FantasyState();
@@ -124,55 +10,78 @@ class FantasyFootballApp {
     }
 
     async loadData() {
-        const records = await this.api.fetchData();
-        this.state.setRecords(records);
-        this.displayPlayers(records);
+        try {
+            const records = await this.api.fetchData();
+            this.state.setRecords(records);
+            this.displayPlayers(records);
+            this.updateScores();
+        } catch (error) {
+            console.error("Failed to load data:", error);
+        }
     }
 
     displayPlayers(records) {
-        records.forEach(record => {
-            // Code to display players
+        ["ells", "jacks"].forEach(team => {
+            ["gk", "def", "mid", "fwd"].forEach(position => {
+                document.getElementById(`${team}-${position}`).innerHTML = "";
+            });
         });
+
+        records.forEach(record => {
+            if (!record.fields?.player_id) return;
+
+            const component = new PlayerComponent(record, this.state, () => this.updateScores());
+            const playerElement = component.createElements();
+            
+            const { player_id } = record.fields;
+            const teamPrefix = player_id.startsWith("ell") ? "ells" : "jacks";
+            const positionType = player_id.split("-")[1];
+            
+            document.getElementById(`${teamPrefix}-${positionType}`)?.appendChild(playerElement);
+        });
+
+        this.updateScores();
     }
 
     applyPenalty(team, penaltyValue) {
-        const penalty = parseInt(penaltyValue, 10);
-        const penaltyRecordId = team === 'ell' ? 'ell-powerups' : 'jack-powerups';
+        const penalty = parseInt(penaltyValue, 10) || 0;
+        const recordId = team === 'ells' ? 'ell-powerups' : 'jack-powerups';
 
         this.state.addChange({
-            id: penaltyRecordId,
+            id: recordId,
             fields: { PEN: penalty }
         });
-
-        const currentScoreElement = document.getElementById(`${team}s-score`);
-        const baseScore = parseInt(currentScoreElement.textContent, 10) || 0;
-        const updatedScore = baseScore + penalty;
-        currentScoreElement.textContent = updatedScore;
 
         this.updateScores();
     }
 
     updateScores() {
         const penalties = {
-            ell: parseInt(document.getElementById('ell-penalty').value, 10) || 0,
-            jack: parseInt(document.getElementById('jack-penalty').value, 10) || 0,
+            ells: parseInt(document.getElementById('ell-penalty').value, 10) || 0,
+            jacks: parseInt(document.getElementById('jack-penalty').value, 10) || 0
         };
 
-        const scores = { ell: 0, jack: 0 };
+        let scores = { ells: 0, jacks: 0 };
 
         document.querySelectorAll(".player").forEach(player => {
-            // Update player scores logic
+            const scoreInput = player.querySelector("input[data-field='score']");
+            const score = parseFloat(scoreInput.value) || 0;
+            const roleButton = player.querySelector(".role-button");
+            const role = roleButton ? roleButton.dataset.role : PLAYER_ROLES.NONE;
+            const multiplier = ROLE_MULTIPLIERS[role] || 1;
+
+            const team = player.parentElement.id.startsWith("ells") ? "ells" : "jacks";
+            scores[team] += score * multiplier;
         });
 
-        scores.ell += penalties.ell;
-        scores.jack += penalties.jack;
+        scores.ells += penalties.ells;
+        scores.jacks += penalties.jacks;
 
-        document.getElementById("ells-score").textContent = Math.round(scores.ell);
-        document.getElementById("jacks-score").textContent = Math.round(scores.jack);
-
-        document.getElementById("winner-display").textContent = 
-            scores.ell > scores.jack ? "Ell" : 
-            scores.jack > scores.ell ? "Jack" : "Draw";
+        document.getElementById("ells-score").textContent = Math.round(scores.ells);
+        document.getElementById("jacks-score").textContent = Math.round(scores.jacks);
+        document.getElementById("winner-display").textContent =
+            scores.ells > scores.jacks ? "Ell" :
+            scores.jacks > scores.ells ? "Jack" : "Draw";
     }
 
     async publishChanges() {
@@ -180,13 +89,19 @@ class FantasyFootballApp {
             alert("No changes to publish.");
             return;
         }
-        const results = [];
-        for (const change of this.state.unsavedChanges) {
-            const result = await this.api.publishChange(change);
-            results.push(result);
+
+        try {
+            const results = [];
+            for (const change of this.state.unsavedChanges) {
+                const result = await this.api.publishChange(change);
+                results.push(result);
+            }
+            alert("All changes published successfully!");
+            this.state.clearChanges();
+        } catch (error) {
+            console.error("Error publishing changes:", error);
+            alert("Error publishing changes.");
         }
-        alert("All changes published successfully!");
-        this.state.clearChanges();
     }
 }
 
