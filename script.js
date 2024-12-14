@@ -1,4 +1,3 @@
-// script.js - Part 1: Constants and Utility Functions
 const TEAM_COLORS = {
     ABD: "#e2001a",
     CEL: "#16973b",
@@ -32,7 +31,6 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// script.js - Part 2: FantasyState and AirtableService Classes
 class FantasyState {
     constructor() {
         this.unsavedChanges = [];
@@ -132,7 +130,6 @@ class AirtableService {
     }
 }
 
-// script.js - Part 3: PlayerComponent Class
 class PlayerComponent {
     constructor(record, state, onUpdate) {
         this.record = record;
@@ -338,7 +335,6 @@ class PlayerComponent {
     }
 }
 
-// script.js - Part 4: FantasyFootballApp Class
 class FantasyFootballApp {
     constructor() {
         this.state = new FantasyState();
@@ -356,6 +352,7 @@ class FantasyFootballApp {
             this.state.setRecords(records);
             this.displayPlayers(records);
             this.initializePowerups();
+            this.initializePenaltyDropdowns();
         } catch (error) {
             console.error("Failed to load data:", error);
         }
@@ -461,7 +458,6 @@ class FantasyFootballApp {
             button.addEventListener('click', () => this.togglePowerup(button, record.id));
         });
 
-        // Initialize penalty dropdowns
         this.initializePenaltyDropdowns();
     }
 
@@ -505,6 +501,136 @@ class FantasyFootballApp {
 
         // Immediately update scores
         this.updateScores();
+    }
+}
+
+// Round scores to nearest whole number
+        document.getElementById("jacks-score").textContent = Math.round(scores.jack);
+        document.getElementById("ells-score").textContent = Math.round(scores.ell);
+        
+        document.getElementById("winner-display").textContent = 
+            scores.ell > scores.jack ? "Ell" : 
+            scores.jack > scores.ell ? "Jack" : "Draw";
+
+        document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
+        document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
+    }
+
+    initializePowerups() {
+        document.querySelectorAll('.powerup-button').forEach(button => {
+            const team = button.dataset.team;
+            const powerup = button.dataset.powerup;
+            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
+            const record = this.state.records.find(r => 
+                r.fields.player_id === `${playerPrefix}-powerups`
+            );
+            
+            if (record && record.fields[powerup]) {
+                button.classList.add('active');
+            }
+
+            button.addEventListener('click', () => this.togglePowerup(button, record.id));
+        });
+
+        this.initializePenaltyDropdowns();
+    }
+
+    initializePenaltyDropdowns() {
+        document.querySelectorAll('.penalty-dropdown').forEach(dropdown => {
+            const team = dropdown.dataset.team;
+            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
+            const record = this.state.records.find(r => 
+                r.fields.player_id === `${playerPrefix}-powerups`
+            );
+            
+            if (record && record.fields.PEN) {
+                dropdown.value = record.fields.PEN;
+            }
+
+            dropdown.addEventListener('change', () => this.updatePenalty(dropdown, record.id));
+        });
+    }
+
+    async togglePowerup(button, recordId) {
+        const powerup = button.dataset.powerup;
+        const isActive = button.classList.toggle('active');
+        
+        this.state.addChange({
+            id: recordId,
+            fields: {
+                [powerup]: isActive
+            }
+        });
+    }
+
+    async updatePenalty(dropdown, recordId) {
+        const penalty = parseInt(dropdown.value);
+        
+        this.state.addChange({
+            id: recordId,
+            fields: {
+                PEN: penalty
+            }
+        });
+
+        // Immediately update scores
+        this.updateScores();
+    }
+
+    async publishScores() {
+        try {
+            // Get the current scores from the main interface
+            const jackScore = parseFloat(document.getElementById("jacks-score").textContent);
+            const ellScore = parseFloat(document.getElementById("ells-score").textContent);
+
+            // Find the next available row in the league table
+            const records = await this.fetchLeagueTableData();
+            const nextWeek = records.length + 1;
+
+            // Update the league table with the new scores
+            await this.updateLeagueTableRow(nextWeek, jackScore, ellScore);
+
+            // Provide feedback to the user
+            alert("Scores published successfully!");
+        } catch (error) {
+            console.error("Error publishing scores:", error);
+            alert(`Failed to publish scores: ${error.message}`);
+        }
+    }
+
+    async updateLeagueTableRow(week, jackScore, ellScore) {
+        try {
+            // Find the record with the matching week number
+            const records = await this.fetchLeagueTableData();
+            const record = records.find(r => r.fields.Week === week);
+
+            if (!record) {
+                throw new Error(`No record found for week ${week}`);
+            }
+
+            // Update the record with the new scores
+            const response = await fetch(`https://api.airtable.com/v0/appoF7fRSS4nuF9u2/Table%202/${record.id}`, {
+                method: "PATCH",
+                headers: {
+                    'Authorization': `Bearer patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    fields: {
+                        Jack: jackScore,
+                        Ell: ellScore
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Update failed: ${errorText}`);
+            }
+        } catch (error) {
+            console.error("Error updating league table row:", error);
+            throw error;
+        }
     }
 
     async publishChanges() {
@@ -559,293 +685,169 @@ class FantasyFootballApp {
         
         this.updateScores();
     }
-    // Add these methods to the FantasyFootballApp class in script.js
 
-// New Airtable service for Table 2
-async fetchLeagueTableData() {
-    const baseId = "appoF7fRSS4nuF9u2";
-    const tableName = "Table%202";
-    const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}`;
+    async fetchLeagueTableData() {
+        const baseId = "appoF7fRSS4nuF9u2";
+        const tableName = "Table%202";
+        const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}`;
 
-    try {
-        const response = await fetch(url, {
-            headers: { 
-                'Authorization': `Bearer ${this.api.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Failed to fetch: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        return data.records.sort((a, b) => a.fields.Week - b.fields.Week);
-    } catch (error) {
-        console.error("Fetch league table error:", error);
-        throw error;
-    }
-}
-
-// Method to open league table modal
-async openLeagueTable() {
-    const modal = document.getElementById('league-table-modal');
-    const tableBody = document.getElementById('league-table-body');
-    
-    try {
-        // Fetch league table data
-        const records = await this.fetchLeagueTableData();
-        
-        // Clear existing rows
-        tableBody.innerHTML = '';
-        
-        // Populate table
-        records.forEach(record => {
-            const row = document.createElement('tr');
-            row.dataset.recordId = record.id;
-            
-            // Week column
-            const weekCell = document.createElement('td');
-            weekCell.textContent = record.fields.Week;
-            row.appendChild(weekCell);
-            
-            // Jack's score column
-            const jackCell = document.createElement('td');
-            const jackInput = document.createElement('input');
-            jackInput.type = 'text';
-            jackInput.value = record.fields.Jack || '';
-            jackInput.dataset.field = 'Jack';
-            jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-            jackCell.appendChild(jackInput);
-            row.appendChild(jackCell);
-            
-            // Ell's score column
-            const ellCell = document.createElement('td');
-            const ellInput = document.createElement('input');
-            ellInput.type = 'text';
-            ellInput.value = record.fields.Ell || '';
-            ellInput.dataset.field = 'Ell';
-            ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-            ellCell.appendChild(ellInput);
-            row.appendChild(ellCell);
-            
-            tableBody.appendChild(row);
-        });
-        
-        // Show modal
-        modal.style.display = 'block';
-        
-        // Close button functionality
-        const closeButton = document.querySelector('.close-button');
-        closeButton.onclick = () => {
-            modal.style.display = 'none';
-        };
-        
-        // Close modal when clicking outside
-        window.onclick = (event) => {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        };
-    } catch (error) {
-        alert('Failed to load league table');
-    }
-}
-
-// Method to update a cell in the league table
-async updateLeagueTableCell(recordId, event) {
-    const input = event.target;
-    const field = input.dataset.field;
-    let value = input.value.trim();
-
-    try {
-        // Attempt to parse the input as a number
-        const numericValue = parseFloat(value);
-
-        // Update the field with the parsed numeric value or null if empty
-        const response = await fetch(`https://api.airtable.com/v0/appoF7fRSS4nuF9u2/Table%202/${recordId}`, {
-            method: "PATCH",
-            headers: {
-                'Authorization': `Bearer patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                fields: {
-                    [field]: isNaN(numericValue) ? null : numericValue
+        try {
+            const response = await fetch(url, {
+                headers: { 
+                    'Authorization': `Bearer ${this.api.apiKey}`,
+                    'Content-Type': 'application/json'
                 }
-            })
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Detailed error:', errorText);
-            throw new Error(`Update failed: ${errorText}`);
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            return data.records.sort((a, b) => a.fields.Week - b.fields.Week);
+        } catch (error) {
+            console.error("Fetch league table error:", error);
+            throw error;
         }
-
-        // Provide success feedback
-        input.style.backgroundColor = '#90EE90';
-        setTimeout(() => {
-            input.style.backgroundColor = 'transparent';
-        }, 1000);
-    } catch (error) {
-        console.error('Error updating league table:', error);
-        alert(`Failed to update league table: ${error.message}`);
-
-        // Revert the input to its previous value
-        input.value = input.defaultValue;
     }
-}
 
-// Modified openLeagueTable method to include totals
-async openLeagueTable() {
-    const modal = document.getElementById('league-table-modal');
-    const tableBody = document.getElementById('league-table-body');
-    
-    try {
-        // Fetch league table data
-        const records = await this.fetchLeagueTableData();
+    async openLeagueTable() {
+        const modal = document.getElementById('league-table-modal');
+        const tableBody = document.getElementById('league-table-body');
         
-        // Clear existing rows
-        tableBody.innerHTML = '';
-        
-        // Calculate totals
-        let jackTotal = 0;
-        let ellTotal = 0;
-        
-        // Populate table
-        records.forEach(record => {
-            const row = document.createElement('tr');
-            row.dataset.recordId = record.id;
+        try {
+            // Fetch league table data
+            const records = await this.fetchLeagueTableData();
             
-            // Week column
-            const weekCell = document.createElement('td');
-            weekCell.textContent = record.fields.Week;
-            row.appendChild(weekCell);
-            
-            // Jack's score column
-            const jackCell = document.createElement('td');
-            const jackInput = document.createElement('input');
-            jackInput.type = 'text';
-            const jackValue = record.fields.Jack || '';
-            jackInput.value = jackValue;
-            jackInput.defaultValue = jackValue;  // Store original value
-            jackInput.dataset.field = 'Jack';
-            jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-            jackCell.appendChild(jackInput);
-            row.appendChild(jackCell);
-            
-            // Ell's score column
-            const ellCell = document.createElement('td');
-            const ellInput = document.createElement('input');
-            ellInput.type = 'text';
-            const ellValue = record.fields.Ell || '';
-            ellInput.value = ellValue;
-            ellInput.defaultValue = ellValue;  // Store original value
-            ellInput.dataset.field = 'Ell';
-            ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-            ellCell.appendChild(ellInput);
-            row.appendChild(ellCell);
-            
-            tableBody.appendChild(row);
+            // Clear existing rows
+            tableBody.innerHTML = '';
             
             // Calculate totals
-            jackTotal += parseFloat(jackValue) || 0;
-            ellTotal += parseFloat(ellValue) || 0;
-        });
-        
-        // Add totals row
-        const totalsRow = document.createElement('tr');
-        totalsRow.style.fontWeight = 'bold';
-        
-        const totalsLabelCell = document.createElement('td');
-        totalsLabelCell.textContent = 'Totals';
-        totalsRow.appendChild(totalsLabelCell);
-        
-        const jackTotalCell = document.createElement('td');
-        jackTotalCell.textContent = jackTotal.toFixed(1);
-        totalsRow.appendChild(jackTotalCell);
-        
-        const ellTotalCell = document.createElement('td');
-        ellTotalCell.textContent = ellTotal.toFixed(1);
-        totalsRow.appendChild(ellTotalCell);
-        
-        tableBody.appendChild(totalsRow);
-        
-        // Show modal
-        modal.style.display = 'block';
-        
-        // Close button functionality
-        const closeButton = document.querySelector('.close-button');
-        closeButton.onclick = () => {
-            modal.style.display = 'none';
-        };
-        
-        // Close modal when clicking outside
-        window.onclick = (event) => {
-            if (event.target == modal) {
+            let jackTotal = 0;
+            let ellTotal = 0;
+            
+            // Populate table
+            records.forEach(record => {
+                const row = document.createElement('tr');
+                row.dataset.recordId = record.id;
+                
+                // Week column
+                const weekCell = document.createElement('td');
+                weekCell.textContent = record.fields.Week;
+                row.appendChild(weekCell);
+                
+                // Jack's score column
+                const jackCell = document.createElement('td');
+                const jackInput = document.createElement('input');
+                jackInput.type = 'text';
+                const jackValue = record.fields.Jack || '';
+                jackInput.value = jackValue;
+                jackInput.defaultValue = jackValue;
+                jackInput.dataset.field = 'Jack';
+                jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+                jackCell.appendChild(jackInput);
+                row.appendChild(jackCell);
+                
+                // Ell's score column
+                const ellCell = document.createElement('td');
+                const ellInput = document.createElement('input');
+                ellInput.type = 'text';
+                const ellValue = record.fields.Ell || '';
+                ellInput.value = ellValue;
+                ellInput.defaultValue = ellValue;
+                ellInput.dataset.field = 'Ell';
+                ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+                ellCell.appendChild(ellInput);
+                row.appendChild(ellCell);
+                
+                tableBody.appendChild(row);
+                
+                // Calculate totals
+                jackTotal += parseFloat(jackValue) || 0;
+                ellTotal += parseFloat(ellValue) || 0;
+            });
+            
+            // Add totals row
+            const totalsRow = document.createElement('tr');
+            totalsRow.style.fontWeight = 'bold';
+            
+            const totalsLabelCell = document.createElement('td');
+            totalsLabelCell.textContent = 'Totals';
+            totalsRow.appendChild(totalsLabelCell);
+            
+            const jackTotalCell = document.createElement('td');
+            jackTotalCell.textContent = jackTotal.toFixed(1);
+            totalsRow.appendChild(jackTotalCell);
+            
+            const ellTotalCell = document.createElement('td');
+            ellTotalCell.textContent = ellTotal.toFixed(1);
+            totalsRow.appendChild(ellTotalCell);
+            
+            tableBody.appendChild(totalsRow);
+            
+            // Show modal
+            modal.style.display = 'block';
+            
+            // Close button functionality
+            const closeButton = document.querySelector('.close-button');
+            closeButton.onclick = () => {
                 modal.style.display = 'none';
-            }
-        };
-    } catch (error) {
-        alert('Failed to load league table');
-        console.error(error);
-    }
-}
-    async publishScores() {
-    try {
-        // Get the current scores from the main interface
-        const jackScore = parseFloat(document.getElementById("jacks-score").textContent);
-        const ellScore = parseFloat(document.getElementById("ells-score").textContent);
-
-        // Find the next available row in the league table
-        const records = await this.fetchLeagueTableData();
-        const nextWeek = records.length + 1;
-
-        // Update the league table with the new scores
-        await this.updateLeagueTableRow(nextWeek, jackScore, ellScore);
-
-        // Provide feedback to the user
-        alert("Scores published successfully!");
-    } catch (error) {
-        console.error("Error publishing scores:", error);
-        alert(`Failed to publish scores: ${error.message}`);
-    }
-}
-
-async updateLeagueTableRow(week, jackScore, ellScore) {
-    try {
-        // Find the record with the matching week number
-        const records = await this.fetchLeagueTableData();
-        const record = records.find(r => r.fields.Week === week);
-
-        if (!record) {
-            throw new Error(`No record found for week ${week}`);
-        }
-
-        // Update the record with the new scores
-        const response = await fetch(`https://api.airtable.com/v0/appoF7fRSS4nuF9u2/Table%202/${record.id}`, {
-            method: "PATCH",
-            headers: {
-                'Authorization': `Bearer patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                fields: {
-                    Jack: jackScore,
-                    Ell: ellScore
+            };
+            
+            // Close modal when clicking outside
+            window.onclick = (event) => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
                 }
-            })
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Update failed: ${errorText}`);
+            };
+        } catch (error) {
+            alert('Failed to load league table');
+            console.error(error);
         }
-    } catch (error) {
-        console.error("Error updating league table row:", error);
-        throw error;
+    }
+
+    async updateLeagueTableCell(recordId, event) {
+        const input = event.target;
+        const field = input.dataset.field;
+        let value = input.value.trim();
+
+        try {
+            // Attempt to parse the input as a number
+            const numericValue = parseFloat(value);
+
+            // Update the field with the parsed numeric value or null if empty
+            const response = await fetch(`https://api.airtable.com/v0/appoF7fRSS4nuF9u2/Table%202/${recordId}`, {
+                method: "PATCH",
+                headers: {
+                    'Authorization': `Bearer patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    fields: {
+                        [field]: isNaN(numericValue) ? null : numericValue
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Detailed error:', errorText);
+                throw new Error(`Update failed: ${errorText}`);
+            }
+
+            // Provide success feedback
+            input.style.backgroundColor = '#90EE90';
+            setTimeout(() => {
+                input.style.backgroundColor = 'transparent';
+            }, 1000);
+        } catch (error) {
+            console.error('Error updating league table:', error);
+            alert(`Failed to update league table: ${error.message}`);
+
+            // Revert the input to its previous value
+            input.value = input.defaultValue;
+        }
     }
 }
 
-// Initialize application
 const app = new FantasyFootballApp();
