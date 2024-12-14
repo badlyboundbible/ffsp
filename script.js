@@ -791,6 +791,57 @@ async openLeagueTable() {
         console.error(error);
     }
 }
+    async publishScores() {
+    try {
+        // Get the current scores from the main interface
+        const jackScore = parseFloat(document.getElementById("jacks-score").textContent);
+        const ellScore = parseFloat(document.getElementById("ells-score").textContent);
+
+        // Find the next available row in the league table
+        const records = await this.fetchLeagueTableData();
+        const nextWeek = records.length + 1;
+
+        // Update the league table with the new scores
+        await this.updateLeagueTableRow(nextWeek, jackScore, ellScore);
+
+        // Provide feedback to the user
+        alert("Scores published successfully!");
+    } catch (error) {
+        console.error("Error publishing scores:", error);
+        alert("Failed to publish scores. Please try again later.");
+    }
+}
+
+async updateLeagueTableRow(week, jackScore, ellScore) {
+    try {
+        // Find the record with the matching week number
+        const records = await this.fetchLeagueTableData();
+        const record = records.find(r => r.fields.Week === week);
+
+        // Update the record with the new scores
+        const response = await fetch(`https://api.airtable.com/v0/appoF7fRSS4nuF9u2/Table%202/${record.id}`, {
+            method: "PATCH",
+            headers: {
+                'Authorization': `Bearer patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fields: {
+                    Jack: jackScore,
+                    Ell: ellScore
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Update failed: ${errorText}`);
+        }
+    } catch (error) {
+        console.error("Error updating league table row:", error);
+        throw error;
+    }
+}
 }
 
 // Initialize application
