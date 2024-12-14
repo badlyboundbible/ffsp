@@ -335,16 +335,11 @@ h1 {
 }
 
 .team {
-    position: relative; /* Add this */
-}
-
-.team {
-    position: relative; /* Keep this */
-    min-height: 100px; /* Add this to ensure minimum height */
+    position: relative;  /* Keep this to establish positioning context */
 }
 
 .reset-button {
-    position: absolute;
+    position: absolute;  /* This positions relative to the team div */
     right: 20px;
     width: 30px;
     height: 30px;
@@ -353,7 +348,7 @@ h1 {
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s, box-shadow 0.2s;
-    z-index: 10; /* Add this to ensure button stays on top */
+    z-index: 10;
 }
 
 .reset-button:hover {
@@ -361,16 +356,12 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Position for Ell's team (top) */
+/* Position for Ell's team (top team) */
 div.team:first-of-type .reset-button {
-    bottom: 20px;
-    position: fixed; /* Change to fixed */
-    margin-bottom: 20px; /* Add some margin */
+    bottom: 20px;  /* Position from bottom of the green pitch */
 }
 
-/* Position for Jack's team (bottom) */
+/* Position for Jack's team (bottom team) */
 div.team:last-of-type .reset-button {
-    top: 20px;
-    position: fixed; /* Change to fixed */
-    margin-top: 20px; /* Add some margin */
+    top: 20px;  /* Position from top of the green pitch */
 }
