@@ -356,17 +356,13 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Ell's team - ensure button is at bottom right */
-div.team:first-of-type {
-    padding-bottom: 40px; /* Add space for the button */
-}
-
+/* Ell's team - moved up by adjusting bottom value */
 div.team:first-of-type .reset-button {
-    bottom: 20px;  /* Position from bottom */
-    top: unset;    /* Remove any top positioning */
+    bottom: 40px;  /* Changed from 20px to 40px to raise it */
+    top: unset;
 }
 
-/* Jack's team - leave as is since it's working */
+/* Jack's team - keep as is */
 div.team:last-of-type .reset-button {
     top: 20px;
 }
