@@ -500,6 +500,24 @@ async loadData() {
             alert("Error publishing changes. Please check your connection or contact support.");
         }
     }
+    resetTeamScores(team) {
+    // Get all score inputs for the specified team
+    document.querySelectorAll(`#${team}-gk, #${team}-def, #${team}-mid, #${team}-fwd`)
+        .forEach(position => {
+            position.querySelectorAll('input[data-field="score"]').forEach(input => {
+                input.value = '';
+                
+                // Add to unsaved changes
+                this.state.addChange({
+                    id: input.dataset.id,
+                    fields: { score: '' }
+                });
+            });
+        });
+    
+    // Update the display
+    this.updateScores();
+    }
 }
 
 // Initialize application
