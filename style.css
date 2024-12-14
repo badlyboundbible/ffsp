@@ -1,3 +1,4 @@
+/* style.css */
 /* General Body Styling */
 body {
     font-family: Arial, sans-serif;
@@ -41,7 +42,6 @@ h1 {
     padding: 10px;
     border-radius: 8px;
     text-align: center;
-    position: relative;
 }
 
 .team h2 {
@@ -138,6 +138,81 @@ h1 {
     font-weight: bold;
     outline: none;
     color: black;
+}
+
+/* Specific Field Styles */
+.player input[data-field="name"] {
+    background-color: transparent;
+    width: 100%;
+}
+
+.player input[data-field="value"] {
+    background-color: transparent;
+    color: black;
+    border-radius: 15px;
+    width: 60%;
+}
+
+.player input[data-field="value"][data-team-prefix="ells"] {
+    background-color: #ffcccc;
+}
+
+.player input[data-field="value"][data-team-prefix="jacks"] {
+    background-color: #cceeff;
+}
+
+/* Score Fields */
+.player input[data-field="score"] {
+    background-color: white;
+    color: black;
+    border-radius: 15px;
+    width: 50%;
+}
+
+/* Team Dropdowns */
+.player select {
+    width: 75%;
+    margin: 0 auto;
+    display: block;
+    color: white;
+    border-radius: 15px;
+    background-color: transparent;
+    text-align: center;
+    text-align-last: center;
+    direction: rtl;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 5px;
+    position: relative;
+    text-indent: 0.01px;
+    text-overflow: '';
+}
+
+.player select option {
+    text-align: center;
+    direction: ltr;
+    background-color: #333;
+}
+
+.player select:focus {
+    text-align: center;
+    text-align-last: center;
+}
+
+/* Position Circles */
+.position-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    margin: 0 auto 5px;
+    background-color: #ccc;
 }
 
 /* Final Score Section */
@@ -249,7 +324,7 @@ h1 {
     border-color: #45a049;
 }
 
-/* New styles for transfer buttons */
+/* Transfer Button Styles */
 .powerup-button[data-powerup^="T"] {
     background-color: white;
     color: black;
@@ -261,6 +336,7 @@ h1 {
     border-color: #FF6600;
 }
 
+/* Reset Button */
 .reset-button {
     position: absolute;
     right: 20px;
@@ -279,14 +355,22 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* For Ell's team (first team) - position at bottom right */
+/* Reset Button Positioning */
 div.team:first-of-type .reset-button {
     top: auto;
     bottom: 20px;
 }
 
-/* For Jack's team (second team) - position at top right */
 div.team:last-of-type .reset-button {
     top: 20px;
     bottom: auto;
+}
+
+/* Input Fields Hover and Focus */
+.player input:hover,
+.player select:hover,
+.player input:focus,
+.player select:focus {
+    background-color: #e0e0e0;
+    cursor: pointer;
 }
