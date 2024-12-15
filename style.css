@@ -388,12 +388,13 @@ h1 {
     background: white;
     border: 1px solid #ccc;
     cursor: pointer;
-    padding: 8px 16px;
+    padding: 8px 0; /* Reduced horizontal padding */
     border-radius: 15px;
     font-size: 14px;
     font-weight: bold;
     transition: all 0.2s;
-    min-width: 45px;
+    width: 45px; /* Fixed width for all buttons */
+    text-align: center; /* Ensure text is centered */
 }
 
 .powerup-button:hover {
@@ -407,6 +408,13 @@ h1 {
     background-color: #4CAF50;
     color: white;
     border-color: #45a049;
+}
+
+.powerup-button[data-powerup="T1"].active,
+.powerup-button[data-powerup="T2"].active {
+    background-color: #FF6B6B;
+    color: white;
+    border-color: #FF4136;
 }
 
 .powerup-button[data-powerup="T1"].active,
