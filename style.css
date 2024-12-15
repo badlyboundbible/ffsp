@@ -367,43 +367,28 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Power Ups Section */
-.powerups {
-    display: flex;
-    justify-content: space-between;
-    margin: 10px 0;
-    align-items: center;
-    width: 100%;
-    padding: 0;
-}
-
-.team-powerups {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 30%;
-    justify-content: center;
-    align-items: center;
+.powerups-section {
+    margin: 20px auto;
+    width: 90%;
+    background-color: #fff;
+    border: 2px solid #333;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .powerup-row {
     display: flex;
-    gap: 8px;
     justify-content: center;
-}
-
-.powerups-label {
-    font-size: 18px;
-    font-weight: bold;
-    width: 30%;
-    text-align: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .powerup-button {
     background: white;
     border: 1px solid #ccc;
     cursor: pointer;
-    padding: 4px 12px;
+    padding: 8px 16px;
     border-radius: 15px;
     font-size: 14px;
     font-weight: bold;
@@ -414,6 +399,8 @@ h1 {
 .powerup-button:hover {
     background-color: #f0f0f0;
     border-color: #999;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .powerup-button.active {
