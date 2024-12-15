@@ -437,9 +437,18 @@ class FantasyFootballApp {
         document.getElementById("jacks-score").textContent = Math.round(scores.jack);
         document.getElementById("ells-score").textContent = Math.round(scores.ell);
         
-        document.getElementById("winner-display").textContent = 
-            scores.ell > scores.jack ? "Ell" : 
-            scores.jack > scores.ell ? "Jack" : "Draw";
+        const winnerDisplay = document.getElementById("winner-display");
+winnerDisplay.classList.remove("ell-winner", "jack-winner");
+
+            if (scores.ell > scores.jack) {
+                winnerDisplay.textContent = "Ell";
+                winnerDisplay.classList.add("ell-winner");
+            } else if (scores.jack > scores.ell) {
+                winnerDisplay.textContent = "Jack";
+                winnerDisplay.classList.add("jack-winner");
+            } else {
+                winnerDisplay.textContent = "Draw";
+    }
 
         document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
         document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
