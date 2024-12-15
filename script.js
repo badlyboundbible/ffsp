@@ -2,7 +2,7 @@
 const TEAM_COLORS = {
     ABD: "#e2001a",
     CEL: "#16973b",
-    DUN: "#1a315a",
+    DUN: "#4f76ba",
     DDU: "#FF6601",
     HEA: "#800910",
     HIB: "#005000",
