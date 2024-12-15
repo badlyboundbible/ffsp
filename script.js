@@ -6,7 +6,7 @@ const TEAM_COLORS = {
     DDU: "#FF6601",
     HEA: "#800910",
     HIB: "#005000",
-    KIL: "#2f368f",
+    KIL: "#534aeb",
     MOT: "#ffbe00",
     RAN: "#0000ff",
     ROS: "#040957",
