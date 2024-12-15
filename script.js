@@ -2,16 +2,16 @@
 const TEAM_COLORS = {
     ABD: "#e2001a",
     CEL: "#16973b",
+    DUN: "#1a315a",
+    DDU: "#FF6601",
     HEA: "#800910",
     HIB: "#005000",
-    KIL: "#0e00f7",
+    KIL: "#2f368f",
     MOT: "#ffbe00",
-    RAN: "#1b458f",
-    SMN: "#000000",
+    RAN: "#0000ff",
+    ROS: "#040957",
     SJN: "#243f90",
-    DUN: "#1a315a",
-    DDU: "#f29400",
-    ROS: "#040957"
+    SMN: "#000000"
 };
 
 const PLAYER_ROLES = {
