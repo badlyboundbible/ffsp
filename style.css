@@ -416,6 +416,23 @@ h1 {
     border-color: #FF4136;
 }
 
+.powerups-section[data-team="ells"] {
+    background-color: #ffcccc;
+}
+
+.powerups-section[data-team="jacks"] {
+    background-color: #cceeff;
+}
+
+/* Winner display background colors */
+#winner-display.ell-winner {
+    background-color: #ffcccc;
+}
+
+#winner-display.jack-winner {
+    background-color: #cceeff;
+}
+
 /* Reset Button */
 .reset-button {
     position: absolute;
