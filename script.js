@@ -176,14 +176,16 @@ class PlayerComponent {
         circle.appendChild(positionText);
         circle.appendChild(roleText);
         
-        // Set initial state
-        let state = 'active';
+        // Set initial state based on saved data
+        let state = 'active';  // default state
         if (fields.TC) state = 'triple-captain';
         else if (fields.C) state = 'captain';
         else if (fields.VC) state = 'vice-captain';
         else if (fields.bench) state = 'benched';
         
         this.updateCircleState(circle, state, fields.team);
+        
+        // Add click handler for cycling states
         circle.addEventListener("click", () => this.cycleState(circle));
         
         return circle;
@@ -193,12 +195,14 @@ class PlayerComponent {
         const currentState = circle.dataset.state;
         const team = circle.dataset.team;
         
+        // Define state cycle order
         const states = ['active', 'captain', 'vice-captain', 'triple-captain', 'benched'];
         let nextStateIndex = (states.indexOf(currentState) + 1) % states.length;
         let nextState = states[nextStateIndex];
         
         this.updateCircleState(circle, nextState, team);
         
+        // Update Airtable fields based on new state
         this.state.addChange({
             id: this.record.id,
             fields: {
@@ -217,36 +221,38 @@ class PlayerComponent {
         circle.dataset.state = state;
         circle.dataset.team = team;
 
+        // Remove all state classes
         circle.classList.remove('captain', 'vice-captain', 'triple-captain', 'benched');
         
+        // Update appearance based on state
         switch(state) {
             case 'captain':
                 roleText.textContent = 'C';
                 circle.classList.add('captain');
-                circle.style.backgroundColor = '#ffd700';
+                circle.style.backgroundColor = '#ffd700'; // Gold
                 break;
             case 'vice-captain':
                 roleText.textContent = 'VC';
                 circle.classList.add('vice-captain');
-                circle.style.backgroundColor = '#c0c0c0';
+                circle.style.backgroundColor = '#c0c0c0'; // Silver
                 break;
             case 'triple-captain':
                 roleText.textContent = 'TC';
                 circle.classList.add('triple-captain');
-                circle.style.backgroundColor = '#ff69b4';
+                circle.style.backgroundColor = '#ff69b4'; // Pink
                 break;
             case 'benched':
                 roleText.textContent = '';
                 circle.classList.add('benched');
-                circle.style.backgroundColor = '#8B4513';
+                circle.style.backgroundColor = '#8B4513'; // Brown
                 break;
-            default:
+            default: // active
                 roleText.textContent = '';
                 circle.style.backgroundColor = TEAM_COLORS[team];
         }
     }
 
-createInput(field, value) {
+    createInput(field, value) {
         const input = document.createElement("input");
         input.value = value || '';
         input.dataset.field = field;
@@ -334,7 +340,6 @@ class FantasyFootballApp {
         this.state = new FantasyState();
         this.api = new AirtableService();
         this.init();
-        this.initializeCalculator();
     }
 
     async init() {
@@ -389,10 +394,11 @@ class FantasyFootballApp {
             jack: 0
         };
 
-        // Find penalty records
+        // Find penalty records for each team
         const ellPenaltyRecord = this.state.records.find(r => r.fields.player_id === 'ell-powerups');
         const jackPenaltyRecord = this.state.records.find(r => r.fields.player_id === 'jack-powerups');
 
+        // Determine penalties from records
         if (ellPenaltyRecord && ellPenaltyRecord.fields.PEN) {
             penalties.ell = ellPenaltyRecord.fields.PEN;
         }
@@ -449,268 +455,93 @@ class FantasyFootballApp {
         document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
     }
 
-initializePowerups() {
-        document.querySelectorAll('.powerup-button').forEach(button => {
-            const team = button.dataset.team;
-            const powerup = button.dataset.powerup;
-            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
-            const record = this.state.records.find(r => 
-                r.fields.player_id === `${playerPrefix}-powerups`
-            );
-            
-            if (record && record.fields[powerup]) {
-                button.classList.add('active');
-            }
-
-            button.addEventListener('click', () => this.togglePowerup(button, record.id));
-        });
-
-        this.initializePenaltyDropdowns();
-    }
-
-    initializePenaltyDropdowns() {
-        document.querySelectorAll('.penalty-dropdown').forEach(dropdown => {
-            const team = dropdown.dataset.team;
-            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
-            const record = this.state.records.find(r => 
-                r.fields.player_id === `${playerPrefix}-powerups`
-            );
-            
-            if (record && record.fields.PEN) {
-                dropdown.value = record.fields.PEN;
-            }
-
-            dropdown.addEventListener('change', () => this.updatePenalty(dropdown, record.id));
-        });
-    }
-
-    async togglePowerup(button, recordId) {
-        const powerup = button.dataset.powerup;
-        const isActive = button.classList.toggle('active');
-        
-        this.state.addChange({
-            id: recordId,
-            fields: {
-                [powerup]: isActive
-            }
-        });
-    }
-
-    async updatePenalty(dropdown, recordId) {
-        const penalty = parseInt(dropdown.value);
-        
-        this.state.addChange({
-            id: recordId,
-            fields: {
-                PEN: penalty
-            }
-        });
-
-        this.updateScores();
-    }
-
-    // Calculator Methods
-    openCalculator() {
-        const modal = document.getElementById('calculator-modal');
-        modal.style.display = 'block';
-        
-        const closeButton = modal.querySelector('.close-button');
-        closeButton.onclick = () => {
-            modal.style.display = 'none';
-            this.resetCalculator(); // Reset when closing
-        };
-        
-        window.onclick = (event) => {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-                this.resetCalculator(); // Reset when closing
-            }
-        };
-    }
-
-    initializeCalculator() {
-        let totalScore = 0;
-        let roleMultiplier = 0;
-        const totalScoreDisplay = document.getElementById('calc-total-score');
-        const modal = document.getElementById('calculator-modal');
-
-        const updateScoreDisplay = () => {
-            totalScoreDisplay.textContent = totalScore;
-        };
-
-        const resetCalculator = () => {
-            totalScore = 0;
-            roleMultiplier = 0;
-            updateScoreDisplay();
-            
-            // Reset all buttons
-            modal.querySelectorAll('button').forEach(button => {
-                if (!button.classList.contains('close-button')) {
-                    button.classList.remove('active');
-                }
-            });
-        };
-
-        // Role selection
-        modal.querySelectorAll('.role-button').forEach(button => {
-            button.addEventListener('click', () => {
-                // Clear other role selections
-                modal.querySelectorAll('.role-button').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                
-                button.classList.add('active');
-                roleMultiplier = parseInt(button.dataset.role);
-
-                // Reset score when changing roles
-                resetCalculator();
-            });
-        });
-
-        // Goal buttons
-        modal.querySelectorAll('.goal-button').forEach(button => {
-            button.addEventListener('click', () => {
-                if (roleMultiplier === 0) {
-                    alert('Please select a role first!');
-                    return;
-                }
-
-                if (button.classList.contains('active')) {
-                    button.classList.remove('active');
-                    totalScore -= roleMultiplier;
-                } else {
-                    button.classList.add('active');
-                    totalScore += roleMultiplier;
-                }
-                updateScoreDisplay();
-            });
-        });
-
-        // Event buttons (assists, cards, etc)
-        modal.querySelectorAll('.event-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const points = parseInt(button.dataset.points);
-                
-                if (button.classList.contains('active')) {
-                    button.classList.remove('active');
-                    totalScore -= points;
-                } else {
-                    button.classList.add('active');
-                    totalScore += points;
-                }
-                updateScoreDisplay();
-            });
-        });
-
-        // Reset button
-        const resetButton = modal.querySelector('#calc-reset-button');
-        resetButton.addEventListener('click', resetCalculator);
-
-        // Store resetCalculator method on the class instance
-        this.resetCalculator = resetCalculator;
-    }
-
-async fetchLeagueTableData() {
-        const tableName = "Table%202";
-        const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}`;
-
-        try {
-            const response = await fetch(url, {
-                headers: { 
-                    'Authorization': `Bearer ${this.api.apiKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Failed to fetch: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            return data.records.sort((a, b) => a.fields.Week - b.fields.Week);
-        } catch (error) {
-            console.error("Fetch league table error:", error);
-            throw error;
-        }
-    }
-
-    async openLeagueTable() {
+openLeagueTable() {
         const modal = document.getElementById('league-table-modal');
         const tableBody = document.getElementById('league-table-body');
         
         try {
-            const records = await this.fetchLeagueTableData();
-            tableBody.innerHTML = '';
-            
-            let jackTotal = 0;
-            let ellTotal = 0;
-            
-            records.forEach(record => {
-                const row = document.createElement('tr');
-                row.dataset.recordId = record.id;
+            const records = this.fetchLeagueTableData();
+            records.then(records => {
+                tableBody.innerHTML = '';
                 
-                const weekCell = document.createElement('td');
-                weekCell.textContent = record.fields.Week;
-                row.appendChild(weekCell);
+                // Calculate running totals
+                let jackTotal = 0;
+                let ellTotal = 0;
                 
-                const jackCell = document.createElement('td');
-                const jackInput = document.createElement('input');
-                jackInput.type = 'text';
-                const jackValue = record.fields.Jack || '';
-                jackInput.value = jackValue;
-                jackInput.defaultValue = jackValue;
-                jackInput.dataset.field = 'Jack';
-                jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-                jackCell.appendChild(jackInput);
-                row.appendChild(jackCell);
+                records.forEach(record => {
+                    const row = document.createElement('tr');
+                    row.dataset.recordId = record.id;
+                    
+                    // Week column
+                    const weekCell = document.createElement('td');
+                    weekCell.textContent = record.fields.Week;
+                    row.appendChild(weekCell);
+                    
+                    // Jack's score column
+                    const jackCell = document.createElement('td');
+                    const jackInput = document.createElement('input');
+                    jackInput.type = 'text';
+                    const jackValue = record.fields.Jack || '';
+                    jackInput.value = jackValue;
+                    jackInput.defaultValue = jackValue;
+                    jackInput.dataset.field = 'Jack';
+                    jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+                    jackCell.appendChild(jackInput);
+                    row.appendChild(jackCell);
+                    
+                    // Ell's score column
+                    const ellCell = document.createElement('td');
+                    const ellInput = document.createElement('input');
+                    ellInput.type = 'text';
+                    const ellValue = record.fields.Ell || '';
+                    ellInput.value = ellValue;
+                    ellInput.defaultValue = ellValue;
+                    ellInput.dataset.field = 'Ell';
+                    ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+                    ellCell.appendChild(ellInput);
+                    row.appendChild(ellCell);
+                    
+                    tableBody.appendChild(row);
+                    
+                    // Update running totals
+                    jackTotal += parseFloat(jackValue) || 0;
+                    ellTotal += parseFloat(ellValue) || 0;
+                });
                 
-                const ellCell = document.createElement('td');
-                const ellInput = document.createElement('input');
-                ellInput.type = 'text';
-                const ellValue = record.fields.Ell || '';
-                ellInput.value = ellValue;
-                ellInput.defaultValue = ellValue;
-                ellInput.dataset.field = 'Ell';
-                ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-                ellCell.appendChild(ellInput);
-                row.appendChild(ellCell);
+                // Add totals row
+                const totalsRow = document.createElement('tr');
+                totalsRow.style.fontWeight = 'bold';
                 
-                tableBody.appendChild(row);
+                const totalsLabelCell = document.createElement('td');
+                totalsLabelCell.textContent = 'Totals';
+                totalsRow.appendChild(totalsLabelCell);
                 
-                jackTotal += parseFloat(jackValue) || 0;
-                ellTotal += parseFloat(ellValue) || 0;
-            });
-            
-            // Add totals row
-            const totalsRow = document.createElement('tr');
-            totalsRow.style.fontWeight = 'bold';
-            
-            const totalsLabelCell = document.createElement('td');
-            totalsLabelCell.textContent = 'Totals';
-            totalsRow.appendChild(totalsLabelCell);
-            
-            const jackTotalCell = document.createElement('td');
-            jackTotalCell.textContent = jackTotal.toFixed(1);
-            totalsRow.appendChild(jackTotalCell);
-            
-            const ellTotalCell = document.createElement('td');
-            ellTotalCell.textContent = ellTotal.toFixed(1);
-            totalsRow.appendChild(ellTotalCell);
-            
-            tableBody.appendChild(totalsRow);
-            
-            modal.style.display = 'block';
-            
-            const closeButton = document.querySelector('.close-button');
-            closeButton.onclick = () => {
-                modal.style.display = 'none';
-            };
-            
-            window.onclick = (event) => {
-                if (event.target == modal) {
+                const jackTotalCell = document.createElement('td');
+                jackTotalCell.textContent = jackTotal.toFixed(1);
+                totalsRow.appendChild(jackTotalCell);
+                
+                const ellTotalCell = document.createElement('td');
+                ellTotalCell.textContent = ellTotal.toFixed(1);
+                totalsRow.appendChild(ellTotalCell);
+                
+                tableBody.appendChild(totalsRow);
+                
+                // Show modal
+                modal.style.display = 'block';
+                
+                // Close button functionality
+                const closeButton = document.querySelector('.close-button');
+                closeButton.onclick = () => {
                     modal.style.display = 'none';
-                }
-            };
+                };
+                
+                // Close modal when clicking outside
+                window.onclick = (event) => {
+                    if (event.target == modal) {
+                        modal.style.display = 'none';
+                    }
+                };
+            });
         } catch (error) {
             alert('Failed to load league table');
             console.error(error);
@@ -740,73 +571,23 @@ async fetchLeagueTableData() {
 
             if (!response.ok) {
                 const errorText = await response.text();
+                console.error('Detailed error:', errorText);
                 throw new Error(`Update failed: ${errorText}`);
             }
 
+            // Show success feedback
             input.style.backgroundColor = '#90EE90';
             setTimeout(() => {
                 input.style.backgroundColor = 'transparent';
             }, 1000);
             
+            // Refresh the table to update totals
             this.openLeagueTable();
         } catch (error) {
             console.error('Error updating league table:', error);
             alert(`Failed to update league table: ${error.message}`);
             input.value = input.defaultValue;
         }
-    }
-
-    async publishChanges() {
-        if (this.state.unsavedChanges.length === 0) {
-            alert("No changes to publish.");
-            return;
-        }
-
-        try {
-            const loadingMsg = document.createElement('div');
-            loadingMsg.style.position = 'fixed';
-            loadingMsg.style.top = '50%';
-            loadingMsg.style.left = '50%';
-            loadingMsg.style.transform = 'translate(-50%, -50%)';
-            loadingMsg.style.padding = '20px';
-            loadingMsg.style.backgroundColor = 'white';
-            loadingMsg.style.border = '1px solid #ccc';
-            loadingMsg.style.borderRadius = '5px';
-            loadingMsg.style.zIndex = '1000';
-            loadingMsg.textContent = 'Publishing changes...';
-            document.body.appendChild(loadingMsg);
-
-            const results = [];
-            for (const change of this.state.unsavedChanges) {
-                const result = await this.api.publishChange(change);
-                results.push(result);
-            }
-            
-            document.body.removeChild(loadingMsg);
-            console.log("Changes published:", results);
-            alert("All changes published successfully!");
-            this.state.clearChanges();
-            this.updateScores();
-        } catch (error) {
-            console.error("Failed to publish changes:", error);
-            alert("Error publishing changes. Please check your connection or contact support.");
-        }
-    }
-
-    resetTeamScores(team) {
-        document.querySelectorAll(`#${team}-gk, #${team}-def, #${team}-mid, #${team}-fwd`)
-            .forEach(position => {
-                position.querySelectorAll('input[data-field="score"]').forEach(input => {
-                    input.value = '';
-                    
-                    this.state.addChange({
-                        id: input.dataset.id,
-                        fields: { score: null }
-                    });
-                });
-            });
-        
-        this.updateScores();
     }
 }
 
