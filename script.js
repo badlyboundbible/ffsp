@@ -133,207 +133,6 @@ class AirtableService {
     }
 }
 
-// PlayerComponent Class
-class PlayerComponent {
-    constructor(record, state, onUpdate) {
-        this.record = record;
-        this.state = state;
-        this.onUpdate = onUpdate;
-    }
-
-    createElements() {
-        const { fields } = this.record;
-        const playerDiv = document.createElement("div");
-        playerDiv.className = "player";
-
-        const elements = {
-            circle: this.createPositionCircle(),
-            name: this.createInput("name", fields.name),
-            team: this.createTeamSelect(),
-            value: this.createInput("value", this.formatValue(fields.value)),
-            score: this.createScoreInput(fields.score)
-        };
-
-        Object.values(elements).forEach(element => playerDiv.appendChild(element));
-        return playerDiv;
-    }
-
-    createPositionCircle() {
-        const { fields } = this.record;
-        const positionType = fields.player_id.split("-")[1];
-        
-        const circle = document.createElement("div");
-        circle.className = "position-circle";
-        circle.dataset.id = this.record.id;
-        
-        const positionText = document.createElement("div");
-        positionText.className = "position-text";
-        positionText.textContent = positionType.toUpperCase();
-        
-        const roleText = document.createElement("div");
-        roleText.className = "role-text";
-        
-        circle.appendChild(positionText);
-        circle.appendChild(roleText);
-        
-        // Set initial state based on saved data
-        let state = 'active';  // default state
-        if (fields.TC) state = 'triple-captain';
-        else if (fields.C) state = 'captain';
-        else if (fields.VC) state = 'vice-captain';
-        else if (fields.bench) state = 'benched';
-        
-        this.updateCircleState(circle, state, fields.team);
-        
-        // Add click handler for cycling states
-        circle.addEventListener("click", () => this.cycleState(circle));
-        
-        return circle;
-    }
-
-    cycleState(circle) {
-        const currentState = circle.dataset.state;
-        const team = circle.dataset.team;
-        
-        // Define state cycle order
-        const states = ['active', 'captain', 'vice-captain', 'triple-captain', 'benched'];
-        let nextStateIndex = (states.indexOf(currentState) + 1) % states.length;
-        let nextState = states[nextStateIndex];
-        
-        this.updateCircleState(circle, nextState, team);
-        
-        // Update Airtable fields based on new state
-        this.state.addChange({
-            id: this.record.id,
-            fields: {
-                'C': nextState === 'captain',
-                'VC': nextState === 'vice-captain',
-                'TC': nextState === 'triple-captain',
-                'bench': nextState === 'benched'
-            }
-        });
-
-        this.onUpdate();
-    }
-
-    updateCircleState(circle, state, team) {
-        const roleText = circle.querySelector('.role-text');
-        circle.dataset.state = state;
-        circle.dataset.team = team;
-
-        // Remove all state classes
-        circle.classList.remove('captain', 'vice-captain', 'triple-captain', 'benched');
-        
-        // Update appearance based on state
-        switch(state) {
-            case 'captain':
-                roleText.textContent = 'C';
-                circle.classList.add('captain');
-                circle.style.backgroundColor = '#ffd700'; // Gold
-                break;
-            case 'vice-captain':
-                roleText.textContent = 'VC';
-                circle.classList.add('vice-captain');
-                circle.style.backgroundColor = '#c0c0c0'; // Silver
-                break;
-            case 'triple-captain':
-                roleText.textContent = 'TC';
-                circle.classList.add('triple-captain');
-                circle.style.backgroundColor = '#ff69b4'; // Pink
-                break;
-            case 'benched':
-                roleText.textContent = '';
-                circle.classList.add('benched');
-                circle.style.backgroundColor = '#8B4513'; // Brown
-                break;
-            default: // active
-                roleText.textContent = '';
-                circle.style.backgroundColor = TEAM_COLORS[team];
-        }
-    }
-
-    createInput(field, value) {
-        const input = document.createElement("input");
-        input.value = value || '';
-        input.dataset.field = field;
-        input.dataset.id = this.record.id;
-        
-        if (field !== "score") {
-            input.style.backgroundColor = this.record.fields.player_id.startsWith("ell") ? "#ffcccc" : "#cceeff";
-        }
-        
-        input.addEventListener("blur", (e) => this.handleChange(e));
-        return input;
-    }
-
-    createScoreInput(score) {
-        const input = document.createElement("input");
-        input.value = score || '';
-        input.dataset.field = "score";
-        input.dataset.id = this.record.id;
-        input.style.backgroundColor = "white";
-        input.addEventListener("blur", (e) => this.handleChange(e));
-        return input;
-    }
-
-    formatValue(value) {
-        if (value === undefined || value === null || value === '') {
-            return '';
-        }
-        return `£${parseFloat(value).toFixed(1)}`;
-    }
-
-    createTeamSelect() {
-        const select = document.createElement("select");
-        select.dataset.field = "team";
-        select.dataset.id = this.record.id;
-        
-        Object.keys(TEAM_COLORS).forEach(team => {
-            const option = document.createElement("option");
-            option.value = team;
-            option.textContent = team;
-            option.selected = team === this.record.fields.team;
-            select.appendChild(option);
-        });
-
-        select.addEventListener("change", (e) => {
-            this.handleChange(e);
-            this.updateTeamColors(select);
-        });
-        
-        this.updateTeamColors(select);
-        return select;
-    }
-
-    updateTeamColors(select) {
-        const selectedTeam = select.value;
-        select.style.backgroundColor = TEAM_COLORS[selectedTeam];
-        select.style.color = "white";
-    }
-
-    handleChange(event) {
-        const input = event.target;
-        let value = input.value.trim();
-    
-        if (value === '') {
-            value = null;
-        } else if (input.dataset.field === "score" || input.dataset.field === "value") {
-            value = input.dataset.field === "value" ? 
-                parseFloat(value.replace('£', '')) || 0 :
-                parseFloat(value) || 0;
-        }
-
-        this.state.addChange({
-            id: input.dataset.id,
-            fields: { [input.dataset.field]: value }
-        });
-
-        if (input.dataset.field === "score" || input.dataset.field === "value") {
-            this.onUpdate();
-        }
-    }
-}
-
 // FantasyFootballApp Class
 class FantasyFootballApp {
     constructor() {
@@ -515,7 +314,7 @@ class FantasyFootballApp {
     }
 }
 
-async publishChanges() {
+publishChanges() {
         if (this.state.unsavedChanges.length === 0) {
             alert("No changes to publish.");
             return;
@@ -535,17 +334,23 @@ async publishChanges() {
             loadingMsg.textContent = 'Publishing changes...';
             document.body.appendChild(loadingMsg);
 
-            const results = [];
-            for (const change of this.state.unsavedChanges) {
-                const result = await this.api.publishChange(change);
-                results.push(result);
-            }
-            
-            document.body.removeChild(loadingMsg);
-            console.log("Changes published:", results);
-            alert("All changes published successfully!");
-            this.state.clearChanges();
-            this.updateScores();
+            const publishPromises = this.state.unsavedChanges.map(change => 
+                this.api.publishChange(change)
+            );
+
+            Promise.all(publishPromises)
+                .then(results => {
+                    document.body.removeChild(loadingMsg);
+                    console.log("Changes published:", results);
+                    alert("All changes published successfully!");
+                    this.state.clearChanges();
+                    this.updateScores();
+                })
+                .catch(error => {
+                    document.body.removeChild(loadingMsg);
+                    console.error("Failed to publish changes:", error);
+                    alert("Error publishing changes. Please check your connection or contact support.");
+                });
         } catch (error) {
             console.error("Failed to publish changes:", error);
             alert("Error publishing changes. Please check your connection or contact support.");
@@ -684,7 +489,7 @@ async publishChanges() {
             });
     }
 
-    async updateLeagueTableCell(recordId, event) {
+async updateLeagueTableCell(recordId, event) {
         const input = event.target;
         const field = input.dataset.field;
         let value = input.value.trim();
@@ -734,17 +539,229 @@ async publishChanges() {
         if (!content.querySelector('.calculator')) {
             content.innerHTML += `
             <div class="calculator">
-                <!-- Previous calculator HTML from standalone app -->
-                <!-- (Use the same HTML as in the previous implementations) -->
+                <!-- Role Selection -->
+                <div class="row">
+                    <label>Select Role</label>
+                    <div class="icon-group">
+                        <button class="role-button" data-role="10">🧤 GK</button>
+                        <button class="role-button" data-role="6">🛡️ DEF</button>
+                        <button class="role-button" data-role="5">⚡ MID</button>
+                        <button class="role-button" data-role="4">🎯 FWD</button>
+                    </div>
+                </div>
+
+                <!-- Game Time -->
+                <div class="row">
+                    <label>Game Time</label>
+                    <div class="icon-group">
+                        <button class="event-button" data-points="1">⏱️ First Half</button>
+                        <button class="event-button" data-points="1">⏱️ Second Half</button>
+                    </div>
+                </div>
+
+                <!-- Goals -->
+                <div class="row">
+                    <label>Goals</label>
+                    <div class="icon-group grid-layout">
+                        ${Array(10).fill('<button class="goal-button">⚽</button>').join('')}
+                    </div>
+                </div>
+
+                <!-- Assists -->
+                <div class="row">
+                    <label>Assists</label>
+                    <div class="icon-group grid-layout">
+                        ${Array(10).fill('<button class="event-button" data-points="3">🥾</button>').join('')}
+                    </div>
+                </div>
+
+                <!-- Conceded Goal -->
+                <div class="row">
+                    <label>Conceded Goal</label>
+                    <div class="icon-group grid-layout">
+                        ${Array(10).fill('<button class="event-button" data-points="-1">❌</button>').join('')}
+                    </div>
+                </div>
+
+                <!-- Own Goal -->
+                <div class="row">
+                    <label>Own Goal</label>
+                    <div class="icon-group">
+                        ${Array(5).fill('<button class="event-button" data-points="-2">🏈</button>').join('')}
+                    </div>
+                </div>
+
+                <!-- Penalty Miss -->
+                <div class="row">
+                    <label>Penalty Miss</label>
+                    <div class="icon-group">
+                        ${Array(5).fill('<button class="event-button" data-points="-3">🥅</button>').join('')}
+                    </div>
+                </div>
+
+                <!-- Cards Section -->
+                <div class="row">
+                    <label>Cards</label>
+                    <div class="icon-group">
+                        <button class="event-button" data-points="-3">🟥 Red Card</button>
+                        <button class="event-button" data-points="-1">🟨 Yellow Card</button>
+                    </div>
+                </div>
+
+                <!-- Clean Sheet -->
+                <div class="row">
+                    <label>Clean Sheet</label>
+                    <div class="icon-group">
+                        <button class="event-button" data-points="4">⬜️ Clean Sheet</button>
+                    </div>
+                </div>
+
+                <!-- Total Score -->
+                <div class="score-display">
+                    Total Score: <span id="total-score">0</span>
+                </div>
+
+                <!-- Reset Button -->
+                <div class="row">
+                    <button id="reset-button" class="reset-button">Reset</button>
+                </div>
+
+                <!-- Value Calculator Section -->
+                <div class="value-calculator">
+                    <h2>Player Value Calculator</h2>
+                    <div class="row">
+                        <label>Real World Value (£)</label>
+                        <input type="number" id="real-world-value" step="0.1" min="0" placeholder="Enter value in millions">
+                    </div>
+                    
+                    <div class="row">
+                        <label>Position</label>
+                        <div class="position-select">
+                            <button class="position-button" data-bonus="6">FWD</button>
+                            <button class="position-button" data-bonus="5">MID</button>
+                            <button class="position-button" data-bonus="4">DEF</button>
+                            <button class="position-button" data-bonus="3">GK</button>
+                        </div>
+                    </div>
+
+                    <!-- Calculate Button -->
+                    <div class="row">
+                        <button id="calculate-button" class="calculate-button">Calculate Value</button>
+                    </div>
+
+                    <div class="value-display">
+                        <div class="value-row">
+                            <span>FFS Value:</span>
+                            <span id="ffs-value">£0.0</span>
+                        </div>
+                    </div>
+                </div>
             </div>`;
 
-            // Inject the script logic
-            const script = document.createElement('script');
-            script.innerHTML = `
-            // Previous calculator JavaScript logic 
-            // (Use the same script as in the previous implementations)
+            // Inject calculation logic
+            const calculatorScript = document.createElement('script');
+            calculatorScript.innerHTML = `
+            // Calculator Logic
+            let totalScore = 0;
+            let roleMultiplier = 0;
+            let selectedPositionBonus = 0;
+
+            const totalScoreDisplay = document.getElementById('total-score');
+            const realWorldValueInput = document.getElementById('real-world-value');
+            const ffsValueDisplay = document.getElementById('ffs-value');
+            const positionButtons = document.querySelectorAll('.position-button');
+            const calculateButton = document.getElementById('calculate-button');
+
+            function updateScoreDisplay() {
+                totalScoreDisplay.textContent = totalScore;
+            }
+
+            function resetAllButtons() {
+                document.querySelectorAll('button').forEach(button => button.classList.remove('active'));
+            }
+
+            function resetAll() {
+                totalScore = 0;
+                roleMultiplier = 0;
+                resetAllButtons();
+                updateScoreDisplay();
+                
+                realWorldValueInput.value = '';
+                positionButtons.forEach(btn => btn.classList.remove('active'));
+                selectedPositionBonus = 0;
+                ffsValueDisplay.textContent = '£0.0';
+            }
+
+            document.querySelectorAll('.role-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.role-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    roleMultiplier = parseInt(button.dataset.role);
+                });
+            });
+
+            document.querySelectorAll('.event-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const points = parseInt(button.dataset.points);
+                    if (button.classList.contains('active')) {
+                        button.classList.remove('active');
+                        totalScore -= points;
+                    } else {
+                        button.classList.add('active');
+                        totalScore += points;
+                    }
+                    updateScoreDisplay();
+                });
+            });
+
+            document.querySelectorAll('.goal-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    if (roleMultiplier === 0) {
+                        alert('Please select a role first!');
+                        return;
+                    }
+
+                    const points = roleMultiplier;
+                    if (button.classList.contains('active')) {
+                        button.classList.remove('active');
+                        totalScore -= points;
+                    } else {
+                        button.classList.add('active');
+                        totalScore += points;
+                    }
+                    updateScoreDisplay();
+                });
+            });
+
+            positionButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    positionButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    selectedPositionBonus = parseFloat(button.dataset.bonus);
+                });
+            });
+
+            calculateButton.addEventListener('click', () => {
+                const realWorldValue = parseFloat(realWorldValueInput.value) || 0;
+                
+                if (selectedPositionBonus === 0) {
+                    alert('Please select a position first!');
+                    return;
+                }
+                
+                if (realWorldValue === 0) {
+                    alert('Please enter a real world value!');
+                    return;
+                }
+                
+                const baseValue = realWorldValue * 0.69;
+                const ffsValue = baseValue + selectedPositionBonus;
+                ffsValueDisplay.textContent = `£${ffsValue.toFixed(1)}`;
+            });
+
+            document.getElementById('reset-button').addEventListener('click', resetAll);
             `;
-            content.appendChild(script);
+            content.appendChild(calculatorScript);
         }
 
         // Show the modal
@@ -765,5 +782,5 @@ async publishChanges() {
     }
 }
 
-// Initialize application
-const app = new FantasyFootballApp();
+// Initialize the app and make it globally accessible
+window.app = new FantasyFootballApp();
