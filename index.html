@@ -36,6 +36,14 @@
                     <line x1="15" y1="3" x2="15" y2="21"></line>
                 </svg>
             </button>
+            <button id="calculator-button" onclick="app.openCalculator()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                    <line x1="8" y1="9" x2="16" y2="9"></line>
+                    <line x1="8" y1="13" x2="16" y2="13"></line>
+                    <line x1="8" y1="17" x2="16" y2="17"></line>
+                </svg>
+            </button>
             <button onclick="app.publishChanges()">Publish Changes</button>
         </div>
     </div>
@@ -60,6 +68,90 @@
         </div>
     </div>
 
+    <!-- Calculator Modal -->
+    <div id="calculator-modal" class="modal">
+        <div class="modal-content calculator-modal">
+            <span class="close-button">&times;</span>
+            <div class="calculator">
+                <!-- Role Selection -->
+                <div class="row">
+                    <label>Select Role</label>
+                    <div class="icon-group">
+                        <button class="role-button" data-role="10">🧤 GK</button>
+                        <button class="role-button" data-role="6">🛡️ DEF</button>
+                        <button class="role-button" data-role="5">⚡ MID</button>
+                        <button class="role-button" data-role="4">🎯 FWD</button>
+                    </div>
+                </div>
+
+                <!-- Goals -->
+                <div class="row">
+                    <label>Goals</label>
+                    <div class="icon-group grid-layout">
+                        <button class="goal-button">⚽</button>
+                        <button class="goal-button">⚽</button>
+                        <button class="goal-button">⚽</button>
+                        <button class="goal-button">⚽</button>
+                        <button class="goal-button">⚽</button>
+                        <button class="goal-button">⚽</button>
+                        <button class="goal-button">⚽</button>
+                        <button class="goal-button">⚽</button>
+                        <button class="goal-button">⚽</button>
+                        <button class="goal-button">⚽</button>
+                    </div>
+                </div>
+
+                <!-- Assists -->
+                <div class="row">
+                    <label>Assists</label>
+                    <div class="icon-group grid-layout">
+                        <button class="event-button" data-points="3">🥾</button>
+                        <button class="event-button" data-points="3">🥾</button>
+                        <button class="event-button" data-points="3">🥾</button>
+                        <button class="event-button" data-points="3">🥾</button>
+                        <button class="event-button" data-points="3">🥾</button>
+                    </div>
+                </div>
+
+                <!-- Cards Section -->
+                <div class="row">
+                    <label>Cards</label>
+                    <div class="icon-group">
+                        <button class="event-button" data-points="-3">🟥 Red</button>
+                        <button class="event-button" data-points="-1">🟨 Yellow</button>
+                    </div>
+                </div>
+
+                <!-- Clean Sheet -->
+                <div class="row">
+                    <label>Clean Sheet</label>
+                    <div class="icon-group">
+                        <button class="event-button" data-points="4">⬜️ Clean Sheet</button>
+                    </div>
+                </div>
+
+                <!-- Penalties -->
+                <div class="row">
+                    <label>Penalties</label>
+                    <div class="icon-group">
+                        <button class="event-button" data-points="-3">❌ Miss</button>
+                        <button class="event-button" data-points="-2">🏈 Own Goal</button>
+                    </div>
+                </div>
+
+                <!-- Total Score -->
+                <div class="score-display">
+                    Total Score: <span id="calc-total-score">0</span>
+                </div>
+
+                <!-- Reset Button -->
+                <div class="row">
+                    <button id="calc-reset-button" class="reset-button">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Ell's Team -->
     <div class="team">
         <div class="reset-button" onclick="app.resetTeamScores('ells')"></div>
@@ -72,24 +164,19 @@
 
     <!-- Ell's Powerups Section -->
     <div class="powerups-section" data-team="ells">
-    <div class="powerup-row">
-        <button class="powerup-button" data-team="ells" data-powerup="WC1">WC1</button>
-        <button class="powerup-button" data-team="ells" data-powerup="WC2">WC2</button>
-        <button class="powerup-button" data-team="ells" data-powerup="BB">BB</button>
-        <button class="powerup-button" data-team="ells" data-powerup="TC">TC</button>
-        <button class="powerup-button" data-team="ells" data-powerup="T1">T1</button>
-        <button class="powerup-button" data-team="ells" data-powerup="T2">T2</button>
+        <div class="powerup-row">
+            <button class="powerup-button" data-team="ells" data-powerup="WC1">WC1</button>
+            <button class="powerup-button" data-team="ells" data-powerup="WC2">WC2</button>
+            <button class="powerup-button" data-team="ells" data-powerup="BB">BB</button>
+            <button class="powerup-button" data-team="ells" data-powerup="TC">TC</button>
+            <button class="powerup-button" data-team="ells" data-powerup="T1">T1</button>
+            <button class="powerup-button" data-team="ells" data-powerup="T2">T2</button>
+        </div>
     </div>
-</div>
 
     <!-- Final Score Section -->
     <div id="final-score">
         <h2>Final Score</h2>
-        <button id="refresh-button" onclick="app.refreshData()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/>
-        </svg>
-    </button>
         <div class="scores">
             <div class="score-label">Jack</div>
             <div class="score-label">Winner</div>
@@ -124,15 +211,15 @@
 
     <!-- Jack's Powerups Section -->
     <div class="powerups-section" data-team="jacks">
-    <div class="powerup-row">
-        <button class="powerup-button" data-team="jacks" data-powerup="WC1">WC1</button>
-        <button class="powerup-button" data-team="jacks" data-powerup="WC2">WC2</button>
-        <button class="powerup-button" data-team="jacks" data-powerup="BB">BB</button>
-        <button class="powerup-button" data-team="jacks" data-powerup="TC">TC</button>
-        <button class="powerup-button" data-team="jacks" data-powerup="T1">T1</button>
-        <button class="powerup-button" data-team="jacks" data-powerup="T2">T2</button>
+        <div class="powerup-row">
+            <button class="powerup-button" data-team="jacks" data-powerup="WC1">WC1</button>
+            <button class="powerup-button" data-team="jacks" data-powerup="WC2">WC2</button>
+            <button class="powerup-button" data-team="jacks" data-powerup="BB">BB</button>
+            <button class="powerup-button" data-team="jacks" data-powerup="TC">TC</button>
+            <button class="powerup-button" data-team="jacks" data-powerup="T1">T1</button>
+            <button class="powerup-button" data-team="jacks" data-powerup="T2">T2</button>
+        </div>
     </div>
-</div>
 
     <!-- Jack's Team -->
     <div class="team">
