@@ -179,7 +179,7 @@ h1 {
     gap: 0;
 }
 
-/* Updated Position Circle Styles */
+/* Position Circle Styles */
 .position-circle {
     width: 50px;
     height: 50px;
@@ -193,12 +193,6 @@ h1 {
     position: relative;
     transition: all 0.2s ease;
     border: 2px solid transparent;
-    
-    /* Role colors */
-    --captain-color: #ffd700;
-    --vice-captain-color: #c0c0c0;
-    --triple-captain-color: #ff69b4;
-    --no-value-color: #8B4513;
 }
 
 .position-circle .position-text {
@@ -216,31 +210,24 @@ h1 {
     line-height: 1;
 }
 
-/* Role-specific styles */
+/* State-specific styles */
 .position-circle.captain {
-    --role-color: var(--captain-color);
-    background-color: var(--captain-color) !important;
-    border: 2px solid #b8860b;
+    border-color: #b8860b;
 }
 
 .position-circle.vice-captain {
-    --role-color: var(--vice-captain-color);
-    background-color: var(--vice-captain-color) !important;
-    border: 2px solid #a9a9a9;
+    border-color: #a9a9a9;
 }
 
 .position-circle.triple-captain {
-    --role-color: var(--triple-captain-color);
-    background-color: var(--triple-captain-color) !important;
-    border: 2px solid #ff1493;
+    border-color: #ff1493;
 }
 
-.position-circle.no-value {
-    background-color: var(--no-value-color) !important;
-    border: 2px solid #654321;
+.position-circle.benched {
+    border-color: #654321;
 }
 
-/* Hover effects */
+/* Hover effect */
 .position-circle:hover {
     transform: scale(1.1);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -274,6 +261,15 @@ h1 {
     width: 60%;
 }
 
+.player input[data-field="value"][data-team-prefix="ells"] {
+    background-color: #ffcccc;
+}
+
+.player input[data-field="value"][data-team-prefix="jacks"] {
+    background-color: #cceeff;
+}
+
+/* Score Fields */
 .player input[data-field="score"] {
     background-color: white;
     color: black;
@@ -487,27 +483,6 @@ div.team:first-of-type .reset-button {
 div.team:last-of-type .reset-button {
     top: 20px;
     bottom: auto;
-}
-
-/* Tooltip Styles */
-.position-circle[title] {
-    position: relative;
-}
-
-.position-circle[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 5px 10px;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    font-size: 12px;
-    border-radius: 4px;
-    white-space: pre;
-    z-index: 1000;
-    margin-bottom: 5px;
 }
 
 /* Remove old role button styles */
