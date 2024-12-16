@@ -1,4 +1,4 @@
-// script.js - Part 1: Constants and Utility Functions
+// Constants and Utility Functions
 const TEAM_COLORS = {
     ABD: "#e2001a",
     CEL: "#16973b",
@@ -32,7 +32,7 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// script.js - Part 2: FantasyState and AirtableService Classes
+// State Management Class
 class FantasyState {
     constructor() {
         this.unsavedChanges = [];
@@ -52,6 +52,7 @@ class FantasyState {
     }
 }
 
+// Airtable Service Class
 class AirtableService {
     constructor() {
         this.apiKey = "patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489";
@@ -132,7 +133,7 @@ class AirtableService {
     }
 }
 
-// script.js - Part 3: PlayerComponent Class
+// PlayerComponent Class
 class PlayerComponent {
     constructor(record, state, onUpdate) {
         this.record = record;
@@ -146,7 +147,6 @@ class PlayerComponent {
         playerDiv.className = "player";
 
         const elements = {
-            roleContainer: this.createRoleContainer(),
             circle: this.createPositionCircle(),
             name: this.createInput("name", fields.name),
             team: this.createTeamSelect(),
@@ -158,44 +158,91 @@ class PlayerComponent {
         return playerDiv;
     }
 
-    createRoleContainer() {
-        const container = document.createElement("div");
-        container.className = "role-container";
+    createPositionCircle() {
+        const { fields } = this.record;
+        const positionType = fields.player_id.split("-")[1];
         
+        const circle = document.createElement("div");
+        circle.className = "position-circle";
+        circle.dataset.id = this.record.id;
+        
+        // Create separate elements for position and role
+        const positionText = document.createElement("div");
+        positionText.className = "position-text";
+        positionText.textContent = positionType.toUpperCase();
+        
+        const roleText = document.createElement("div");
+        roleText.className = "role-text";
+        
+        circle.appendChild(positionText);
+        circle.appendChild(roleText);
+        
+        // Set initial role
         let role = PLAYER_ROLES.NONE;
-        if (this.record.fields.TC) {
+        if (fields.TC) {
             role = PLAYER_ROLES.TRIPLE_CAPTAIN;
-        } else if (this.record.fields.C) {
+        } else if (fields.C) {
             role = PLAYER_ROLES.CAPTAIN;
-        } else if (this.record.fields.VC) {
+        } else if (fields.VC) {
             role = PLAYER_ROLES.VICE_CAPTAIN;
         }
         
-        const roleButton = document.createElement("button");
-        roleButton.className = "role-button";
-        roleButton.textContent = this.getRoleDisplay(role);
-        roleButton.dataset.role = role;
-        roleButton.addEventListener("click", () => this.cycleRole(roleButton));
+        // Set initial state
+        this.updateCircleState(circle, role, fields.team, fields.bench === true);
         
-        container.appendChild(roleButton);
-        return container;
+        // Add click handler for toggling role
+        circle.addEventListener("click", (e) => {
+            if (e.shiftKey) {
+                this.toggleBench(circle);
+            } else {
+                this.cycleRole(circle);
+            }
+        });
+        
+        return circle;
     }
 
-    getRoleDisplay(role) {
+    updateCircleState(circle, role, team, isBenched) {
+        const roleText = circle.querySelector('.role-text');
+        circle.dataset.role = role;
+        circle.dataset.team = team;
+        circle.dataset.bench = isBenched;
+
+        // Remove existing role classes
+        circle.classList.remove('captain', 'vice-captain', 'triple-captain');
+        
+        // Update role text and classes
         switch(role) {
             case PLAYER_ROLES.CAPTAIN:
-                return "C";
+                roleText.textContent = 'C';
+                circle.classList.add('captain');
+                break;
             case PLAYER_ROLES.VICE_CAPTAIN:
-                return "VC";
+                roleText.textContent = 'VC';
+                circle.classList.add('vice-captain');
+                break;
             case PLAYER_ROLES.TRIPLE_CAPTAIN:
-                return "TC";
+                roleText.textContent = 'TC';
+                circle.classList.add('triple-captain');
+                break;
             default:
-                return "";
+                roleText.textContent = '';
+        }
+
+        // Update background color
+        if (isBenched) {
+            circle.style.backgroundColor = '#888888';
+        } else {
+            circle.style.backgroundColor = role === PLAYER_ROLES.NONE ? 
+                TEAM_COLORS[team] : 
+                getComputedStyle(circle).getPropertyValue('--role-color');
         }
     }
 
-    cycleRole(button) {
-        const currentRole = button.dataset.role;
+    cycleRole(circle) {
+        const currentRole = circle.dataset.role;
+        const team = circle.dataset.team;
+        const isBenched = circle.dataset.bench === 'true';
         
         let nextRole;
         switch(currentRole) {
@@ -213,8 +260,7 @@ class PlayerComponent {
                 nextRole = PLAYER_ROLES.NONE;
         }
 
-        button.dataset.role = nextRole;
-        button.textContent = this.getRoleDisplay(nextRole);
+        this.updateCircleState(circle, nextRole, team, isBenched);
         
         this.state.addChange({
             id: this.record.id,
@@ -228,38 +274,19 @@ class PlayerComponent {
         this.onUpdate();
     }
 
-    createPositionCircle() {
-        const circle = document.createElement("div");
-        const { fields } = this.record;
-        const positionType = fields.player_id.split("-")[1];
+    toggleBench(circle) {
+        const newBenchStatus = circle.dataset.bench !== "true";
+        const currentRole = circle.dataset.role;
+        const team = circle.dataset.team;
         
-        circle.className = "position-circle";
-        circle.textContent = positionType.toUpperCase();
-        circle.style.backgroundColor = fields.bench ? "#888888" : TEAM_COLORS[fields.team] || "#cccccc";
-        circle.dataset.id = this.record.id;
-        circle.dataset.bench = fields.bench || false;
-        circle.dataset.team = fields.team;
+        this.updateCircleState(circle, currentRole, team, newBenchStatus);
         
-        circle.addEventListener("click", () => this.toggleBench(circle));
-        
-        return circle;
-    }
+        this.state.addChange({
+            id: circle.dataset.id,
+            fields: { bench: newBenchStatus }
+        });
 
-    formatValue(value) {
-        if (value === undefined || value === null || value === '') {
-            return '';
-        }
-        return `£${parseFloat(value).toFixed(1)}`;
-    }
-
-    createScoreInput(score) {
-        const input = document.createElement("input");
-        input.value = score || '';
-        input.dataset.field = "score";
-        input.dataset.id = this.record.id;
-        input.style.backgroundColor = "white";
-        input.addEventListener("blur", (e) => this.handleChange(e));
-        return input;
+        this.onUpdate();
     }
 
     createInput(field, value) {
@@ -274,6 +301,23 @@ class PlayerComponent {
         
         input.addEventListener("blur", (e) => this.handleChange(e));
         return input;
+    }
+
+    createScoreInput(score) {
+        const input = document.createElement("input");
+        input.value = score || '';
+        input.dataset.field = "score";
+        input.dataset.id = this.record.id;
+        input.style.backgroundColor = "white";
+        input.addEventListener("blur", (e) => this.handleChange(e));
+        return input;
+    }
+
+    formatValue(value) {
+        if (value === undefined || value === null || value === '') {
+            return '';
+        }
+        return `£${parseFloat(value).toFixed(1)}`;
     }
 
     createTeamSelect() {
@@ -298,15 +342,10 @@ class PlayerComponent {
         return select;
     }
 
-    toggleBench(circle) {
-        const newBenchStatus = circle.dataset.bench !== "true";
-        circle.dataset.bench = newBenchStatus;
-        circle.style.backgroundColor = newBenchStatus ? "#888888" : TEAM_COLORS[circle.dataset.team];
-        
-        this.state.addChange({
-            id: circle.dataset.id,
-            fields: { bench: newBenchStatus }
-        });
+    updateTeamColors(select) {
+        const selectedTeam = select.value;
+        select.style.backgroundColor = TEAM_COLORS[selectedTeam];
+        select.style.color = "white";
     }
 
     handleChange(event) {
@@ -330,15 +369,9 @@ class PlayerComponent {
             this.onUpdate();
         }
     }
-
-    updateTeamColors(select) {
-        const selectedTeam = select.value;
-        select.style.backgroundColor = TEAM_COLORS[selectedTeam];
-        select.style.color = "white";
-    }
 }
 
-// script.js - Part 4: FantasyFootballApp Class
+// FantasyFootballApp Class
 class FantasyFootballApp {
     constructor() {
         this.state = new FantasyState();
@@ -411,14 +444,14 @@ class FantasyFootballApp {
         }
 
         document.querySelectorAll(".player").forEach(player => {
+            const circle = player.querySelector(".position-circle");
             const scoreInput = player.querySelector("input[data-field='score']");
             const scoreValue = scoreInput.value.trim();
             const baseScore = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
             
-            const roleButton = player.querySelector('.role-button');
-            const role = roleButton ? roleButton.dataset.role : PLAYER_ROLES.NONE;
-            const multiplier = ROLE_MULTIPLIERS[role] || 1;
-            const finalScore = baseScore * multiplier;
+            const role = circle.dataset.role;
+            const isBenched = circle.dataset.bench === 'true';
+            const finalScore = isBenched ? 0 : (baseScore * ROLE_MULTIPLIERS[role]);
             
             const valueInput = player.querySelector("input[data-field='value']");
             const valueText = valueInput.value.trim().replace('£', '');
@@ -433,22 +466,22 @@ class FantasyFootballApp {
         scores.ell -= penalties.ell || 0;
         scores.jack -= penalties.jack || 0;
 
-        // Round scores to nearest whole number
+        // Update display
         document.getElementById("jacks-score").textContent = Math.round(scores.jack);
         document.getElementById("ells-score").textContent = Math.round(scores.ell);
         
         const winnerDisplay = document.getElementById("winner-display");
-winnerDisplay.classList.remove("ell-winner", "jack-winner");
+        winnerDisplay.classList.remove("ell-winner", "jack-winner");
 
-            if (scores.ell > scores.jack) {
-                winnerDisplay.textContent = "Ell";
-                winnerDisplay.classList.add("ell-winner");
-            } else if (scores.jack > scores.ell) {
-                winnerDisplay.textContent = "Jack";
-                winnerDisplay.classList.add("jack-winner");
-            } else {
-                winnerDisplay.textContent = "Draw";
-    }
+        if (scores.ell > scores.jack) {
+            winnerDisplay.textContent = "Ell";
+            winnerDisplay.classList.add("ell-winner");
+        } else if (scores.jack > scores.ell) {
+            winnerDisplay.textContent = "Jack";
+            winnerDisplay.classList.add("jack-winner");
+        } else {
+            winnerDisplay.textContent = "Draw";
+        }
 
         document.getElementById("jacks-value").textContent = `£${values.jack.toFixed(1)}`;
         document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
@@ -512,7 +545,6 @@ winnerDisplay.classList.remove("ell-winner", "jack-winner");
             }
         });
 
-        // Immediately update scores
         this.updateScores();
     }
 
@@ -568,238 +600,161 @@ winnerDisplay.classList.remove("ell-winner", "jack-winner");
         
         this.updateScores();
     }
-    // Add these methods to the FantasyFootballApp class in script.js
 
-// New Airtable service for Table 2
-async fetchLeagueTableData() {
-    const baseId = "appoF7fRSS4nuF9u2";
-    const tableName = "Table%202";
-    const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}`;
+// League Table Methods
+    async fetchLeagueTableData() {
+        const tableName = "Table%202";
+        const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}`;
 
-    try {
-        const response = await fetch(url, {
-            headers: { 
-                'Authorization': `Bearer ${this.api.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Failed to fetch: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        return data.records.sort((a, b) => a.fields.Week - b.fields.Week);
-    } catch (error) {
-        console.error("Fetch league table error:", error);
-        throw error;
-    }
-}
-
-// Method to open league table modal
-async openLeagueTable() {
-    const modal = document.getElementById('league-table-modal');
-    const tableBody = document.getElementById('league-table-body');
-    
-    try {
-        // Fetch league table data
-        const records = await this.fetchLeagueTableData();
-        
-        // Clear existing rows
-        tableBody.innerHTML = '';
-        
-        // Populate table
-        records.forEach(record => {
-            const row = document.createElement('tr');
-            row.dataset.recordId = record.id;
-            
-            // Week column
-            const weekCell = document.createElement('td');
-            weekCell.textContent = record.fields.Week;
-            row.appendChild(weekCell);
-            
-            // Jack's score column
-            const jackCell = document.createElement('td');
-            const jackInput = document.createElement('input');
-            jackInput.type = 'text';
-            jackInput.value = record.fields.Jack || '';
-            jackInput.dataset.field = 'Jack';
-            jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-            jackCell.appendChild(jackInput);
-            row.appendChild(jackCell);
-            
-            // Ell's score column
-            const ellCell = document.createElement('td');
-            const ellInput = document.createElement('input');
-            ellInput.type = 'text';
-            ellInput.value = record.fields.Ell || '';
-            ellInput.dataset.field = 'Ell';
-            ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-            ellCell.appendChild(ellInput);
-            row.appendChild(ellCell);
-            
-            tableBody.appendChild(row);
-        });
-        
-        // Show modal
-        modal.style.display = 'block';
-        
-        // Close button functionality
-        const closeButton = document.querySelector('.close-button');
-        closeButton.onclick = () => {
-            modal.style.display = 'none';
-        };
-        
-        // Close modal when clicking outside
-        window.onclick = (event) => {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        };
-    } catch (error) {
-        alert('Failed to load league table');
-    }
-}
-
-// Method to update a cell in the league table
-async updateLeagueTableCell(recordId, event) {
-    const input = event.target;
-    const field = input.dataset.field;
-    let value = input.value.trim();
-
-    try {
-        // Attempt to parse the input as a number
-        const numericValue = parseFloat(value);
-
-        // Update the field with the parsed numeric value or null if empty
-        const response = await fetch(`https://api.airtable.com/v0/appoF7fRSS4nuF9u2/Table%202/${recordId}`, {
-            method: "PATCH",
-            headers: {
-                'Authorization': `Bearer patIQZcsLZw1aCILS.3d2edb2f1380092318363d8ffd99f1a695ff6db84c300d36e2be82288d4b3489`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                fields: {
-                    [field]: isNaN(numericValue) ? null : numericValue
+        try {
+            const response = await fetch(url, {
+                headers: { 
+                    'Authorization': `Bearer ${this.api.apiKey}`,
+                    'Content-Type': 'application/json'
                 }
-            })
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Detailed error:', errorText);
-            throw new Error(`Update failed: ${errorText}`);
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            return data.records.sort((a, b) => a.fields.Week - b.fields.Week);
+        } catch (error) {
+            console.error("Fetch league table error:", error);
+            throw error;
         }
-
-        // Provide success feedback
-        input.style.backgroundColor = '#90EE90';
-        setTimeout(() => {
-            input.style.backgroundColor = 'transparent';
-        }, 1000);
-    } catch (error) {
-        console.error('Error updating league table:', error);
-        alert(`Failed to update league table: ${error.message}`);
-
-        // Revert the input to its previous value
-        input.value = input.defaultValue;
     }
-}
 
-// Modified openLeagueTable method to include totals
-async openLeagueTable() {
-    const modal = document.getElementById('league-table-modal');
-    const tableBody = document.getElementById('league-table-body');
-    
-    try {
-        // Fetch league table data
-        const records = await this.fetchLeagueTableData();
+    // Method to open league table modal
+    async openLeagueTable() {
+        const modal = document.getElementById('league-table-modal');
+        const tableBody = document.getElementById('league-table-body');
         
-        // Clear existing rows
-        tableBody.innerHTML = '';
-        
-        // Calculate totals
-        let jackTotal = 0;
-        let ellTotal = 0;
-        
-        // Populate table
-        records.forEach(record => {
-            const row = document.createElement('tr');
-            row.dataset.recordId = record.id;
-            
-            // Week column
-            const weekCell = document.createElement('td');
-            weekCell.textContent = record.fields.Week;
-            row.appendChild(weekCell);
-            
-            // Jack's score column
-            const jackCell = document.createElement('td');
-            const jackInput = document.createElement('input');
-            jackInput.type = 'text';
-            const jackValue = record.fields.Jack || '';
-            jackInput.value = jackValue;
-            jackInput.defaultValue = jackValue;  // Store original value
-            jackInput.dataset.field = 'Jack';
-            jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-            jackCell.appendChild(jackInput);
-            row.appendChild(jackCell);
-            
-            // Ell's score column
-            const ellCell = document.createElement('td');
-            const ellInput = document.createElement('input');
-            ellInput.type = 'text';
-            const ellValue = record.fields.Ell || '';
-            ellInput.value = ellValue;
-            ellInput.defaultValue = ellValue;  // Store original value
-            ellInput.dataset.field = 'Ell';
-            ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-            ellCell.appendChild(ellInput);
-            row.appendChild(ellCell);
-            
-            tableBody.appendChild(row);
+        try {
+            const records = await this.fetchLeagueTableData();
+            tableBody.innerHTML = '';
             
             // Calculate totals
-            jackTotal += parseFloat(jackValue) || 0;
-            ellTotal += parseFloat(ellValue) || 0;
-        });
-        
-        // Add totals row
-        const totalsRow = document.createElement('tr');
-        totalsRow.style.fontWeight = 'bold';
-        
-        const totalsLabelCell = document.createElement('td');
-        totalsLabelCell.textContent = 'Totals';
-        totalsRow.appendChild(totalsLabelCell);
-        
-        const jackTotalCell = document.createElement('td');
-        jackTotalCell.textContent = jackTotal.toFixed(1);
-        totalsRow.appendChild(jackTotalCell);
-        
-        const ellTotalCell = document.createElement('td');
-        ellTotalCell.textContent = ellTotal.toFixed(1);
-        totalsRow.appendChild(ellTotalCell);
-        
-        tableBody.appendChild(totalsRow);
-        
-        // Show modal
-        modal.style.display = 'block';
-        
-        // Close button functionality
-        const closeButton = document.querySelector('.close-button');
-        closeButton.onclick = () => {
-            modal.style.display = 'none';
-        };
-        
-        // Close modal when clicking outside
-        window.onclick = (event) => {
-            if (event.target == modal) {
+            let jackTotal = 0;
+            let ellTotal = 0;
+            
+            records.forEach(record => {
+                const row = document.createElement('tr');
+                row.dataset.recordId = record.id;
+                
+                // Week column
+                const weekCell = document.createElement('td');
+                weekCell.textContent = record.fields.Week;
+                row.appendChild(weekCell);
+                
+                // Jack's score column
+                const jackCell = document.createElement('td');
+                const jackInput = document.createElement('input');
+                jackInput.type = 'text';
+                const jackValue = record.fields.Jack || '';
+                jackInput.value = jackValue;
+                jackInput.defaultValue = jackValue;
+                jackInput.dataset.field = 'Jack';
+                jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+                jackCell.appendChild(jackInput);
+                row.appendChild(jackCell);
+                
+                // Ell's score column
+                const ellCell = document.createElement('td');
+                const ellInput = document.createElement('input');
+                ellInput.type = 'text';
+                const ellValue = record.fields.Ell || '';
+                ellInput.value = ellValue;
+                ellInput.defaultValue = ellValue;
+                ellInput.dataset.field = 'Ell';
+                ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+                ellCell.appendChild(ellInput);
+                row.appendChild(ellCell);
+                
+                tableBody.appendChild(row);
+                
+                // Calculate totals
+                jackTotal += parseFloat(jackValue) || 0;
+                ellTotal += parseFloat(ellValue) || 0;
+            });
+            
+            // Add totals row
+            const totalsRow = document.createElement('tr');
+            totalsRow.style.fontWeight = 'bold';
+            
+            const totalsLabelCell = document.createElement('td');
+            totalsLabelCell.textContent = 'Totals';
+            totalsRow.appendChild(totalsLabelCell);
+            
+            const jackTotalCell = document.createElement('td');
+            jackTotalCell.textContent = jackTotal.toFixed(1);
+            totalsRow.appendChild(jackTotalCell);
+            
+            const ellTotalCell = document.createElement('td');
+            ellTotalCell.textContent = ellTotal.toFixed(1);
+            totalsRow.appendChild(ellTotalCell);
+            
+            tableBody.appendChild(totalsRow);
+            
+            // Show modal
+            modal.style.display = 'block';
+            
+            // Close button functionality
+            const closeButton = document.querySelector('.close-button');
+            closeButton.onclick = () => {
                 modal.style.display = 'none';
-            }
-        };
-    } catch (error) {
-        alert('Failed to load league table');
-        console.error(error);
+            };
+            
+            // Close modal when clicking outside
+            window.onclick = (event) => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        } catch (error) {
+            alert('Failed to load league table');
+            console.error(error);
+        }
     }
-}
+
+    async updateLeagueTableCell(recordId, event) {
+        const input = event.target;
+        const field = input.dataset.field;
+        let value = input.value.trim();
+
+        try {
+            const numericValue = parseFloat(value);
+
+            const response = await fetch(`https://api.airtable.com/v0/${this.api.baseId}/Table%202/${recordId}`, {
+                method: "PATCH",
+                headers: {
+                    'Authorization': `Bearer ${this.api.apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    fields: {
+                        [field]: isNaN(numericValue) ? null : numericValue
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Detailed error:', errorText);
+                throw new Error(`Update failed: ${errorText}`);
+            }
+
+            input.style.backgroundColor = '#90EE90';
+            setTimeout(() => {
+                input.style.backgroundColor = 'transparent';
+            }, 1000);
+        } catch (error) {
+            console.error('Error updating league table:', error);
+            alert(`Failed to update league table: ${error.message}`);
+            input.value = input.defaultValue;
+        }
+    }
 }
 
 // Initialize application
