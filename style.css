@@ -96,6 +96,7 @@ h1 {
     color: black;
 }
 
+/* League Table Styles */
 #league-table {
     width: 100%;
     border-collapse: collapse;
@@ -117,8 +118,8 @@ h1 {
     border: none;
     text-align: center;
     background-color: transparent;
-    font-size: 20px;  /* Increased font size for the values */
-    font-weight: 500;  /* Added medium font weight for better readability */
+    font-size: 20px;
+    font-weight: 500;
 }
 
 /* Teams Section */
@@ -176,41 +177,65 @@ h1 {
     gap: 0;
 }
 
-.role-container {
-    margin-bottom: 2px;
-    height: 24px;
-}
-
-.role-button {
-    background: white;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    width: 24px;
-    height: 24px;
+/* Updated Position Circle Styles */
+.position-circle {
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    transition: all 0.2s;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin: 0 auto 5px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    
+    /* Role colors */
+    --captain-color: #ffd700;
+    --vice-captain-color: #c0c0c0;
+    --triple-captain-color: #ff69b4;
+}
+
+.position-circle .position-text {
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.position-circle .role-text {
     font-size: 12px;
     font-weight: bold;
-    color: black;
-}
-
-.role-button[data-role="captain"] {
-    background-color: gold;
-    border-color: #b8860b;
-}
-
-.role-button[data-role="vice_captain"] {
-    background-color: silver;
-    border-color: #a9a9a9;
-}
-
-.role-button[data-role="triple_captain"] {
-    background-color: #FF69B4;
-    border-color: #FF1493;
     color: white;
+    line-height: 1;
+}
+
+/* Role-specific styles */
+.position-circle.captain {
+    --role-color: var(--captain-color);
+    background-color: var(--captain-color) !important;
+    border: 2px solid #b8860b;
+}
+
+.position-circle.vice-captain {
+    --role-color: var(--vice-captain-color);
+    background-color: var(--vice-captain-color) !important;
+    border: 2px solid #a9a9a9;
+}
+
+.position-circle.triple-captain {
+    --role-color: var(--triple-captain-color);
+    background-color: var(--triple-captain-color) !important;
+    border: 2px solid #ff1493;
+}
+
+/* Hover effect */
+.position-circle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Styled Input Fields */
@@ -298,21 +323,6 @@ h1 {
     cursor: pointer;
 }
 
-/* Position Circles */
-.position-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
-    color: white;
-    margin: 0 auto 5px;
-    background-color: #ccc;
-}
-
 /* Final Score Section */
 #final-score {
     margin: 20px auto;
@@ -367,6 +377,16 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Winner display background colors */
+#winner-display.ell-winner {
+    background-color: #ffcccc;
+}
+
+#winner-display.jack-winner {
+    background-color: #cceeff;
+}
+
+/* Powerups Section */
 .powerups-section {
     margin: 20px auto;
     width: 90%;
@@ -388,13 +408,13 @@ h1 {
     background: white;
     border: 1px solid #ccc;
     cursor: pointer;
-    padding: 8px 0; /* Reduced horizontal padding */
+    padding: 8px 0;
     border-radius: 15px;
     font-size: 14px;
     font-weight: bold;
     transition: all 0.2s;
-    width: 45px; /* Fixed width for all buttons */
-    text-align: center; /* Ensure text is centered */
+    width: 45px;
+    text-align: center;
 }
 
 .powerup-button:hover {
@@ -417,27 +437,11 @@ h1 {
     border-color: #FF4136;
 }
 
-.powerup-button[data-powerup="T1"].active,
-.powerup-button[data-powerup="T2"].active {
-    background-color: #FF6B6B;
-    color: white;
-    border-color: #FF4136;
-}
-
 .powerups-section[data-team="ells"] {
     background-color: #ffcccc;
 }
 
 .powerups-section[data-team="jacks"] {
-    background-color: #cceeff;
-}
-
-/* Winner display background colors */
-#winner-display.ell-winner {
-    background-color: #ffcccc;
-}
-
-#winner-display.jack-winner {
     background-color: #cceeff;
 }
 
