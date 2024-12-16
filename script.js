@@ -133,7 +133,7 @@ class AirtableService {
     }
 }
 
-// PlayerComponent Class
+// Updated PlayerComponent Class
 class PlayerComponent {
     constructor(record, state, onUpdate) {
         this.record = record;
@@ -166,7 +166,6 @@ class PlayerComponent {
         circle.className = "position-circle";
         circle.dataset.id = this.record.id;
         
-        // Create separate elements for position and role
         const positionText = document.createElement("div");
         positionText.className = "position-text";
         positionText.textContent = positionType.toUpperCase();
@@ -177,7 +176,7 @@ class PlayerComponent {
         circle.appendChild(positionText);
         circle.appendChild(roleText);
         
-        // Set initial role
+        // Set initial role and bench states
         let role = PLAYER_ROLES.NONE;
         if (fields.TC) {
             role = PLAYER_ROLES.TRIPLE_CAPTAIN;
@@ -187,29 +186,35 @@ class PlayerComponent {
             role = PLAYER_ROLES.VICE_CAPTAIN;
         }
         
-        // Set initial state
-        this.updateCircleState(circle, role, fields.team, fields.bench === true);
+        // Set initial state with noValue field
+        this.updateCircleState(circle, role, fields.team, fields.bench === true, fields.noValue === true);
         
-        // Add click handler for toggling role
+        // Add click handler for toggling states
         circle.addEventListener("click", (e) => {
-            if (e.shiftKey) {
+            if (e.shiftKey && e.altKey) {
+                this.toggleNoValue(circle);
+            } else if (e.shiftKey) {
                 this.toggleBench(circle);
             } else {
                 this.cycleRole(circle);
             }
         });
+
+        // Add tooltip showing controls
+        circle.title = "Click: Change role\nShift+Click: Toggle bench\nShift+Alt+Click: Toggle no value";
         
         return circle;
     }
 
-    updateCircleState(circle, role, team, isBenched) {
+    updateCircleState(circle, role, team, isBenched, noValue) {
         const roleText = circle.querySelector('.role-text');
         circle.dataset.role = role;
         circle.dataset.team = team;
         circle.dataset.bench = isBenched;
+        circle.dataset.noValue = noValue;
 
         // Remove existing role classes
-        circle.classList.remove('captain', 'vice-captain', 'triple-captain');
+        circle.classList.remove('captain', 'vice-captain', 'triple-captain', 'no-value');
         
         // Update role text and classes
         switch(role) {
@@ -229,8 +234,11 @@ class PlayerComponent {
                 roleText.textContent = '';
         }
 
-        // Update background color
-        if (isBenched) {
+        // Update background color based on states
+        if (noValue) {
+            circle.style.backgroundColor = '#8B4513'; // Brown color for no-value state
+            circle.classList.add('no-value');
+        } else if (isBenched) {
             circle.style.backgroundColor = '#888888';
         } else {
             circle.style.backgroundColor = role === PLAYER_ROLES.NONE ? 
@@ -243,6 +251,7 @@ class PlayerComponent {
         const currentRole = circle.dataset.role;
         const team = circle.dataset.team;
         const isBenched = circle.dataset.bench === 'true';
+        const noValue = circle.dataset.noValue === 'true';
         
         let nextRole;
         switch(currentRole) {
@@ -260,7 +269,7 @@ class PlayerComponent {
                 nextRole = PLAYER_ROLES.NONE;
         }
 
-        this.updateCircleState(circle, nextRole, team, isBenched);
+        this.updateCircleState(circle, nextRole, team, isBenched, noValue);
         
         this.state.addChange({
             id: this.record.id,
@@ -278,12 +287,34 @@ class PlayerComponent {
         const newBenchStatus = circle.dataset.bench !== "true";
         const currentRole = circle.dataset.role;
         const team = circle.dataset.team;
+        const noValue = circle.dataset.noValue === "true";
         
-        this.updateCircleState(circle, currentRole, team, newBenchStatus);
+        this.updateCircleState(circle, currentRole, team, newBenchStatus, noValue);
         
         this.state.addChange({
             id: circle.dataset.id,
-            fields: { bench: newBenchStatus }
+            fields: { 
+                bench: newBenchStatus,
+                noValue: false // Reset no-value when toggling regular bench
+            }
+        });
+
+        this.onUpdate();
+    }
+
+    toggleNoValue(circle) {
+        const newNoValueStatus = circle.dataset.noValue !== "true";
+        const currentRole = circle.dataset.role;
+        const team = circle.dataset.team;
+        
+        this.updateCircleState(circle, currentRole, team, true, newNoValueStatus);
+        
+        this.state.addChange({
+            id: circle.dataset.id,
+            fields: { 
+                bench: true, // Always benched when no-value
+                noValue: newNoValueStatus
+            }
         });
 
         this.onUpdate();
@@ -371,7 +402,7 @@ class PlayerComponent {
     }
 }
 
-// FantasyFootballApp Class
+// Updated FantasyFootballApp Class
 class FantasyFootballApp {
     constructor() {
         this.state = new FantasyState();
@@ -451,7 +482,8 @@ class FantasyFootballApp {
             
             const role = circle.dataset.role;
             const isBenched = circle.dataset.bench === 'true';
-            const finalScore = isBenched ? 0 : (baseScore * ROLE_MULTIPLIERS[role]);
+            const isNoValue = circle.dataset.noValue === 'true';
+            const finalScore = isNoValue ? 0 : (isBenched ? 0 : (baseScore * ROLE_MULTIPLIERS[role]));
             
             const valueInput = player.querySelector("input[data-field='value']");
             const valueText = valueInput.value.trim().replace('£', '');
@@ -503,7 +535,6 @@ class FantasyFootballApp {
             button.addEventListener('click', () => this.togglePowerup(button, record.id));
         });
 
-        // Initialize penalty dropdowns
         this.initializePenaltyDropdowns();
     }
 
@@ -601,7 +632,7 @@ class FantasyFootballApp {
         this.updateScores();
     }
 
-// League Table Methods
+// League Table Methods for FantasyFootballApp class
     async fetchLeagueTableData() {
         const tableName = "Table%202";
         const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}`;
@@ -626,7 +657,6 @@ class FantasyFootballApp {
         }
     }
 
-    // Method to open league table modal
     async openLeagueTable() {
         const modal = document.getElementById('league-table-modal');
         const tableBody = document.getElementById('league-table-body');
@@ -635,7 +665,7 @@ class FantasyFootballApp {
             const records = await this.fetchLeagueTableData();
             tableBody.innerHTML = '';
             
-            // Calculate totals
+            // Calculate running totals
             let jackTotal = 0;
             let ellTotal = 0;
             
@@ -674,7 +704,7 @@ class FantasyFootballApp {
                 
                 tableBody.appendChild(row);
                 
-                // Calculate totals
+                // Update running totals
                 jackTotal += parseFloat(jackValue) || 0;
                 ellTotal += parseFloat(ellValue) || 0;
             });
@@ -745,10 +775,14 @@ class FantasyFootballApp {
                 throw new Error(`Update failed: ${errorText}`);
             }
 
+            // Show success feedback
             input.style.backgroundColor = '#90EE90';
             setTimeout(() => {
                 input.style.backgroundColor = 'transparent';
             }, 1000);
+            
+            // Update the running totals
+            this.openLeagueTable();
         } catch (error) {
             console.error('Error updating league table:', error);
             alert(`Failed to update league table: ${error.message}`);
