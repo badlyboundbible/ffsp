@@ -100,9 +100,11 @@ h1 {
 #league-table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 10px;
 }
 
-#league-table th, #league-table td {
+#league-table th, 
+#league-table td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
@@ -153,7 +155,7 @@ h1 {
     margin: 10px 0;
 }
 
-/* Row gap between GK, DEF, MID, and FWD */
+/* Row gap between positions */
 #ells-gk,
 #ells-def,
 #ells-mid,
@@ -196,6 +198,7 @@ h1 {
     --captain-color: #ffd700;
     --vice-captain-color: #c0c0c0;
     --triple-captain-color: #ff69b4;
+    --no-value-color: #8B4513;
 }
 
 .position-circle .position-text {
@@ -232,13 +235,18 @@ h1 {
     border: 2px solid #ff1493;
 }
 
-/* Hover effect */
+.position-circle.no-value {
+    background-color: var(--no-value-color) !important;
+    border: 2px solid #654321;
+}
+
+/* Hover effects */
 .position-circle:hover {
     transform: scale(1.1);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Styled Input Fields */
+/* Player Input Styles */
 .player input,
 .player select {
     width: 100%;
@@ -254,7 +262,6 @@ h1 {
     color: black;
 }
 
-/* Specific Field Styles */
 .player input[data-field="name"] {
     background-color: transparent;
     width: 100%;
@@ -267,15 +274,6 @@ h1 {
     width: 60%;
 }
 
-.player input[data-field="value"][data-team-prefix="ells"] {
-    background-color: #ffcccc;
-}
-
-.player input[data-field="value"][data-team-prefix="jacks"] {
-    background-color: #cceeff;
-}
-
-/* Score Fields */
 .player input[data-field="score"] {
     background-color: white;
     color: black;
@@ -314,7 +312,7 @@ h1 {
     text-align-last: center;
 }
 
-/* Input Fields Hover and Focus */
+/* Input Hover States */
 .player input:hover,
 .player select:hover,
 .player input:focus,
@@ -377,7 +375,7 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Winner display background colors */
+/* Winner Display Styles */
 #winner-display.ell-winner {
     background-color: #ffcccc;
 }
@@ -445,6 +443,22 @@ h1 {
     background-color: #cceeff;
 }
 
+/* Penalty Dropdown Styles */
+.penalty-dropdown {
+    width: 30%;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 15px;
+    text-align: center;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.penalty-dropdown option {
+    text-align: center;
+}
+
 /* Reset Button */
 .reset-button {
     position: absolute;
@@ -464,30 +478,40 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* For Ell's team (first team) */
+/* Position-specific reset button placement */
 div.team:first-of-type .reset-button {
     top: auto;
     bottom: 20px;
 }
 
-/* For Jack's team (second team) */
 div.team:last-of-type .reset-button {
     top: 20px;
     bottom: auto;
 }
 
-/* Penalty Dropdown Styles */
-.penalty-dropdown {
-    width: 30%;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 15px;
-    text-align: center;
-    background-color: #f5f5f5;
-    border: 1px solid #ddd;
-    font-size: 14px;
+/* Tooltip Styles */
+.position-circle[title] {
+    position: relative;
 }
 
-.penalty-dropdown option {
-    text-align: center;
+.position-circle[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 12px;
+    border-radius: 4px;
+    white-space: pre;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+/* Remove old role button styles */
+.role-container, 
+.role-button {
+    display: none;
 }
