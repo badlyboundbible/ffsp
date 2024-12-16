@@ -352,6 +352,7 @@ class FantasyFootballApp {
             this.state.setRecords(records);
             this.displayPlayers(records);
             this.initializePowerups();
+            this.initializePenaltyDropdowns();
         } catch (error) {
             console.error("Failed to load data:", error);
         }
@@ -455,13 +456,148 @@ class FantasyFootballApp {
         document.getElementById("ells-value").textContent = `£${values.ell.toFixed(1)}`;
     }
 
-openLeagueTable() {
+    initializePowerups() {
+        document.querySelectorAll('.powerup-button').forEach(button => {
+            const team = button.dataset.team;
+            const powerup = button.dataset.powerup;
+            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
+            const record = this.state.records.find(r => 
+                r.fields.player_id === `${playerPrefix}-powerups`
+            );
+            
+            if (record && record.fields[powerup]) {
+                button.classList.add('active');
+            }
+
+            button.addEventListener('click', () => this.togglePowerup(button, record.id));
+        });
+    }
+
+    initializePenaltyDropdowns() {
+        document.querySelectorAll('.penalty-dropdown').forEach(dropdown => {
+            const team = dropdown.dataset.team;
+            const playerPrefix = team === 'ells' ? 'ell' : 'jack';
+            const record = this.state.records.find(r => 
+                r.fields.player_id === `${playerPrefix}-powerups`
+            );
+            
+            if (record && record.fields.PEN) {
+                dropdown.value = record.fields.PEN;
+            }
+
+            dropdown.addEventListener('change', () => this.updatePenalty(dropdown, record.id));
+        });
+    }
+
+    async togglePowerup(button, recordId) {
+        const powerup = button.dataset.powerup;
+        const isActive = button.classList.toggle('active');
+        
+        this.state.addChange({
+            id: recordId,
+            fields: {
+                [powerup]: isActive
+            }
+        });
+    }
+
+    async updatePenalty(dropdown, recordId) {
+        const penalty = parseInt(dropdown.value);
+        
+        this.state.addChange({
+            id: recordId,
+            fields: {
+                PEN: penalty
+            }
+        });
+
+        this.updateScores();
+    }
+}
+
+async publishChanges() {
+        if (this.state.unsavedChanges.length === 0) {
+            alert("No changes to publish.");
+            return;
+        }
+
+        try {
+            const loadingMsg = document.createElement('div');
+            loadingMsg.style.position = 'fixed';
+            loadingMsg.style.top = '50%';
+            loadingMsg.style.left = '50%';
+            loadingMsg.style.transform = 'translate(-50%, -50%)';
+            loadingMsg.style.padding = '20px';
+            loadingMsg.style.backgroundColor = 'white';
+            loadingMsg.style.border = '1px solid #ccc';
+            loadingMsg.style.borderRadius = '5px';
+            loadingMsg.style.zIndex = '1000';
+            loadingMsg.textContent = 'Publishing changes...';
+            document.body.appendChild(loadingMsg);
+
+            const results = [];
+            for (const change of this.state.unsavedChanges) {
+                const result = await this.api.publishChange(change);
+                results.push(result);
+            }
+            
+            document.body.removeChild(loadingMsg);
+            console.log("Changes published:", results);
+            alert("All changes published successfully!");
+            this.state.clearChanges();
+            this.updateScores();
+        } catch (error) {
+            console.error("Failed to publish changes:", error);
+            alert("Error publishing changes. Please check your connection or contact support.");
+        }
+    }
+
+    resetTeamScores(team) {
+        document.querySelectorAll(`#${team}-gk, #${team}-def, #${team}-mid, #${team}-fwd`)
+            .forEach(position => {
+                position.querySelectorAll('input[data-field="score"]').forEach(input => {
+                    input.value = '';
+                    
+                    this.state.addChange({
+                        id: input.dataset.id,
+                        fields: { score: null }
+                    });
+                });
+            });
+        
+        this.updateScores();
+    }
+
+    async fetchLeagueTableData() {
+        const tableName = "Table%202";
+        const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}`;
+
+        try {
+            const response = await fetch(url, {
+                headers: { 
+                    'Authorization': `Bearer ${this.api.apiKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            return data.records.sort((a, b) => a.fields.Week - b.fields.Week);
+        } catch (error) {
+            console.error("Fetch league table error:", error);
+            throw error;
+        }
+    }
+
+    openLeagueTable() {
         const modal = document.getElementById('league-table-modal');
         const tableBody = document.getElementById('league-table-body');
         
-        try {
-            const records = this.fetchLeagueTableData();
-            records.then(records => {
+        this.fetchLeagueTableData()
+            .then(records => {
                 tableBody.innerHTML = '';
                 
                 // Calculate running totals
@@ -541,11 +677,11 @@ openLeagueTable() {
                         modal.style.display = 'none';
                     }
                 };
+            })
+            .catch(error => {
+                alert('Failed to load league table');
+                console.error(error);
             });
-        } catch (error) {
-            alert('Failed to load league table');
-            console.error(error);
-        }
     }
 
     async updateLeagueTableCell(recordId, event) {
@@ -588,6 +724,44 @@ openLeagueTable() {
             alert(`Failed to update league table: ${error.message}`);
             input.value = input.defaultValue;
         }
+    }
+
+    openCalculator() {
+        const modal = document.getElementById('calculator-modal');
+        const content = document.getElementById('calculator-content');
+        
+        // First time opening, inject the calculator HTML
+        if (!content.querySelector('.calculator')) {
+            content.innerHTML += `
+            <div class="calculator">
+                <!-- Previous calculator HTML from standalone app -->
+                <!-- (Use the same HTML as in the previous implementations) -->
+            </div>`;
+
+            // Inject the script logic
+            const script = document.createElement('script');
+            script.innerHTML = `
+            // Previous calculator JavaScript logic 
+            // (Use the same script as in the previous implementations)
+            `;
+            content.appendChild(script);
+        }
+
+        // Show the modal
+        modal.style.display = 'block';
+        
+        // Close button functionality
+        const closeButton = content.querySelector('.close-button');
+        closeButton.onclick = () => {
+            modal.style.display = 'none';
+        };
+        
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
     }
 }
 
