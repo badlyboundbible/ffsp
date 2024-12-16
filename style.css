@@ -39,7 +39,9 @@ h1 {
     background-color: #218838;
 }
 
-#league-table-button {
+/* Icon Buttons */
+#league-table-button,
+#calculator-button {
     background: none !important;
     border: none;
     cursor: pointer;
@@ -49,12 +51,14 @@ h1 {
     transition: transform 0.2s;
 }
 
-#league-table-button:hover {
+#league-table-button:hover,
+#calculator-button:hover {
     transform: scale(1.1);
     background: none !important;
 }
 
-#league-table-button svg {
+#league-table-button svg,
+#calculator-button svg {
     width: 100%;
     height: 100%;
     stroke: #333;
@@ -146,7 +150,7 @@ h1 {
     display: inline-block;
 }
 
-/* Position Rows */
+/* Position Styles */
 .position {
     display: flex;
     flex-wrap: nowrap;
@@ -155,7 +159,6 @@ h1 {
     margin: 10px 0;
 }
 
-/* Row gap between positions */
 #ells-gk,
 #ells-def,
 #ells-mid,
@@ -210,7 +213,7 @@ h1 {
     line-height: 1;
 }
 
-/* State-specific styles */
+/* Circle States */
 .position-circle.captain {
     border-color: #b8860b;
 }
@@ -227,7 +230,6 @@ h1 {
     border-color: #654321;
 }
 
-/* Hover effect */
 .position-circle:hover {
     transform: scale(1.1);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -261,15 +263,6 @@ h1 {
     width: 60%;
 }
 
-.player input[data-field="value"][data-team-prefix="ells"] {
-    background-color: #ffcccc;
-}
-
-.player input[data-field="value"][data-team-prefix="jacks"] {
-    background-color: #cceeff;
-}
-
-/* Score Fields */
 .player input[data-field="score"] {
     background-color: white;
     color: black;
@@ -303,21 +296,6 @@ h1 {
     background-color: #333;
 }
 
-.player select:focus {
-    text-align: center;
-    text-align-last: center;
-}
-
-/* Input Hover States */
-.player input:hover,
-.player select:hover,
-.player input:focus,
-.player select:focus {
-    background-color: #e0e0e0;
-    cursor: pointer;
-}
-
-/* Final Score Section */
 /* Final Score Section */
 #final-score {
     margin: 20px auto;
@@ -328,34 +306,8 @@ h1 {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
-    position: relative;  /* Added this line */
 }
 
-/* Add this new section for the refresh button */
-#refresh-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 30px;
-    height: 30px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-    transition: transform 0.2s ease;
-}
-
-#refresh-button:hover {
-    transform: rotate(180deg);
-}
-
-#refresh-button svg {
-    width: 100%;
-    height: 100%;
-    stroke: #333;
-}
-
-/* Keep the rest of your final score styles */
 #final-score h2 {
     margin: 0;
     font-size: 24px;
@@ -398,7 +350,7 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Winner Display Styles */
+/* Winner Display */
 #winner-display.ell-winner {
     background-color: #ffcccc;
 }
@@ -466,20 +418,96 @@ h1 {
     background-color: #cceeff;
 }
 
-/* Penalty Dropdown Styles */
-.penalty-dropdown {
-    width: 30%;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 15px;
-    text-align: center;
-    background-color: #f5f5f5;
-    border: 1px solid #ddd;
-    font-size: 14px;
+/* Calculator Modal Specific Styles */
+.calculator-modal {
+    max-width: 400px !important;
 }
 
-.penalty-dropdown option {
+.calculator-modal .calculator {
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+}
+
+/* Calculator Styles */
+.calculator .row {
+    margin-bottom: 16px;
     text-align: center;
+}
+
+.calculator .row label {
+    display: block;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.calculator .icon-group {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.calculator .grid-layout {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.calculator button {
+    padding: 12px;
+    font-size: 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.calculator .role-button {
+    background-color: #76c88a;
+    color: white;
+    font-weight: bold;
+}
+
+.calculator .role-button.active {
+    background-color: #388e3c;
+}
+
+.calculator .event-button {
+    background-color: #f1f1f1;
+}
+
+.calculator .goal-button {
+    background-color: #e8f5e9;
+    border: 2px solid #c8e6c9;
+}
+
+.calculator .goal-button.active {
+    background-color: #4caf50;
+    color: white;
+    border-color: #388e3c;
+}
+
+.calculator .score-display {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 16px 0;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.calculator .reset-button {
+    background-color: #ff4444;
+    color: white;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
 }
 
 /* Reset Button */
@@ -499,6 +527,22 @@ h1 {
 .reset-button:hover {
     transform: scale(1.1);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Penalty Dropdown Styles */
+.penalty-dropdown {
+    width: 30%;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 15px;
+    text-align: center;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.penalty-dropdown option {
+    text-align: center;
 }
 
 /* Position-specific reset button placement */
