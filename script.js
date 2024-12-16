@@ -342,6 +342,33 @@ class FantasyFootballApp {
         this.init();
     }
 
+    async refreshData() {
+        try {
+            const loadingMsg = document.createElement('div');
+            loadingMsg.style.position = 'fixed';
+            loadingMsg.style.top = '50%';
+            loadingMsg.style.left = '50%';
+            loadingMsg.style.transform = 'translate(-50%, -50%)';
+            loadingMsg.style.padding = '20px';
+            loadingMsg.style.backgroundColor = 'white';
+            loadingMsg.style.border = '1px solid #ccc';
+            loadingMsg.style.borderRadius = '5px';
+            loadingMsg.style.zIndex = '1000';
+            loadingMsg.textContent = 'Refreshing...';
+            document.body.appendChild(loadingMsg);
+
+            const records = await this.api.fetchData();
+            this.state.setRecords(records);
+            this.displayPlayers(records);
+            this.initializePowerups();
+            
+            document.body.removeChild(loadingMsg);
+        } catch (error) {
+            console.error("Failed to refresh data:", error);
+            alert("Error refreshing data. Please check your connection or try again.");
+        }
+    }
+
     async init() {
         document.addEventListener("DOMContentLoaded", () => this.loadData());
     }
