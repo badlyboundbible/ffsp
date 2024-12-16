@@ -62,7 +62,7 @@ class AirtableService {
         this.requestQueue = Promise.resolve();
     }
 
-async queueRequest(fn) {
+    async queueRequest(fn) {
         this.requestQueue = this.requestQueue
             .then(() => delay(200))
             .then(fn)
@@ -141,7 +141,7 @@ class PlayerComponent {
         this.onUpdate = onUpdate;
     }
 
-createElements() {
+    createElements() {
         const { fields } = this.record;
         const playerDiv = document.createElement("div");
         playerDiv.className = "player";
@@ -352,7 +352,7 @@ class FantasyFootballApp {
         }
     }
 
-displayPlayers(records) {
+    displayPlayers(records) {
         ["ells", "jacks"].forEach(team => {
             ["gk", "def", "mid", "fwd"].forEach(position => {
                 document.getElementById(`${team}-${position}`).innerHTML = "";
@@ -509,21 +509,21 @@ initializePowerups() {
         this.updateScores();
     }
 
-    // Calculator Modal Methods
+    // Calculator Methods
     openCalculator() {
         const modal = document.getElementById('calculator-modal');
         modal.style.display = 'block';
         
-        // Close button functionality
         const closeButton = modal.querySelector('.close-button');
         closeButton.onclick = () => {
             modal.style.display = 'none';
+            this.resetCalculator(); // Reset when closing
         };
         
-        // Close modal when clicking outside
         window.onclick = (event) => {
             if (event.target == modal) {
                 modal.style.display = 'none';
+                this.resetCalculator(); // Reset when closing
             }
         };
     }
@@ -532,59 +532,49 @@ initializePowerups() {
         let totalScore = 0;
         let roleMultiplier = 0;
         const totalScoreDisplay = document.getElementById('calc-total-score');
+        const modal = document.getElementById('calculator-modal');
 
-        function updateScoreDisplay() {
+        const updateScoreDisplay = () => {
             totalScoreDisplay.textContent = totalScore;
-        }
+        };
 
-        function resetAllButtons() {
-            const modal = document.getElementById('calculator-modal');
+        const resetCalculator = () => {
+            totalScore = 0;
+            roleMultiplier = 0;
+            updateScoreDisplay();
+            
+            // Reset all buttons
             modal.querySelectorAll('button').forEach(button => {
                 if (!button.classList.contains('close-button')) {
                     button.classList.remove('active');
                 }
             });
-        }
+        };
 
-        function resetAll() {
-            totalScore = 0;
-            roleMultiplier = 0;
-            resetAllButtons();
-            updateScoreDisplay();
-        }
-
-        // Role selection logic
-        document.querySelectorAll('.role-button').forEach(button => {
+        // Role selection
+        modal.querySelectorAll('.role-button').forEach(button => {
             button.addEventListener('click', () => {
-                document.querySelectorAll('.role-button').forEach(btn => 
-                    btn.classList.remove('active'));
+                // Clear other role selections
+                modal.querySelectorAll('.role-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
                 button.classList.add('active');
                 roleMultiplier = parseInt(button.dataset.role);
+
+                // Reset score when changing roles
+                resetCalculator();
             });
         });
 
-    // Event button logic
-        document.querySelectorAll('.event-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const points = parseInt(button.dataset.points);
-                if (button.classList.contains('active')) {
-                    button.classList.remove('active');
-                    totalScore -= points;
-                } else {
-                    button.classList.add('active');
-                    totalScore += points;
-                }
-                updateScoreDisplay();
-            });
-        });
-
-        // Goal button logic
-        document.querySelectorAll('.goal-button').forEach(button => {
+        // Goal buttons
+        modal.querySelectorAll('.goal-button').forEach(button => {
             button.addEventListener('click', () => {
                 if (roleMultiplier === 0) {
                     alert('Please select a role first!');
                     return;
                 }
+
                 if (button.classList.contains('active')) {
                     button.classList.remove('active');
                     totalScore -= roleMultiplier;
@@ -596,12 +586,31 @@ initializePowerups() {
             });
         });
 
+        // Event buttons (assists, cards, etc)
+        modal.querySelectorAll('.event-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const points = parseInt(button.dataset.points);
+                
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active');
+                    totalScore -= points;
+                } else {
+                    button.classList.add('active');
+                    totalScore += points;
+                }
+                updateScoreDisplay();
+            });
+        });
+
         // Reset button
-        document.getElementById('calc-reset-button').addEventListener('click', resetAll);
+        const resetButton = modal.querySelector('#calc-reset-button');
+        resetButton.addEventListener('click', resetCalculator);
+
+        // Store resetCalculator method on the class instance
+        this.resetCalculator = resetCalculator;
     }
 
-    // League Table Methods
-    async fetchLeagueTableData() {
+async fetchLeagueTableData() {
         const tableName = "Table%202";
         const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}`;
 
@@ -633,7 +642,6 @@ initializePowerups() {
             const records = await this.fetchLeagueTableData();
             tableBody.innerHTML = '';
             
-            // Calculate running totals
             let jackTotal = 0;
             let ellTotal = 0;
             
