@@ -472,7 +472,7 @@ class FantasyFootballApp {
     }
 }
 
-updateScores() {
+updateScores() 
         const scores = {
             ell: 0,
             jack: 0
