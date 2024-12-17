@@ -131,6 +131,30 @@ class AirtableService {
             }
         });
     }
+
+    async fetchLeagueTableData() {
+        const tableName = "Table%202";
+        const url = `https://api.airtable.com/v0/${this.baseId}/${tableName}`;
+
+        try {
+            const response = await fetch(url, {
+                headers: { 
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            return data.records.sort((a, b) => a.fields.Week - b.fields.Week);
+        } catch (error) {
+            console.error("Fetch league table error:", error);
+            throw error;
+        }
+    }
 }
 
 // PlayerComponent Class
@@ -185,7 +209,6 @@ class PlayerComponent {
         
         this.updateCircleState(circle, state, fields.team);
         
-        // Add click handler for cycling states
         circle.addEventListener("click", () => this.cycleState(circle));
         
         return circle;
@@ -195,14 +218,12 @@ class PlayerComponent {
         const currentState = circle.dataset.state;
         const team = circle.dataset.team;
         
-        // Define state cycle order
         const states = ['active', 'captain', 'vice-captain', 'triple-captain', 'benched'];
         let nextStateIndex = (states.indexOf(currentState) + 1) % states.length;
         let nextState = states[nextStateIndex];
         
         this.updateCircleState(circle, nextState, team);
         
-        // Update Airtable fields based on new state
         this.state.addChange({
             id: this.record.id,
             fields: {
@@ -221,32 +242,30 @@ class PlayerComponent {
         circle.dataset.state = state;
         circle.dataset.team = team;
 
-        // Remove all state classes
         circle.classList.remove('captain', 'vice-captain', 'triple-captain', 'benched');
         
-        // Update appearance based on state
         switch(state) {
             case 'captain':
                 roleText.textContent = 'C';
                 circle.classList.add('captain');
-                circle.style.backgroundColor = '#ffd700'; // Gold
+                circle.style.backgroundColor = '#ffd700';
                 break;
             case 'vice-captain':
                 roleText.textContent = 'VC';
                 circle.classList.add('vice-captain');
-                circle.style.backgroundColor = '#c0c0c0'; // Silver
+                circle.style.backgroundColor = '#c0c0c0';
                 break;
             case 'triple-captain':
                 roleText.textContent = 'TC';
                 circle.classList.add('triple-captain');
-                circle.style.backgroundColor = '#ff69b4'; // Pink
+                circle.style.backgroundColor = '#ff69b4';
                 break;
             case 'benched':
                 roleText.textContent = '';
                 circle.classList.add('benched');
-                circle.style.backgroundColor = '#8B4513'; // Brown
+                circle.style.backgroundColor = '#8B4513';
                 break;
-            default: // active
+            default:
                 roleText.textContent = '';
                 circle.style.backgroundColor = TEAM_COLORS[team];
         }
@@ -342,6 +361,21 @@ class FantasyFootballApp {
         this.init();
     }
 
+    async init() {
+        document.addEventListener("DOMContentLoaded", () => this.loadData());
+    }
+
+    async loadData() {
+        try {
+            const records = await this.api.fetchData();
+            this.state.setRecords(records);
+            this.displayPlayers(records);
+            this.initializePowerups();
+        } catch (error) {
+            console.error("Failed to load data:", error);
+        }
+    }
+
     async refreshData() {
         try {
             const loadingMsg = document.createElement('div');
@@ -369,19 +403,152 @@ class FantasyFootballApp {
         }
     }
 
-    async init() {
-        document.addEventListener("DOMContentLoaded", () => this.loadData());
+    openCalculator() {
+        const modal = document.getElementById('calculator-modal');
+        modal.style.display = 'block';
+
+        // Close button functionality
+        const closeButton = modal.querySelector('.close-button');
+        closeButton.onclick = () => {
+            modal.style.display = 'none';
+            this.resetCalculator();
+        };
+
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+                this.resetCalculator();
+            }
+        };
+
+        // Initialize calculator functionality
+        this.initializeCalculator();
     }
 
-    async loadData() {
-        try {
-            const records = await this.api.fetchData();
-            this.state.setRecords(records);
-            this.displayPlayers(records);
-            this.initializePowerups();
-        } catch (error) {
-            console.error("Failed to load data:", error);
-        }
+    initializeCalculator() {
+        let totalScore = 0;
+        let roleMultiplier = 0;
+        let selectedPositionBonus = 0;
+
+        const totalScoreDisplay = document.getElementById('total-score');
+        const realWorldValueInput = document.getElementById('real-world-value');
+        const ffsValueDisplay = document.getElementById('ffs-value');
+
+        // Role selection logic
+        document.querySelectorAll('.role-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.role-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                roleMultiplier = parseInt(button.dataset.role);
+            });
+        });
+
+        // Game Time buttons - always +1 point
+        document.querySelectorAll('.event-button').forEach(button => {
+            button.addEventListener('click', () => {
+                let points;
+                // Game Time buttons
+                if (button.textContent.includes('⏱️')) {
+                    points = 1;
+                } else {
+                    points = parseInt(button.dataset.points);
+                }
+
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active');
+                    totalScore -= points;
+                } else {
+                    button.classList.add('active');
+                    totalScore += points;
+                }
+                totalScoreDisplay.textContent = totalScore;
+            });
+        });
+
+        // Goal button logic - points based on role
+        document.querySelectorAll('.goal-button').forEach(button => {
+            button.addEventListener('click', () => {
+                if (roleMultiplier === 0) {
+                    alert('Please select a role first!');
+                    return;
+                }
+
+                // Points based on role
+                let goalPoints;
+                if (roleMultiplier === 10) goalPoints = 10;      // GK
+                else if (roleMultiplier === 6) goalPoints = 6;   // DEF
+                else if (roleMultiplier === 5) goalPoints = 5;   // MID
+                else if (roleMultiplier === 4) goalPoints = 4;   // FWD
+
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active');
+                    totalScore -= goalPoints;
+                } else {
+                    button.classList.add('active');
+                    totalScore += goalPoints;
+                }
+                totalScoreDisplay.textContent = totalScore;
+            });
+        });
+
+        // Value calculator position buttons
+        document.querySelectorAll('.position-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.position-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                selectedPositionBonus = parseFloat(button.dataset.bonus);
+            });
+        });
+
+        // Calculate value button
+        document.getElementById('calculate-button').addEventListener('click', () => {
+            const realWorldValue = parseFloat(realWorldValueInput.value) || 0;
+            
+            if (selectedPositionBonus === 0) {
+                alert('Please select a position first!');
+                return;
+            }
+            
+            if (realWorldValue === 0) {
+                alert('Please enter a real world value!');
+                return;
+            }
+            
+            const baseValue = realWorldValue * 0.69;
+            const ffsValue = baseValue + selectedPositionBonus;
+            ffsValueDisplay.textContent = `£${ffsValue.toFixed(1)}`;
+        });
+
+        // Reset button - only resets score calculator
+        document.getElementById('reset-button').addEventListener('click', () => {
+            totalScore = 0;
+            roleMultiplier = 0;
+            totalScoreDisplay.textContent = '0';
+
+            // Reset all buttons except value calculator buttons
+            document.querySelectorAll('.calculator button').forEach(button => {
+                if (!button.classList.contains('position-button') && 
+                    button.id !== 'calculate-button') {
+                    button.classList.remove('active');
+                }
+            });
+        });
+    }
+
+resetCalculator() {
+        const totalScoreDisplay = document.getElementById('total-score');
+        totalScore = 0;
+        roleMultiplier = 0;
+        totalScoreDisplay.textContent = '0';
+
+        // Reset all buttons except value calculator buttons
+        document.querySelectorAll('.calculator button').forEach(button => {
+            if (!button.classList.contains('position-button') && 
+                button.id !== 'calculate-button') {
+                button.classList.remove('active');
+            }
+        });
     }
 
     displayPlayers(records) {
@@ -421,11 +588,11 @@ class FantasyFootballApp {
             jack: 0
         };
 
-        // Find penalty records for each team
+        // Find penalty records
         const ellPenaltyRecord = this.state.records.find(r => r.fields.player_id === 'ell-powerups');
         const jackPenaltyRecord = this.state.records.find(r => r.fields.player_id === 'jack-powerups');
 
-        // Determine penalties from records
+        // Get penalties
         if (ellPenaltyRecord && ellPenaltyRecord.fields.PEN) {
             penalties.ell = ellPenaltyRecord.fields.PEN;
         }
@@ -439,7 +606,7 @@ class FantasyFootballApp {
             const scoreValue = scoreInput.value.trim();
             const baseScore = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
             
-            // Get state and determine multiplier
+            // Get multiplier based on state
             const state = circle.dataset.state;
             let multiplier = 1;
             if (state === 'captain') multiplier = 2;
@@ -593,164 +760,6 @@ class FantasyFootballApp {
             });
         
         this.updateScores();
-    }
-
-// Add these methods to the FantasyFootballApp class
-    async fetchLeagueTableData() {
-        const tableName = "Table%202";
-        const url = `https://api.airtable.com/v0/${this.api.baseId}/${tableName}`;
-
-        try {
-            const response = await fetch(url, {
-                headers: { 
-                    'Authorization': `Bearer ${this.api.apiKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Failed to fetch: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            return data.records.sort((a, b) => a.fields.Week - b.fields.Week);
-        } catch (error) {
-            console.error("Fetch league table error:", error);
-            throw error;
-        }
-    }
-
-    async openLeagueTable() {
-        const modal = document.getElementById('league-table-modal');
-        const tableBody = document.getElementById('league-table-body');
-        
-        try {
-            const records = await this.fetchLeagueTableData();
-            tableBody.innerHTML = '';
-            
-            // Calculate running totals
-            let jackTotal = 0;
-            let ellTotal = 0;
-            
-            records.forEach(record => {
-                const row = document.createElement('tr');
-                row.dataset.recordId = record.id;
-                
-                // Week column
-                const weekCell = document.createElement('td');
-                weekCell.textContent = record.fields.Week;
-                row.appendChild(weekCell);
-                
-                // Jack's score column
-                const jackCell = document.createElement('td');
-                const jackInput = document.createElement('input');
-                jackInput.type = 'text';
-                const jackValue = record.fields.Jack || '';
-                jackInput.value = jackValue;
-                jackInput.defaultValue = jackValue;
-                jackInput.dataset.field = 'Jack';
-                jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-                jackCell.appendChild(jackInput);
-                row.appendChild(jackCell);
-                
-                // Ell's score column
-                const ellCell = document.createElement('td');
-                const ellInput = document.createElement('input');
-                ellInput.type = 'text';
-                const ellValue = record.fields.Ell || '';
-                ellInput.value = ellValue;
-                ellInput.defaultValue = ellValue;
-                ellInput.dataset.field = 'Ell';
-                ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
-                ellCell.appendChild(ellInput);
-                row.appendChild(ellCell);
-                
-                tableBody.appendChild(row);
-                
-                // Update running totals
-                jackTotal += parseFloat(jackValue) || 0;
-                ellTotal += parseFloat(ellValue) || 0;
-            });
-            
-            // Add totals row
-            const totalsRow = document.createElement('tr');
-            totalsRow.style.fontWeight = 'bold';
-            
-            const totalsLabelCell = document.createElement('td');
-            totalsLabelCell.textContent = 'Totals';
-            totalsRow.appendChild(totalsLabelCell);
-            
-            const jackTotalCell = document.createElement('td');
-            jackTotalCell.textContent = jackTotal.toFixed(1);
-            totalsRow.appendChild(jackTotalCell);
-            
-            const ellTotalCell = document.createElement('td');
-            ellTotalCell.textContent = ellTotal.toFixed(1);
-            totalsRow.appendChild(ellTotalCell);
-            
-            tableBody.appendChild(totalsRow);
-            
-            // Show modal
-            modal.style.display = 'block';
-            
-            // Close button functionality
-            const closeButton = document.querySelector('.close-button');
-            closeButton.onclick = () => {
-                modal.style.display = 'none';
-            };
-            
-            // Close modal when clicking outside
-            window.onclick = (event) => {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            };
-        } catch (error) {
-            alert('Failed to load league table');
-            console.error(error);
-        }
-    }
-
-    async updateLeagueTableCell(recordId, event) {
-        const input = event.target;
-        const field = input.dataset.field;
-        let value = input.value.trim();
-
-        try {
-            const numericValue = parseFloat(value);
-
-            const response = await fetch(`https://api.airtable.com/v0/${this.api.baseId}/Table%202/${recordId}`, {
-                method: "PATCH",
-                headers: {
-                    'Authorization': `Bearer ${this.api.apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    fields: {
-                        [field]: isNaN(numericValue) ? null : numericValue
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Detailed error:', errorText);
-                throw new Error(`Update failed: ${errorText}`);
-            }
-
-            // Show success feedback
-            input.style.backgroundColor = '#90EE90';
-            setTimeout(() => {
-                input.style.backgroundColor = 'transparent';
-            }, 1000);
-            
-            // Refresh the table to update totals
-            this.openLeagueTable();
-        } catch (error) {
-            console.error('Error updating league table:', error);
-            alert(`Failed to update league table: ${error.message}`);
-            input.value = input.defaultValue;
-        }
     }
 }
 
