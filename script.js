@@ -75,7 +75,7 @@ class AirtableService {
         return this.requestQueue;
     }
 
-async fetchData() {
+    async fetchData() {
         return this.queueRequest(async () => {
             try {
                 const response = await fetch(this.url, {
@@ -581,7 +581,6 @@ updateScores() {
             dropdown.addEventListener('change', () => this.updatePenalty(dropdown, record.id));
         });
     }
-}
 
 async togglePowerup(button, recordId) {
         const powerup = button.dataset.powerup;
@@ -661,7 +660,7 @@ async togglePowerup(button, recordId) {
         this.updateScores();
     }
 
-    initializeCalculator() {
+initializeCalculator() {
         let totalScore = 0;
         let roleMultiplier = 0;
         let selectedPositionBonus = 0;
