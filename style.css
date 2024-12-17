@@ -731,3 +731,80 @@ h1 {
     text-align: center;
 }
 
+/* League Table Styles */
+#league-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#league-table thead {
+    background-color: #a3d977;
+    color: white;
+}
+
+#league-table th {
+    padding: 15px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#league-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+#league-table input {
+    width: 80px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+#league-table input:focus {
+    border-color: #a3d977;
+    box-shadow: 0 0 5px rgba(163, 217, 119, 0.3);
+    outline: none;
+}
+
+#league-table tr:last-child {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+#league-table tr:hover:not(:last-child) {
+    background-color: #f5f5f5;
+}
+
+/* Make the Week column stand out */
+#league-table td:first-child {
+    font-weight: bold;
+    color: #444;
+}
+
+/* Style for totals row */
+#league-table tr:last-child td {
+    border-top: 2px solid #a3d977;
+    color: #333;
+    font-size: 16px;
+}
+
+/* League Table Modal specific styles */
+#league-table-modal .modal-content {
+    max-width: 600px;
+    padding: 25px;
+}
+
+#league-table-modal h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
