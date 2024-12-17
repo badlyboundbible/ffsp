@@ -131,6 +131,30 @@ class AirtableService {
             }
         });
     }
+
+    async fetchLeagueTableData() {
+        const tableName = "Table%202";
+        const url = `https://api.airtable.com/v0/${this.baseId}/${tableName}`;
+
+        try {
+            const response = await fetch(url, {
+                headers: { 
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            return data.records.sort((a, b) => a.fields.Week - b.fields.Week);
+        } catch (error) {
+            console.error("Fetch league table error:", error);
+            throw error;
+        }
+    }
 }
 
 // PlayerComponent Class
@@ -185,7 +209,6 @@ class PlayerComponent {
         
         this.updateCircleState(circle, state, fields.team);
         
-        // Add click handler for cycling states
         circle.addEventListener("click", () => this.cycleState(circle));
         
         return circle;
@@ -195,14 +218,12 @@ class PlayerComponent {
         const currentState = circle.dataset.state;
         const team = circle.dataset.team;
         
-        // Define state cycle order
         const states = ['active', 'captain', 'vice-captain', 'triple-captain', 'benched'];
         let nextStateIndex = (states.indexOf(currentState) + 1) % states.length;
         let nextState = states[nextStateIndex];
         
         this.updateCircleState(circle, nextState, team);
         
-        // Update Airtable fields based on new state
         this.state.addChange({
             id: this.record.id,
             fields: {
@@ -221,32 +242,30 @@ class PlayerComponent {
         circle.dataset.state = state;
         circle.dataset.team = team;
 
-        // Remove all state classes
         circle.classList.remove('captain', 'vice-captain', 'triple-captain', 'benched');
         
-        // Update appearance based on state
         switch(state) {
             case 'captain':
                 roleText.textContent = 'C';
                 circle.classList.add('captain');
-                circle.style.backgroundColor = '#ffd700'; // Gold
+                circle.style.backgroundColor = '#ffd700';
                 break;
             case 'vice-captain':
                 roleText.textContent = 'VC';
                 circle.classList.add('vice-captain');
-                circle.style.backgroundColor = '#c0c0c0'; // Silver
+                circle.style.backgroundColor = '#c0c0c0';
                 break;
             case 'triple-captain':
                 roleText.textContent = 'TC';
                 circle.classList.add('triple-captain');
-                circle.style.backgroundColor = '#ff69b4'; // Pink
+                circle.style.backgroundColor = '#ff69b4';
                 break;
             case 'benched':
                 roleText.textContent = '';
                 circle.classList.add('benched');
-                circle.style.backgroundColor = '#8B4513'; // Brown
+                circle.style.backgroundColor = '#8B4513';
                 break;
-            default: // active
+            default:
                 roleText.textContent = '';
                 circle.style.backgroundColor = TEAM_COLORS[team];
         }
@@ -342,6 +361,21 @@ class FantasyFootballApp {
         this.init();
     }
 
+    async init() {
+        document.addEventListener("DOMContentLoaded", () => this.loadData());
+    }
+
+    async loadData() {
+        try {
+            const records = await this.api.fetchData();
+            this.state.setRecords(records);
+            this.displayPlayers(records);
+            this.initializePowerups();
+        } catch (error) {
+            console.error("Failed to load data:", error);
+        }
+    }
+
     async refreshData() {
         try {
             const loadingMsg = document.createElement('div');
@@ -369,22 +403,6 @@ class FantasyFootballApp {
         }
     }
 
-    async init() {
-        document.addEventListener("DOMContentLoaded", () => this.loadData());
-    }
-
-    async loadData() {
-        try {
-            const records = await this.api.fetchData();
-            this.state.setRecords(records);
-            this.displayPlayers(records);
-            this.initializePowerups();
-        } catch (error) {
-            console.error("Failed to load data:", error);
-        }
-    }
-
-    // Calculator Methods
     openCalculator() {
         const modal = document.getElementById('calculator-modal');
         modal.style.display = 'block';
@@ -413,7 +431,6 @@ class FantasyFootballApp {
         let roleMultiplier = 0;
         let selectedPositionBonus = 0;
 
-        // Get DOM elements
         const totalScoreDisplay = document.getElementById('total-score');
         const realWorldValueInput = document.getElementById('real-world-value');
         const ffsValueDisplay = document.getElementById('ffs-value');
@@ -427,10 +444,17 @@ class FantasyFootballApp {
             });
         });
 
-        // Event button logic (including game time)
+        // Game Time buttons - always +1 point
         document.querySelectorAll('.event-button').forEach(button => {
             button.addEventListener('click', () => {
-                const points = parseInt(button.dataset.points);
+                let points;
+                // Game Time buttons
+                if (button.textContent.includes('⏱️')) {
+                    points = 1;
+                } else {
+                    points = parseInt(button.dataset.points);
+                }
+
                 if (button.classList.contains('active')) {
                     button.classList.remove('active');
                     totalScore -= points;
@@ -442,19 +466,27 @@ class FantasyFootballApp {
             });
         });
 
-        // Goal button logic
+        // Goal button logic - points based on role
         document.querySelectorAll('.goal-button').forEach(button => {
             button.addEventListener('click', () => {
                 if (roleMultiplier === 0) {
                     alert('Please select a role first!');
                     return;
                 }
+
+                // Points based on role
+                let goalPoints;
+                if (roleMultiplier === 10) goalPoints = 10;      // GK
+                else if (roleMultiplier === 6) goalPoints = 6;   // DEF
+                else if (roleMultiplier === 5) goalPoints = 5;   // MID
+                else if (roleMultiplier === 4) goalPoints = 4;   // FWD
+
                 if (button.classList.contains('active')) {
                     button.classList.remove('active');
-                    totalScore -= roleMultiplier;
+                    totalScore -= goalPoints;
                 } else {
                     button.classList.add('active');
-                    totalScore += roleMultiplier;
+                    totalScore += goalPoints;
                 }
                 totalScoreDisplay.textContent = totalScore;
             });
@@ -469,7 +501,7 @@ class FantasyFootballApp {
             });
         });
 
-        // Calculate button logic
+        // Calculate value button
         document.getElementById('calculate-button').addEventListener('click', () => {
             const realWorldValue = parseFloat(realWorldValueInput.value) || 0;
             
@@ -488,20 +520,38 @@ class FantasyFootballApp {
             ffsValueDisplay.textContent = `£${ffsValue.toFixed(1)}`;
         });
 
-        // Reset button
-        document.getElementById('reset-button').addEventListener('click', () => this.resetCalculator());
-    }
+        // Reset button - only resets score calculator
+        document.getElementById('reset-button').addEventListener('click', () => {
+            totalScore = 0;
+            roleMultiplier = 0;
+            totalScoreDisplay.textContent = '0';
 
-    resetCalculator() {
-        document.querySelectorAll('.calculator button').forEach(button => {
-            button.classList.remove('active');
+            // Reset all buttons except value calculator buttons
+            document.querySelectorAll('.calculator button').forEach(button => {
+                if (!button.classList.contains('position-button') && 
+                    button.id !== 'calculate-button') {
+                    button.classList.remove('active');
+                }
+            });
         });
-        document.getElementById('total-score').textContent = '0';
-        document.getElementById('real-world-value').value = '';
-        document.getElementById('ffs-value').textContent = '£0.0';
     }
 
-displayPlayers(records) {
+resetCalculator() {
+        const totalScoreDisplay = document.getElementById('total-score');
+        totalScore = 0;
+        roleMultiplier = 0;
+        totalScoreDisplay.textContent = '0';
+
+        // Reset all buttons except value calculator buttons
+        document.querySelectorAll('.calculator button').forEach(button => {
+            if (!button.classList.contains('position-button') && 
+                button.id !== 'calculate-button') {
+                button.classList.remove('active');
+            }
+        });
+    }
+
+    displayPlayers(records) {
         ["ells", "jacks"].forEach(team => {
             ["gk", "def", "mid", "fwd"].forEach(position => {
                 document.getElementById(`${team}-${position}`).innerHTML = "";
@@ -538,11 +588,11 @@ displayPlayers(records) {
             jack: 0
         };
 
-        // Find penalty records for each team
+        // Find penalty records
         const ellPenaltyRecord = this.state.records.find(r => r.fields.player_id === 'ell-powerups');
         const jackPenaltyRecord = this.state.records.find(r => r.fields.player_id === 'jack-powerups');
 
-        // Determine penalties from records
+        // Get penalties
         if (ellPenaltyRecord && ellPenaltyRecord.fields.PEN) {
             penalties.ell = ellPenaltyRecord.fields.PEN;
         }
@@ -556,7 +606,7 @@ displayPlayers(records) {
             const scoreValue = scoreInput.value.trim();
             const baseScore = scoreValue === '' ? 0 : (parseFloat(scoreValue) || 0);
             
-            // Get state and determine multiplier
+            // Get multiplier based on state
             const state = circle.dataset.state;
             let multiplier = 1;
             if (state === 'captain') multiplier = 2;
