@@ -23,51 +23,50 @@
 </head>
 <body>
     <h1>Scottish Premiership Fantasy Football</h1>
-    
-    <!-- Publish Changes Section -->
-    <div id="publish-section">
-        <div class="button-container">
-            <button id="league-table-button" onclick="app.openLeagueTable()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="3" y1="9" x2="21" y2="9"></line>
-                    <line x1="3" y1="15" x2="21" y2="15"></line>
-                    <line x1="9" y1="3" x2="9" y2="21"></line>
-                    <line x1="15" y1="3" x2="15" y2="21"></line>
-                </svg>
-            </button>
-            <button onclick="app.publishChanges()">Publish Changes</button>
-    <button id="calculator-button" onclick="app.openCalculator()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-            <line x1="8" y1="9" x2="16" y2="9"></line>
-            <line x1="8" y1="12" x2="16" y2="12"></line>
-            <line x1="8" y1="15" x2="16" y2="15"></line>
-        </svg>
-    </button>
-</div>
-        </div>
-    </div>
 
-    <!-- League Table Modal -->
-    <div id="league-table-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>League Table</h2>
-            <table id="league-table">
-                <thead>
-                    <tr>
-                        <th>Week</th>
-                        <th>Jack</th>
-                        <th>Ell</th>
-                    </tr>
-                </thead>
-                <tbody id="league-table-body">
-                    <!-- Table rows will be dynamically populated -->
-                </tbody>
-            </table>
-        </div>
+    <!-- Publish Changes Section -->
+<div id="publish-section">
+    <div class="button-container">
+        <button id="league-table-button" onclick="app.openLeagueTable()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="3" y1="15" x2="21" y2="15"></line>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+                <line x1="15" y1="3" x2="15" y2="21"></line>
+            </svg>
+        </button>
+        <button onclick="app.publishChanges()">Publish Changes</button>
+        <button id="calculator-button" onclick="app.openCalculator()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                <line x1="8" y1="9" x2="16" y2="9"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+                <line x1="8" y1="15" x2="16" y2="15"></line>
+            </svg>
+        </button>
     </div>
+</div>
+
+<!-- League Table Modal -->
+<div id="league-table-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>League Table</h2>
+        <table id="league-table">
+            <thead>
+                <tr>
+                    <th>Week</th>
+                    <th>Jack</th>
+                    <th>Ell</th>
+                </tr>
+            </thead>
+            <tbody id="league-table-body">
+                <!-- Table rows will be dynamically populated -->
+            </tbody>
+        </table>
+    </div>
+</div>
 
     <!-- Calculator Modal -->
 <div id="calculator-modal" class="modal">
@@ -231,17 +230,17 @@
 </div>
 
     <!-- Ell's Team -->
-    <div class="team">
-        <div class="reset-button" onclick="app.resetTeamScores('ells')"></div>
-        <h2>Ell's Allstars</h2>
-        <div id="ells-gk" class="position"></div>
-        <div id="ells-def" class="position"></div>
-        <div id="ells-mid" class="position"></div>
-        <div id="ells-fwd" class="position"></div>
-    </div>
+<div class="team">
+    <div class="reset-button" onclick="app.resetTeamScores('ells')"></div>
+    <h2>Ell's Allstars</h2>
+    <div id="ells-gk" class="position"></div>
+    <div id="ells-def" class="position"></div>
+    <div id="ells-mid" class="position"></div>
+    <div id="ells-fwd" class="position"></div>
+</div>
 
-    <!-- Ell's Powerups Section -->
-    <div class="powerups-section" data-team="ells">
+<!-- Ell's Powerups Section -->
+<div class="powerups-section" data-team="ells">
     <div class="powerup-row">
         <button class="powerup-button" data-team="ells" data-powerup="WC1">WC1</button>
         <button class="powerup-button" data-team="ells" data-powerup="WC2">WC2</button>
@@ -252,48 +251,18 @@
     </div>
 </div>
 
-    <!-- Final Score Section -->
-    <div id="final-score">
-        <h2>Final Score</h2>
-        <button id="refresh-button" onclick="app.refreshData()">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/>
-    </svg>
-</button>
-        <div class="scores">
-            <div class="score-label">Jack</div>
-            <div class="score-label">Winner</div>
-            <div class="score-label">Ell</div>
-        </div>
-        <div class="scores">
-            <div id="jacks-score" class="score-value">0</div>
-            <div id="winner-display" class="score-value">-</div>
-            <div id="ells-score" class="score-value">0</div>
-        </div>
-        <div class="scores">
-            <select class="penalty-dropdown" data-team="jacks">
-                <option value="0">No Penalty</option>
-                <option value="4">-4 Penalty</option>
-                <option value="8">-8 Penalty</option>
-                <option value="16">-16 Penalty</option>
-            </select>
-            <div class="value-total">Penalties</div>
-            <select class="penalty-dropdown" data-team="ells">
-                <option value="0">No Penalty</option>
-                <option value="4">-4 Penalty</option>
-                <option value="8">-8 Penalty</option>
-                <option value="16">-16 Penalty</option>
-            </select>
-        </div>
-        <div class="scores">
-            <div id="jacks-value" class="value-total">£0.0</div>
-            <div class="value-total">Team Value</div>
-            <div id="ells-value" class="value-total">£0.0</div>
-        </div>
-    </div>
+<!-- Jack's Team -->
+<div class="team">
+    <div class="reset-button" onclick="app.resetTeamScores('jacks')"></div>
+    <div id="jacks-fwd" class="position"></div>
+    <div id="jacks-mid" class="position"></div>
+    <div id="jacks-def" class="position"></div>
+    <div id="jacks-gk" class="position"></div>
+    <h2>Lord Frostly's XI</h2>
+</div>
 
-    <!-- Jack's Powerups Section -->
-    <div class="powerups-section" data-team="jacks">
+<!-- Jack's Powerups Section -->
+<div class="powerups-section" data-team="jacks">
     <div class="powerup-row">
         <button class="powerup-button" data-team="jacks" data-powerup="WC1">WC1</button>
         <button class="powerup-button" data-team="jacks" data-powerup="WC2">WC2</button>
@@ -304,13 +273,46 @@
     </div>
 </div>
 
-    <!-- Jack's Team -->
-    <div class="team">
-        <div class="reset-button" onclick="app.resetTeamScores('jacks')"></div>
-        <div id="jacks-fwd" class="position"></div>
-        <div id="jacks-mid" class="position"></div>
-        <div id="jacks-def" class="position"></div>
-        <div id="jacks-gk" class="position"></div>
-        <h2>Lord Frostly's XI</h2>
+    <!-- Final Score Section -->
+<div id="final-score">
+    <h2>Final Score</h2>
+    <button id="refresh-button" onclick="app.refreshData()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/>
+        </svg>
+    </button>
+    <div class="scores">
+        <div class="score-label">Jack</div>
+        <div class="score-label">Winner</div>
+        <div class="score-label">Ell</div>
     </div>
+    <div class="scores">
+        <div id="jacks-score" class="score-value">0</div>
+        <div id="winner-display" class="score-value">-</div>
+        <div id="ells-score" class="score-value">0</div>
+    </div>
+    <div class="scores">
+        <select class="penalty-dropdown" data-team="jacks">
+            <option value="0">No Penalty</option>
+            <option value="4">-4 Penalty</option>
+            <option value="8">-8 Penalty</option>
+            <option value="16">-16 Penalty</option>
+        </select>
+        <div class="value-total">Penalties</div>
+        <select class="penalty-dropdown" data-team="ells">
+            <option value="0">No Penalty</option>
+            <option value="4">-4 Penalty</option>
+            <option value="8">-8 Penalty</option>
+            <option value="16">-16 Penalty</option>
+        </select>
+    </div>
+    <div class="scores">
+        <div id="jacks-value" class="value-total">£0.0</div>
+        <div class="value-total">Team Value</div>
+        <div id="ells-value" class="value-total">£0.0</div>
+    </div>
+</div>
+
 </body>
+</html>
+
