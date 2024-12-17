@@ -752,6 +752,121 @@ class FantasyFootballApp {
             input.value = input.defaultValue;
         }
     }
+    openCalculator() {
+        const modal = document.getElementById('calculator-modal');
+        modal.style.display = 'block';
+
+        // Close button functionality
+        const closeButton = modal.querySelector('.close-button');
+        closeButton.onclick = () => {
+            modal.style.display = 'none';
+            this.resetCalculator();
+        };
+
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+                this.resetCalculator();
+            }
+        };
+
+        // Initialize calculator functionality
+        this.initializeCalculator();
+    }
+
+    initializeCalculator() {
+        let totalScore = 0;
+        let roleMultiplier = 0;
+        let selectedPositionBonus = 0;
+
+        const totalScoreDisplay = document.getElementById('total-score');
+        const realWorldValueInput = document.getElementById('real-world-value');
+        const ffsValueDisplay = document.getElementById('ffs-value');
+
+        // Role selection logic
+        document.querySelectorAll('.role-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.role-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                roleMultiplier = parseInt(button.dataset.role);
+            });
+        });
+
+        // Event button logic
+        document.querySelectorAll('.event-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const points = parseInt(button.dataset.points);
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active');
+                    totalScore -= points;
+                } else {
+                    button.classList.add('active');
+                    totalScore += points;
+                }
+                totalScoreDisplay.textContent = totalScore;
+            });
+        });
+
+        // Goal button logic
+        document.querySelectorAll('.goal-button').forEach(button => {
+            button.addEventListener('click', () => {
+                if (roleMultiplier === 0) {
+                    alert('Please select a role first!');
+                    return;
+                }
+                const points = roleMultiplier;
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active');
+                    totalScore -= points;
+                } else {
+                    button.classList.add('active');
+                    totalScore += points;
+                }
+                totalScoreDisplay.textContent = totalScore;
+            });
+        });
+
+        // Position button logic for value calculator
+        document.querySelectorAll('.position-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.position-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                selectedPositionBonus = parseFloat(button.dataset.bonus);
+            });
+        });
+
+        // Calculate button logic
+        document.getElementById('calculate-button').addEventListener('click', () => {
+            const realWorldValue = parseFloat(realWorldValueInput.value) || 0;
+            
+            if (selectedPositionBonus === 0) {
+                alert('Please select a position first!');
+                return;
+            }
+            
+            if (realWorldValue === 0) {
+                alert('Please enter a real world value!');
+                return;
+            }
+            
+            const baseValue = realWorldValue * 0.69;
+            const ffsValue = baseValue + selectedPositionBonus;
+            ffsValueDisplay.textContent = `£${ffsValue.toFixed(1)}`;
+        });
+
+        // Reset button logic
+        document.getElementById('reset-button').addEventListener('click', () => this.resetCalculator());
+    }
+
+    resetCalculator() {
+        document.querySelectorAll('.calculator button').forEach(button => {
+            button.classList.remove('active');
+        });
+        document.getElementById('total-score').textContent = '0';
+        document.getElementById('real-world-value').value = '';
+        document.getElementById('ffs-value').textContent = '£0.0';
+    }
 }
 
 // Initialize application
