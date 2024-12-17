@@ -684,6 +684,139 @@ resetCalculator() {
         });
     }
 
+    async openLeagueTable() {
+    const modal = document.getElementById('league-table-modal');
+    const tableBody = document.getElementById('league-table-body');
+    
+    try {
+        const records = await this.api.fetchLeagueTableData();
+        tableBody.innerHTML = '';
+        
+        // Calculate running totals
+        let jackTotal = 0;
+        let ellTotal = 0;
+        
+        records.forEach(record => {
+            const row = document.createElement('tr');
+            row.dataset.recordId = record.id;
+            
+            // Week column
+            const weekCell = document.createElement('td');
+            weekCell.textContent = record.fields.Week;
+            row.appendChild(weekCell);
+            
+            // Jack's score column
+            const jackCell = document.createElement('td');
+            const jackInput = document.createElement('input');
+            jackInput.type = 'text';
+            const jackValue = record.fields.Jack || '';
+            jackInput.value = jackValue;
+            jackInput.defaultValue = jackValue;
+            jackInput.dataset.field = 'Jack';
+            jackInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+            jackCell.appendChild(jackInput);
+            row.appendChild(jackCell);
+            
+            // Ell's score column
+            const ellCell = document.createElement('td');
+            const ellInput = document.createElement('input');
+            ellInput.type = 'text';
+            const ellValue = record.fields.Ell || '';
+            ellInput.value = ellValue;
+            ellInput.defaultValue = ellValue;
+            ellInput.dataset.field = 'Ell';
+            ellInput.addEventListener('blur', (e) => this.updateLeagueTableCell(record.id, e));
+            ellCell.appendChild(ellInput);
+            row.appendChild(ellCell);
+            
+            tableBody.appendChild(row);
+            
+            // Update running totals
+            jackTotal += parseFloat(jackValue) || 0;
+            ellTotal += parseFloat(ellValue) || 0;
+        });
+        
+        // Add totals row
+        const totalsRow = document.createElement('tr');
+        totalsRow.style.fontWeight = 'bold';
+        
+        const totalsLabelCell = document.createElement('td');
+        totalsLabelCell.textContent = 'Totals';
+        totalsRow.appendChild(totalsLabelCell);
+        
+        const jackTotalCell = document.createElement('td');
+        jackTotalCell.textContent = jackTotal.toFixed(1);
+        totalsRow.appendChild(jackTotalCell);
+        
+        const ellTotalCell = document.createElement('td');
+        ellTotalCell.textContent = ellTotal.toFixed(1);
+        totalsRow.appendChild(ellTotalCell);
+        
+        tableBody.appendChild(totalsRow);
+        
+        // Show modal
+        modal.style.display = 'block';
+        
+        // Close button functionality
+        const closeButton = document.querySelector('.close-button');
+        closeButton.onclick = () => {
+            modal.style.display = 'none';
+        };
+        
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
+    } catch (error) {
+        alert('Failed to load league table');
+        console.error(error);
+    }
+}
+
+async updateLeagueTableCell(recordId, event) {
+    const input = event.target;
+    const field = input.dataset.field;
+    let value = input.value.trim();
+
+    try {
+        const numericValue = parseFloat(value);
+
+        const response = await fetch(`https://api.airtable.com/v0/${this.api.baseId}/Table%202/${recordId}`, {
+            method: "PATCH",
+            headers: {
+                'Authorization': `Bearer ${this.api.apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fields: {
+                    [field]: isNaN(numericValue) ? null : numericValue
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Detailed error:', errorText);
+            throw new Error(`Update failed: ${errorText}`);
+        }
+
+        // Show success feedback
+        input.style.backgroundColor = '#90EE90';
+        setTimeout(() => {
+            input.style.backgroundColor = 'transparent';
+        }, 1000);
+        
+        // Refresh the table to update totals
+        this.openLeagueTable();
+    } catch (error) {
+        console.error('Error updating league table:', error);
+        alert(`Failed to update league table: ${error.message}`);
+        input.value = input.defaultValue;
+    }
+}
+
     async togglePowerup(button, recordId) {
         const powerup = button.dataset.powerup;
         const isActive = button.classList.toggle('active');
