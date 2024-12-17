@@ -75,7 +75,7 @@ class AirtableService {
         return this.requestQueue;
     }
 
-    async fetchData() {
+async fetchData() {
         return this.queueRequest(async () => {
             try {
                 const response = await fetch(this.url, {
@@ -426,129 +426,26 @@ class FantasyFootballApp {
         this.initializeCalculator();
     }
 
-    initializeCalculator() {
-        let totalScore = 0;
-        let roleMultiplier = 0;
-        let selectedPositionBonus = 0;
-
+    resetCalculator() {
         const totalScoreDisplay = document.getElementById('total-score');
-        const realWorldValueInput = document.getElementById('real-world-value');
-        const ffsValueDisplay = document.getElementById('ffs-value');
-
-        // Role selection logic
-        document.querySelectorAll('.role-button').forEach(button => {
-            button.addEventListener('click', () => {
-                document.querySelectorAll('.role-button').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                roleMultiplier = parseInt(button.dataset.role);
-            });
-        });
-
-        // Game Time buttons - always +1 point
-        document.querySelectorAll('.event-button').forEach(button => {
-            button.addEventListener('click', () => {
-                let points;
-                // Game Time buttons
-                if (button.textContent.includes('⏱️')) {
-                    points = 1;
-                } else {
-                    points = parseInt(button.dataset.points);
-                }
-
-                if (button.classList.contains('active')) {
-                    button.classList.remove('active');
-                    totalScore -= points;
-                } else {
-                    button.classList.add('active');
-                    totalScore += points;
-                }
-                totalScoreDisplay.textContent = totalScore;
-            });
-        });
-
-        // Goal button logic - points based on role
-        document.querySelectorAll('.goal-button').forEach(button => {
-            button.addEventListener('click', () => {
-                if (roleMultiplier === 0) {
-                    alert('Please select a role first!');
-                    return;
-                }
-
-                // Points based on role
-                let goalPoints;
-                if (roleMultiplier === 10) goalPoints = 10;      // GK
-                else if (roleMultiplier === 6) goalPoints = 6;   // DEF
-                else if (roleMultiplier === 5) goalPoints = 5;   // MID
-                else if (roleMultiplier === 4) goalPoints = 4;   // FWD
-
-                if (button.classList.contains('active')) {
-                    button.classList.remove('active');
-                    totalScore -= goalPoints;
-                } else {
-                    button.classList.add('active');
-                    totalScore += goalPoints;
-                }
-                totalScoreDisplay.textContent = totalScore;
-            });
-        });
-
-        // Value calculator position buttons
-        document.querySelectorAll('.position-button').forEach(button => {
-            button.addEventListener('click', () => {
-                document.querySelectorAll('.position-button').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                selectedPositionBonus = parseFloat(button.dataset.bonus);
-            });
-        });
-
-        // Calculate value button
-        document.getElementById('calculate-button').addEventListener('click', () => {
-            const realWorldValue = parseFloat(realWorldValueInput.value) || 0;
-            
-            if (selectedPositionBonus === 0) {
-                alert('Please select a position first!');
-                return;
-            }
-            
-            if (realWorldValue === 0) {
-                alert('Please enter a real world value!');
-                return;
-            }
-            
-            const baseValue = realWorldValue * 0.69;
-            const ffsValue = baseValue + selectedPositionBonus;
-            ffsValueDisplay.textContent = `£${ffsValue.toFixed(1)}`;
-        });
-
-        // Reset button - only resets score calculator
-        document.getElementById('reset-button').addEventListener('click', () => {
-            totalScore = 0;
-            roleMultiplier = 0;
-            totalScoreDisplay.textContent = '0';
-
-            // Reset all buttons except value calculator buttons
-            document.querySelectorAll('.calculator button').forEach(button => {
-                if (!button.classList.contains('position-button') && 
-                    button.id !== 'calculate-button') {
-                    button.classList.remove('active');
-                }
-            });
-        });
-    }
-
-resetCalculator() {
-        const totalScoreDisplay = document.getElementById('total-score');
-        totalScore = 0;
-        roleMultiplier = 0;
+        
+        // Reset total score
         totalScoreDisplay.textContent = '0';
 
-        // Reset all buttons except value calculator buttons
+        // Reset all buttons
         document.querySelectorAll('.calculator button').forEach(button => {
             if (!button.classList.contains('position-button') && 
                 button.id !== 'calculate-button') {
                 button.classList.remove('active');
             }
         });
+
+        // Reset real-world value input
+        document.getElementById('real-world-value').value = '';
+        document.getElementById('ffs-value').textContent = '£0.0';
+
+        // Deselect position buttons
+        document.querySelectorAll('.position-button').forEach(btn => btn.classList.remove('active'));
     }
 
     displayPlayers(records) {
@@ -573,8 +470,9 @@ resetCalculator() {
 
         this.updateScores();
     }
+}
 
-    updateScores() {
+updateScores() {
         const scores = {
             ell: 0,
             jack: 0
@@ -683,8 +581,9 @@ resetCalculator() {
             dropdown.addEventListener('change', () => this.updatePenalty(dropdown, record.id));
         });
     }
+}
 
-    async togglePowerup(button, recordId) {
+async togglePowerup(button, recordId) {
         const powerup = button.dataset.powerup;
         const isActive = button.classList.toggle('active');
         
@@ -760,6 +659,174 @@ resetCalculator() {
             });
         
         this.updateScores();
+    }
+
+    initializeCalculator() {
+        let totalScore = 0;
+        let roleMultiplier = 0;
+        let selectedPositionBonus = 0;
+
+        const totalScoreDisplay = document.getElementById('total-score');
+        const realWorldValueInput = document.getElementById('real-world-value');
+        const ffsValueDisplay = document.getElementById('ffs-value');
+
+        // Role selection logic
+        document.querySelectorAll('.role-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.role-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                roleMultiplier = parseInt(button.dataset.role);
+            });
+        });
+
+        // Game Time buttons - 1 point per half
+        document.querySelectorAll('.event-button').forEach(button => {
+            if (button.textContent.includes('⏱️')) {
+                button.addEventListener('click', () => {
+                    if (button.classList.contains('active')) {
+                        button.classList.remove('active');
+                        totalScore -= 1;
+                    } else {
+                        button.classList.add('active');
+                        totalScore += 1;
+                    }
+                    totalScoreDisplay.textContent = totalScore;
+                });
+            }
+        });
+
+        // Goal button logic - points based on role
+        document.querySelectorAll('.goal-button').forEach(button => {
+            button.addEventListener('click', () => {
+                if (roleMultiplier === 0) {
+                    alert('Please select a role first!');
+                    return;
+                }
+
+                // Points based on role
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active');
+                    totalScore -= roleMultiplier;
+                } else {
+                    button.classList.add('active');
+                    totalScore += roleMultiplier;
+                }
+                totalScoreDisplay.textContent = totalScore;
+            });
+        });
+
+        // Assists - 3 points
+        document.querySelectorAll('.event-button[data-points="3"]').forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active');
+                    totalScore -= 3;
+                } else {
+                    button.classList.add('active');
+                    totalScore += 3;
+                }
+                totalScoreDisplay.textContent = totalScore;
+            });
+        });
+
+        // Conceded Goal - -1 point
+        document.querySelectorAll('.event-button[data-points="-1"]').forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active');
+                    totalScore += 1;
+                } else {
+                    button.classList.add('active');
+                    totalScore -= 1;
+                }
+                totalScoreDisplay.textContent = totalScore;
+            });
+        });
+
+        // Own Goal - -2 points
+        document.querySelectorAll('.event-button[data-points="-2"]').forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active');
+                    totalScore += 2;
+                } else {
+                    button.classList.add('active');
+                    totalScore -= 2;
+                }
+                totalScoreDisplay.textContent = totalScore;
+            });
+        });
+
+        // Penalty Miss or Red Card - -3 points
+        document.querySelectorAll('.event-button[data-points="-3"]').forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active');
+                    totalScore += 3;
+                } else {
+                    button.classList.add('active');
+                    totalScore -= 3;
+                }
+                totalScoreDisplay.textContent = totalScore;
+            });
+        });
+
+        // Clean Sheet - 4 points
+        document.querySelectorAll('.event-button[data-points="4"]').forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.classList.contains('active')) {
+                    button.classList.remove('active');
+                    totalScore -= 4;
+                } else {
+                    button.classList.add('active');
+                    totalScore += 4;
+                }
+                totalScoreDisplay.textContent = totalScore;
+            });
+        });
+
+        // Value calculator position buttons
+        document.querySelectorAll('.position-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.position-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                selectedPositionBonus = parseFloat(button.dataset.bonus);
+            });
+        });
+
+        // Calculate value button
+        document.getElementById('calculate-button').addEventListener('click', () => {
+            const realWorldValue = parseFloat(realWorldValueInput.value) || 0;
+            
+            if (selectedPositionBonus === 0) {
+                alert('Please select a position first!');
+                return;
+            }
+            
+            if (realWorldValue === 0) {
+                alert('Please enter a real world value!');
+                return;
+            }
+            
+            const baseValue = realWorldValue * 0.69;
+            const ffsValue = baseValue + selectedPositionBonus;
+            ffsValueDisplay.textContent = `£${ffsValue.toFixed(1)}`;
+        });
+
+        // Reset button
+        document.getElementById('reset-button').addEventListener('click', () => {
+            totalScore = 0;
+            roleMultiplier = 0;
+            totalScoreDisplay.textContent = '0';
+
+            // Reset all buttons
+            document.querySelectorAll('.calculator button').forEach(button => {
+                if (!button.classList.contains('position-button') && 
+                    button.id !== 'calculate-button') {
+                    button.classList.remove('active');
+                }
+            });
+        });
     }
 }
 
