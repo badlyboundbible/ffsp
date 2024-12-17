@@ -514,3 +514,268 @@ div.team:last-of-type .reset-button {
 .role-button {
     display: none;
 }
+
+/* Calculator Button Style */
+#calculator-button {
+    background: none !important;
+    border: none;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    padding: 5px !important;
+    transition: transform 0.2s;
+}
+
+#calculator-button:hover {
+    transform: scale(1.1);
+    background: none !important;
+}
+
+#calculator-button svg {
+    width: 100%;
+    height: 100%;
+    stroke: #333;
+}
+
+/* Calculator Modal Specific Styles */
+.calculator-modal {
+    max-width: 450px !important;
+    margin: 5% auto !important;
+    padding: 0 !important;
+    background: linear-gradient(180deg, #4caf50, #8bc34a) !important;
+}
+
+/* Calculator Styles */
+.calculator {
+    background-color: #ffffff;
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    margin: 20px auto;
+}
+
+.row {
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.row label {
+    display: block;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.icon-group {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+/* Calculator Button Styles */
+.calculator button {
+    padding: 12px;
+    font-size: 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease, color 0.2s ease;
+    text-align: center;
+}
+
+.calculator button:hover {
+    transform: scale(1.05);
+}
+
+.calculator button.active {
+    transform: scale(1);
+    background-color: #007bff;
+    color: white;
+}
+
+/* Role Buttons */
+.role-button {
+    background-color: #76c88a;
+    color: white;
+    font-weight: bold;
+}
+
+.role-button.active {
+    background-color: #388e3c;
+}
+
+/* Event Buttons */
+.event-button {
+    background-color: #f1f1f1;
+}
+
+/* Card Buttons */
+.event-button[data-points="-3"] {
+    background-color: #ffe6e6;
+    color: #000;
+}
+
+.event-button[data-points="-3"].active {
+    background-color: #ff6666;
+    color: #fff;
+}
+
+.event-button[data-points="-1"] {
+    background-color: #fff9c4;
+    color: #333;
+}
+
+.event-button[data-points="-1"].active {
+    background-color: #ffd600;
+    color: #333;
+}
+
+/* Own Goal Button */
+.event-button[data-points="-2"] {
+    background-color: #ffefcc;
+}
+
+.event-button[data-points="-2"].active {
+    background-color: #ffa500;
+    color: white;
+}
+
+/* Clean Sheet Button */
+.event-button[data-points="4"] {
+    background-color: #f5f5f5;
+    color: #000;
+}
+
+.event-button[data-points="4"].active {
+    background-color: #4caf50;
+    color: #fff;
+}
+
+/* Assists Button */
+.event-button[data-points="3"] {
+    background-color: #e3f2fd;
+    color: #333;
+}
+
+.event-button[data-points="3"].active {
+    background-color: #64b5f6;
+    color: white;
+}
+
+/* Goals Buttons */
+.goal-button {
+    background-color: #e8f5e9;
+    border: 2px solid #c8e6c9;
+}
+
+.goal-button.active {
+    background-color: #4caf50;
+    color: white;
+    border-color: #388e3c;
+}
+
+/* Score Display */
+.score-display {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Value Calculator Styles */
+.value-calculator {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 2px solid #4caf50;
+}
+
+.value-calculator h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+#real-world-value {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #4caf50;
+    border-radius: 4px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.position-select {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.position-button {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #f1f1f1;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.position-button:hover {
+    background-color: #e0e0e0;
+}
+
+.position-button.active {
+    background-color: #4caf50;
+    color: white;
+}
+
+.value-display {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.value-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Calculate Button */
+.calculate-button {
+    background-color: #4CAF50;
+    color: white;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 8px;
+}
+
+.calculate-button:hover {
+    background-color: #45a049;
+}
