@@ -413,6 +413,42 @@ h1 {
     display: inline-block;
 }
 
+/* Reset Button */
+.reset-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: #ff4444;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+.reset-button::before,
+.reset-button::after {
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 3px;
+    background-color: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.reset-button::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.reset-button:hover {
+    background-color: #ff0000;
+    transform: scale(1.1);
+}
+
 /* Position Rows */
 .position {
     display: flex;
