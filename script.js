@@ -351,7 +351,6 @@ formatValue(value) {
         if (input.dataset.field === "score" || input.dataset.field === "value") {
             this.onUpdate();
         }
-    }
 
 // FantasyFootballApp Class
 class FantasyFootballApp {
