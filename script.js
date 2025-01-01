@@ -287,7 +287,8 @@ cycleState(circle) {
 
     createScoreInput(score) {
         const input = document.createElement("input");
-        input.value = score !== undefined && score !== null ? score : '0';  // Changed to explicitly handle 0
+        // Only show a value if one exists (including 0)
+        input.value = (score !== undefined && score !== null) ? score : '';
         input.dataset.field = "score";
         input.dataset.id = this.record.id;
         input.style.backgroundColor = "white";
@@ -335,11 +336,11 @@ formatValue(value) {
         let value = input.value.trim();
     
         if (value === '') {
-            value = 0;  // Changed from null to 0
-        } else if (input.dataset.field === "score" || input.dataset.field === "value") {
-            value = input.dataset.field === "value" ? 
-                parseFloat(value.replace('£', '')) || 0 :
-                parseFloat(value) || 0;
+            value = null;  // Use null for empty values
+        } else if (input.dataset.field === "score") {
+            value = parseFloat(value);  // Don't use || 0 to preserve actual 0s
+        } else if (input.dataset.field === "value") {
+            value = parseFloat(value.replace('£', '')) || 0;
         }
 
         this.state.addChange({
@@ -351,7 +352,6 @@ formatValue(value) {
             this.onUpdate();
         }
     }
-}
 
 // FantasyFootballApp Class
 class FantasyFootballApp {
@@ -751,11 +751,11 @@ resetTeamScores(team) {
             document.querySelectorAll(`#${team}-gk, #${team}-def, #${team}-mid, #${team}-fwd`)
                 .forEach(position => {
                     position.querySelectorAll('input[data-field="score"]').forEach(input => {
-                        input.value = '0';
+                        input.value = '';
                         
                         this.state.addChange({
                             id: input.dataset.id,
-                            fields: { score: 0 }
+                            fields: { score: null }
                         });
                     });
                 });
