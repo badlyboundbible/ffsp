@@ -231,7 +231,7 @@
 
     <!-- Ell's Team -->
     <div class="team">
-        <div class="reset-button" onclick="app.resetTeamScores('ells')"></div>
+        <button class="reset-button" onclick="app.resetTeamScores('ells')" title="Clear all scores"></button>
         <h2>Ell's Allstars</h2>
         <div id="ells-gk" class="position"></div>
         <div id="ells-def" class="position"></div>
@@ -269,6 +269,7 @@
             <div id="winner-display" class="score-value">-</div>
             <div id="ells-score" class="score-value">0</div>
         </div>
+
         <div class="scores">
             <select class="penalty-dropdown" data-team="jacks">
                 <option value="0">No Penalty</option>
@@ -305,7 +306,7 @@
 
     <!-- Jack's Team -->
     <div class="team">
-        <div class="reset-button" onclick="app.resetTeamScores('jacks')"></div>
+        <button class="reset-button" onclick="app.resetTeamScores('jacks')" title="Clear all scores"></button>
         <div id="jacks-fwd" class="position"></div>
         <div id="jacks-mid" class="position"></div>
         <div id="jacks-def" class="position"></div>
