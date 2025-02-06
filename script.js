@@ -516,7 +516,7 @@ async loadData() {
                 return;
             }
             
-            const baseValue = realWorldValue * 0.69;
+            const baseValue = realWorldValue * 0.5;
             const ffsValue = baseValue + selectedPositionBonus;
             ffsValueDisplay.textContent = `£${ffsValue.toFixed(1)}`;
         });
